@@ -10,5 +10,7 @@ namespace SHES
     public class BazaPodataka
     {
         public static Dictionary<string, SolarniPanel> SolarniPaneli = new Dictionary<string, SolarniPanel>();
+
+        public static Dictionary<string, Potrosac> Potrosaci = new Dictionary<string, Potrosac>();
     }
 }

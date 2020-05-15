@@ -24,5 +24,21 @@ namespace SHES
                 BazaPodataka.SolarniPaneli.Remove(jedinstvenoIme);
             }
         }
+
+        public void DodajPotrosac(Potrosac potrosac)
+        {
+            if(!BazaPodataka.Potrosaci.ContainsKey(potrosac.JedinstvenoIme))
+            {
+                BazaPodataka.Potrosaci.Add(potrosac.JedinstvenoIme, potrosac);
+            }
+        }
+
+        public void UkloniPotrosac(string jedinstvenoIme)
+        {
+            if (BazaPodataka.Potrosaci.ContainsKey(jedinstvenoIme))
+            {
+                BazaPodataka.Potrosaci.Remove(jedinstvenoIme);
+            }
+        }
     }
 }

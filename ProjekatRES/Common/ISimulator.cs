@@ -15,5 +15,11 @@ namespace Common
 
         [OperationContract]
         void UkloniSolarniPanel(string jedinstvenoIme);
+
+        [OperationContract]
+        void DodajPotrosac(Potrosac potrosac);
+
+        [OperationContract]
+        void UkloniPotrosac(string jedinstvenoIme);
     }
 }
