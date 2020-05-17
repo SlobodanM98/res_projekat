@@ -14,5 +14,7 @@ namespace SHES
         public static Dictionary<string, Potrosac> Potrosaci = new Dictionary<string, Potrosac>();
 
         public static Dictionary<string, Baterija> Baterije = new Dictionary<string, Baterija>();
+
+        public static Dictionary<string, PunjacElektricnogAutomobila> Punjaci = new Dictionary<string, PunjacElektricnogAutomobila>();
     }
 }

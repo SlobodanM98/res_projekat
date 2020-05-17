@@ -17,15 +17,21 @@ namespace Common
         void UkloniSolarniPanel(string jedinstvenoIme);
 
         [OperationContract]
-        void DodajPotrosac(Potrosac potrosac);
+        void DodajPotrosaca(Potrosac potrosac);
 
         [OperationContract]
-        void UkloniPotrosac(string jedinstvenoIme);
+        void UkloniPotrosaca(string jedinstvenoIme);
 
         [OperationContract]
         void DodajBateriju(Baterija novaBaterija);
 
         [OperationContract]
         void UkloniBateriju(string jedinstvenoIme);
+
+        [OperationContract]
+        void DodajPunjacElektricnogAutomobila(PunjacElektricnogAutomobila punjac);
+
+        [OperationContract]
+        void UkoloniPunjacElektricnogAutomobila(string jedinstvenoIme);
     }
 }

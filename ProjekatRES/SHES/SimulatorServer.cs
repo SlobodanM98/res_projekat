@@ -25,7 +25,7 @@ namespace SHES
             }
         }
 
-        public void DodajPotrosac(Potrosac potrosac)
+        public void DodajPotrosaca(Potrosac potrosac)
         {
             if(!BazaPodataka.Potrosaci.ContainsKey(potrosac.JedinstvenoIme))
             {
@@ -33,7 +33,7 @@ namespace SHES
             }
         }
 
-        public void UkloniPotrosac(string jedinstvenoIme)
+        public void UkloniPotrosaca(string jedinstvenoIme)
         {
             if (BazaPodataka.Potrosaci.ContainsKey(jedinstvenoIme))
             {
@@ -54,6 +54,22 @@ namespace SHES
             if (BazaPodataka.Baterije.ContainsKey(jedinstvenoIme))
             {
                 BazaPodataka.Baterije.Remove(jedinstvenoIme);
+            }
+        }
+
+        public void DodajPunjacElektricnogAutomobila(PunjacElektricnogAutomobila punjac)
+        {
+            if(!BazaPodataka.Punjaci.ContainsKey(punjac.JedinstvenoIme))
+            {
+                BazaPodataka.Punjaci.Add(punjac.JedinstvenoIme, punjac);
+            }
+        }
+
+        public void UkoloniPunjacElektricnogAutomobila(string jedinstvenoIme)
+        {
+            if(BazaPodataka.Punjaci.ContainsKey(jedinstvenoIme))
+            {
+                BazaPodataka.Punjaci.Remove(jedinstvenoIme);
             }
         }
     }
