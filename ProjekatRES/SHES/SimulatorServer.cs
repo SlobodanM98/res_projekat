@@ -40,5 +40,21 @@ namespace SHES
                 BazaPodataka.Potrosaci.Remove(jedinstvenoIme);
             }
         }
+
+        public void DodajBateriju(Baterija novaBaterija)
+        {
+            if (!BazaPodataka.Baterije.ContainsKey(novaBaterija.JedinstvenoIme))
+            {
+                BazaPodataka.Baterije.Add(novaBaterija.JedinstvenoIme, novaBaterija);
+            }
+        }
+
+        public void UkloniBateriju(string jedinstvenoIme)
+        {
+            if (BazaPodataka.Baterije.ContainsKey(jedinstvenoIme))
+            {
+                BazaPodataka.Baterije.Remove(jedinstvenoIme);
+            }
+        }
     }
 }

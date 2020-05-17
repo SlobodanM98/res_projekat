@@ -21,5 +21,11 @@ namespace Common
 
         [OperationContract]
         void UkloniPotrosac(string jedinstvenoIme);
+
+        [OperationContract]
+        void DodajBateriju(Baterija novaBaterija);
+
+        [OperationContract]
+        void UkloniBateriju(string jedinstvenoIme);
     }
 }

@@ -12,15 +12,13 @@ namespace Simulator
     class Program
     {
         private static Dictionary<string, bool> uredjaji = new Dictionary<string, bool>();
-        private static ISimulator proxy;
+        private static ISimulator proxy = new ChannelFactory<ISimulator>("ServisSimulator").CreateChannel();
 
         static void Main(string[] args)
         {
-            ISimulator proxy = new ChannelFactory<ISimulator>("ServisSimulator").CreateChannel();
-
             while (true)
             {
-                Console.WriteLine("Meni :\n1.Solarni panel\n2.Potrosac\n");
+                Console.WriteLine("Meni :\n1.Solarni panel\n2.Potrosac\n3.Baterija");
                 string tekst = Console.ReadLine();
                 int unos = 0;
                 try
@@ -77,7 +75,14 @@ namespace Simulator
                             case 2:
                                 Console.WriteLine("Unesi jedinstveno ime solarnog panela : ");
                                 string imeBrisanje = Console.ReadLine();
-                                proxy.UkloniSolarniPanel(imeBrisanje);
+                                if (uredjaji.ContainsKey(imeBrisanje))
+                                {
+                                    uredjaji[imeBrisanje] = false;
+                                }
+                                else
+                                {
+                                    Console.WriteLine("Ne postoji solarni panel sa unetim imenom !");
+                                }
                                 break;
                             default:
                                 Console.WriteLine("Greska pri unosu !");
@@ -117,7 +122,7 @@ namespace Simulator
 
                                 if (potrosnja > 0)
                                 {
-                                    proxy.DodajPotrosac(new Potrosac(jedinstvenoIme, potrosnja));
+                                    new Thread(() => PokreniPotrosac(jedinstvenoIme, potrosnja)).Start();
                                 }
                                 else
                                 {
@@ -128,14 +133,78 @@ namespace Simulator
                             case 2:
                                 Console.WriteLine("Unesi jedinstveno ime potrosaca : ");
                                 string imeBrisanje = Console.ReadLine();
-                                proxy.UkloniSolarniPanel(imeBrisanje);
+                                if (uredjaji.ContainsKey(imeBrisanje))
+                                {
+                                    uredjaji[imeBrisanje] = false;
+                                }
+                                else
+                                {
+                                    Console.WriteLine("Ne postoji potrosac sa unetim imenom !");
+                                }
                                 break;
                             default:
                                 Console.WriteLine("Greska pri unosu !");
                                 break;
                         }
-                        break;  
-                        
+                        break;
+
+                    case 3:
+                        Console.WriteLine("Baterija :\n1.Dodaj bateriju\n2.Obrisi bateriju\n");
+                        string tekstBaterija = Console.ReadLine();
+                        int unosBaterija = 0;
+                        try
+                        {
+                            unosBaterija = int.Parse(tekstBaterija);
+                        }
+                        catch
+                        {
+                            Console.WriteLine("Mora se uneti broj !");
+                        }
+
+                        switch (unosBaterija)
+                        {
+                            case 1:
+                                Console.WriteLine("Unesi jedinstveno ime baterije : ");
+                                string jedinstvenoIme = Console.ReadLine();
+                                Console.WriteLine("Unesi maksimalnu snagu baterije : ");
+                                tekst = Console.ReadLine();
+                                double maksimalnaSnaga = -1;
+                                try
+                                {
+                                    maksimalnaSnaga = double.Parse(tekst);
+                                }
+                                catch
+                                {
+                                    Console.WriteLine("Maksimalna snaga mora biti broj !");
+                                }
+
+                                if (maksimalnaSnaga > 0)
+                                {
+                                    new Thread(() => PokreniBateriju(jedinstvenoIme, maksimalnaSnaga)).Start();
+                                }
+                                else
+                                {
+                                    Console.WriteLine("Maksimalna snaga mora biti broj veci od 0 !");
+                                }
+                                break;
+                            case 2:
+                                Console.WriteLine("Unesi jedinstveno ime potrosaca : ");
+                                string imeBrisanje = Console.ReadLine();
+                                if (uredjaji.ContainsKey(imeBrisanje))
+                                {
+                                    uredjaji[imeBrisanje] = false;
+                                }
+                                else
+                                {
+                                    Console.WriteLine("Ne postoji baterija sa unetim imenom !");
+                                }
+                                break;
+                            default:
+                                Console.WriteLine("Greska pri unosu !");
+                                break;
+                        }
+                        break;
+
                     default:
                         Console.WriteLine("Greska pri unosu !");
                         break;
@@ -147,25 +216,52 @@ namespace Simulator
         public static void PokreniSolarnuPanelu(string jedinstvenoIme, double maksimalnaSnaga)
         {
 
-            bool jestePokrenut = false;
-            proxy = new ChannelFactory<ISimulator>("ServisSimulator").CreateChannel();
+            bool jestePokrenut = true;
+            uredjaji.Add(jedinstvenoIme, jestePokrenut);
+            proxy.DodajSolarniPanel(new SolarniPanel(jedinstvenoIme, maksimalnaSnaga));
 
             do
             {
                 Thread.Sleep(100);
-                if(uredjaji.ContainsKey(jedinstvenoIme))
-                {
-                    jestePokrenut = uredjaji[jedinstvenoIme];
-                }
-                if (!jestePokrenut)
-                {
-                    jestePokrenut = true;
-                    uredjaji.Add(jedinstvenoIme, jestePokrenut);
-                    proxy.DodajSolarniPanel(new SolarniPanel(jedinstvenoIme, maksimalnaSnaga));
-                }
+                jestePokrenut = uredjaji[jedinstvenoIme];
             } while (jestePokrenut);
             
             proxy.UkloniSolarniPanel(jedinstvenoIme);
+            uredjaji.Remove(jedinstvenoIme);
+        }
+
+        public static void PokreniPotrosac(string jedinstvenoIme, double potrosnja)
+        {
+            bool jestePokrenut = true;
+            uredjaji.Add(jedinstvenoIme, jestePokrenut);
+            proxy.DodajPotrosac(new Potrosac(jedinstvenoIme, potrosnja));
+
+            do
+            {
+                Thread.Sleep(100);
+                jestePokrenut = uredjaji[jedinstvenoIme];
+            } while (jestePokrenut);
+
+            proxy.UkloniPotrosac(jedinstvenoIme);
+            uredjaji.Remove(jedinstvenoIme);
+        }
+
+        public static void PokreniBateriju(string jedinstvenoIme, double maksimalnaSnaga)
+        {
+            bool jestePokrenut = true;
+            uredjaji.Add(jedinstvenoIme, jestePokrenut);
+            Console.WriteLine("Dodata baterija !");
+            proxy.DodajBateriju(new Baterija(jedinstvenoIme, maksimalnaSnaga, 0));
+
+            do
+            {
+                Thread.Sleep(100);
+                jestePokrenut = uredjaji[jedinstvenoIme];
+            } while (jestePokrenut);
+
+            proxy.UkloniBateriju(jedinstvenoIme);
+            uredjaji.Remove(jedinstvenoIme);
+            Console.WriteLine("Obrisana baterija !");
         }
     }
 }
