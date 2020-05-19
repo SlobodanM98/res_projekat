@@ -5,8 +5,15 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:SHES"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
+        Title="MainWindow" Height="636.34" Width="1130.709">
     <Grid>
-        
+        <DataGrid HorizontalAlignment="Left" Height="187" Margin="10,53,0,0" VerticalAlignment="Top" Width="330" ItemsSource="{Binding Baterije}" AutoGenerateColumns="False" IsReadOnly="True">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Jedinstveno Ime" Binding="{Binding JedinstvenoIme}" Width="*" FontSize="12"></DataGridTextColumn>
+                <DataGridTextColumn Header="Maksimalna snaga" Binding="{Binding MaksimalnaSnaga}" Width="*" FontSize="12"></DataGridTextColumn>
+                <DataGridTextColumn Header="Kapacitet" Binding="{Binding Kapacitet}" Width="*" FontSize="12"></DataGridTextColumn>
+            </DataGrid.Columns>
+        </DataGrid>
+
     </Grid>
 </Window>

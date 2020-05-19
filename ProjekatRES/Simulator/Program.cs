@@ -188,7 +188,7 @@ namespace Simulator
                                 }
                                 break;
                             case 2:
-                                Console.WriteLine("Unesi jedinstveno ime potrosaca : ");
+                                Console.WriteLine("Unesi jedinstveno ime baterije : ");
                                 string imeBrisanje = Console.ReadLine();
                                 if (uredjaji.ContainsKey(imeBrisanje))
                                 {
