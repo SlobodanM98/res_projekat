@@ -109,19 +109,19 @@ namespace SHES
             }
         }
 
-        public void DodajPunjacElektricnogAutomobila(PunjacElektricnogAutomobila punjac)
+        public void DodajElektricniAutomobil(ElektricniAutomobil automobil)
         {
-            if(!BazaPodataka.Punjaci.ContainsKey(punjac.JedinstvenoIme))
+            if (!BazaPodataka.Automobili.ContainsKey(automobil.JedinstvenoIme))
             {
-                BazaPodataka.Punjaci.Add(punjac.JedinstvenoIme, punjac);
+                BazaPodataka.Automobili.Add(automobil.JedinstvenoIme, automobil);
             }
         }
 
-        public void UkoloniPunjacElektricnogAutomobila(string jedinstvenoIme)
+        public void UkloniElektricniAutomobil(string jedinstvenoIme)
         {
-            if(BazaPodataka.Punjaci.ContainsKey(jedinstvenoIme))
+            if (BazaPodataka.Automobili.ContainsKey(jedinstvenoIme))
             {
-                BazaPodataka.Punjaci.Remove(jedinstvenoIme);
+                BazaPodataka.Automobili.Remove(jedinstvenoIme);
             }
         }
     }

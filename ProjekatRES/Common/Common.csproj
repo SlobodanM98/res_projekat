@@ -44,10 +44,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Baterija.cs" />
+    <Compile Include="ElektricniAutomobil.cs" />
     <Compile Include="ISimulator.cs" />
     <Compile Include="Potrosac.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="PunjacElektricnogAutomobila.cs" />
     <Compile Include="SolarniPanel.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

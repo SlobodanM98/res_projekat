@@ -29,9 +29,9 @@ namespace Common
         void UkloniBateriju(string jedinstvenoIme);
 
         [OperationContract]
-        void DodajPunjacElektricnogAutomobila(PunjacElektricnogAutomobila punjac);
+        void DodajElektricniAutomobil(ElektricniAutomobil automobil);
 
         [OperationContract]
-        void UkoloniPunjacElektricnogAutomobila(string jedinstvenoIme);
+        void UkloniElektricniAutomobil(string jedinstvenoIme);
     }
 }
