@@ -104,8 +104,7 @@ namespace SHES
                 using (SqlCommand command = new SqlCommand(query, connection))
                 {
                     connection.Open();
-                    int i = command.ExecuteNonQuery();
-                    MessageBox.Show(i + " promenjen !");
+                    command.ExecuteNonQuery();
                 }
             }
         }
