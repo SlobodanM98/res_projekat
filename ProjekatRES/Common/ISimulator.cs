@@ -33,5 +33,8 @@ namespace Common
 
         [OperationContract]
         void UkloniElektricniAutomobil(string jedinstvenoIme);
+
+        [OperationContract]
+        void PromeniSnaguSunca(int novaVrednost);
     }
 }

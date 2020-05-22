@@ -21,7 +21,7 @@ namespace Simulator
         {
             while (true)
             {
-                Console.WriteLine("Meni :\n1.Solarni panel\n2.Potrosac\n3.Baterija\n4.Elektricni automobil");
+                Console.WriteLine("Meni :\n1.Solarni panel\n2.Potrosac\n3.Baterija\n4.Elektricni automobil\n5.Snaga sunca");
                 string tekst = Console.ReadLine();
                 int unos = 0;
                 try
@@ -278,6 +278,28 @@ namespace Simulator
                             default:
                                 Console.WriteLine("Greska pri unosu !");
                                 break;
+                        }
+                        break;
+                    case 5:
+                        Console.WriteLine("Unesi novu snagu sunca : ");
+                        string unetaSnagaSunca = Console.ReadLine();
+                        int snagaSunca = -1;
+                        try
+                        {
+                            snagaSunca = int.Parse(unetaSnagaSunca);
+                        }
+                        catch
+                        {
+                            Console.WriteLine("Mora se uneti broj !");
+                        }
+
+                        if(snagaSunca >= 0 && snagaSunca <= 100)
+                        {
+                            proxy.PromeniSnaguSunca(snagaSunca);
+                        }
+                        else
+                        {
+                            Console.WriteLine("Snaga sunca mora biti broj u intervalu izmedju 0 i 100 !");
                         }
                         break;
 

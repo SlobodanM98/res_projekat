@@ -124,5 +124,10 @@ namespace SHES
                 BazaPodataka.Automobili.Remove(jedinstvenoIme);
             }
         }
+
+        public void PromeniSnaguSunca(int novaVrednost)
+        {
+            MainWindow.SnagaSunca = novaVrednost;
+        }
     }
 }

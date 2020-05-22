@@ -29,6 +29,9 @@ namespace SHES
     {
         SqlConnection connection;
         string connectionString;
+        int StaraSnagaSunca;
+
+        public static int SnagaSunca;
 
         public static BindingList<Baterija> Baterije { get; set; }
 
@@ -36,12 +39,18 @@ namespace SHES
         {
             connectionString = ConfigurationManager.ConnectionStrings["SHES.Properties.Settings.BazaPodatakaConnectionString"].ConnectionString;
             Baterije = new BindingList<Baterija>();
+            SnagaSunca = 0;
+            StaraSnagaSunca = 0;
+
+            labelSnagaSunca.Content = SnagaSunca.ToString();
+            labelSnagaSunca.Foreground = Brushes.Blue;
 
             UcitajUredjaje();
 
             InitializeComponent();
 
             new Thread(() => PokreniServer()).Start();
+            new Thread(() => Azuriranje()).Start();
 
             DataContext = this;
         }
@@ -49,18 +58,57 @@ namespace SHES
         void PokreniServer()
         {
             bool jestePokrenut = false;
-            ServiceHost host = new ServiceHost(typeof(SimulatorServer));
 
-            while (true)
+            using (ServiceHost host = new ServiceHost(typeof(SimulatorServer)))
             {
-                Thread.Sleep(100);
-                if (!jestePokrenut)
+                while (true)
                 {
-                    jestePokrenut = true;
-                    host.Open();
+                    Thread.Sleep(100);
+                    if (!jestePokrenut)
+                    {
+                        jestePokrenut = true;
+                        host.Open();
+                    }
                 }
             }
-            host.Close();
+        }
+
+        void Azuriranje()
+        {
+            while (true)
+            {
+                if (StaraSnagaSunca != SnagaSunca)
+                {
+                    PodesiSnaguSunca(SnagaSunca);
+                }
+                Thread.Sleep(1000);
+            }
+        }
+
+        public void PodesiSnaguSunca(int novaVrednost)
+        {
+            StaraSnagaSunca = novaVrednost;
+            App.Current.Dispatcher.Invoke((System.Action)delegate
+            {
+                labelSnagaSunca.Content = SnagaSunca.ToString();
+
+                if (SnagaSunca >= 0 && SnagaSunca < 20)
+                {
+                    labelSnagaSunca.Foreground = Brushes.Blue;
+                }
+                else if (SnagaSunca >= 20 && SnagaSunca < 50)
+                {
+                    labelSnagaSunca.Foreground = Brushes.Green;
+                }
+                else if (SnagaSunca >= 50 && SnagaSunca < 80)
+                {
+                    labelSnagaSunca.Foreground = Brushes.Orange;
+                }
+                else
+                {
+                    labelSnagaSunca.Foreground = Brushes.Red;
+                }
+            });
         }
 
         void UcitajUredjaje()
