@@ -193,14 +193,14 @@ namespace Simulator
                             case 2:
                                 Console.WriteLine("Unesi jedinstveno ime baterije : ");
                                 string imeBrisanje = Console.ReadLine();
-                                //if (baterije.ContainsKey(imeBrisanje))
-                                //{
+                                if (baterije.ContainsKey(imeBrisanje))
+                                {
                                     baterije[imeBrisanje] = false;
-                                //}
-                                /*else
+                                }
+                                else
                                 {
                                     Console.WriteLine("Ne postoji baterija sa unetim imenom !");
-                                }*/
+                                }
                                 break;
                             default:
                                 Console.WriteLine("Greska pri unosu !");

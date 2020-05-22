@@ -34,20 +34,22 @@ namespace SHES
         public static int SnagaSunca;
 
         public static BindingList<Baterija> Baterije { get; set; }
+        public static BindingList<Potrosac> Potrosaci { get; set; }
 
         public MainWindow()
         {
             connectionString = ConfigurationManager.ConnectionStrings["SHES.Properties.Settings.BazaPodatakaConnectionString"].ConnectionString;
             Baterije = new BindingList<Baterija>();
+            Potrosaci = new BindingList<Potrosac>();
             SnagaSunca = 0;
             StaraSnagaSunca = 0;
-
-            labelSnagaSunca.Content = SnagaSunca.ToString();
-            labelSnagaSunca.Foreground = Brushes.Blue;
 
             UcitajUredjaje();
 
             InitializeComponent();
+
+            labelSnagaSunca.Content = SnagaSunca.ToString();
+            labelSnagaSunca.Foreground = Brushes.Blue;
 
             new Thread(() => PokreniServer()).Start();
             new Thread(() => Azuriranje()).Start();
@@ -113,10 +115,10 @@ namespace SHES
 
         void UcitajUredjaje()
         {
-            string query = "SELECT * FROM Baterije";
+            string queryBaterije = "SELECT * FROM Baterije";
 
             using (connection = new SqlConnection(connectionString))
-            using (SqlCommand command = new SqlCommand(query, connection))
+            using (SqlCommand command = new SqlCommand(queryBaterije, connection))
                 using(SqlDataAdapter adapter = new SqlDataAdapter(command))
             {
                 DataTable table = new DataTable();
@@ -128,6 +130,25 @@ namespace SHES
                     double maksimalnaSnaga = double.Parse(table.Rows[i]["MaksimalnaSnaga"].ToString());
                     int kapacitet = int.Parse(table.Rows[i]["Kapacitet"].ToString());
                     Baterije.Add(new Baterija(jedinstvenoIme, maksimalnaSnaga, kapacitet));
+                }
+            }
+
+            string queryPotrosaci = "SELECT * FROM Potrosaci";
+            using (connection = new SqlConnection(connectionString))
+            using (SqlCommand command = new SqlCommand(queryPotrosaci, connection))
+            using (SqlDataAdapter adapter = new SqlDataAdapter(command))
+            {
+                DataTable table = new DataTable();
+                adapter.Fill(table);
+
+                for (int i = 0; i < table.Rows.Count; i++)
+                {
+                    string jedinstvenoIme = table.Rows[i]["JedinstvenoIme"].ToString();
+                    double potrosnja = double.Parse(table.Rows[i]["Potrosnja"].ToString());
+                    bool stanje = bool.Parse(table.Rows[i]["Upaljen"].ToString());
+                    Potrosac novi = new Potrosac(jedinstvenoIme, potrosnja);
+                    novi.Upaljen = stanje;
+                    Potrosaci.Add(novi);
                 }
             }
         }

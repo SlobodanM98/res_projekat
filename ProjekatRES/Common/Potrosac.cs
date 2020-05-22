@@ -14,11 +14,14 @@ namespace Common
         public string JedinstvenoIme { get; set; }
         [DataMember]
         public double Potrosnja { get; set; }
+        [DataMember]
+        public bool Upaljen { get; set; }
 
         public Potrosac(string jedinstvenoIme, double potrosnja)
         {
             JedinstvenoIme = jedinstvenoIme;
             Potrosnja = potrosnja;
+            Upaljen = false;
         }
     }
 }

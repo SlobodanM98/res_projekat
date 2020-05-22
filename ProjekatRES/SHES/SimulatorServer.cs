@@ -33,17 +33,65 @@ namespace SHES
 
         public void DodajPotrosaca(Potrosac potrosac)
         {
-            if(!BazaPodataka.Potrosaci.ContainsKey(potrosac.JedinstvenoIme))
+            bool sadrzi = false;
+            foreach(Potrosac p in MainWindow.Potrosaci)
             {
-                BazaPodataka.Potrosaci.Add(potrosac.JedinstvenoIme, potrosac);
+                if(p.JedinstvenoIme == potrosac.JedinstvenoIme)
+                {
+                    sadrzi = true;
+                    break;
+                }
+            }
+
+            if (!sadrzi)
+            {
+                App.Current.Dispatcher.Invoke((System.Action)delegate
+                {
+                    MainWindow.Potrosaci.Add(potrosac);
+                });
+
+                int vrednost = 0;
+                if (potrosac.Upaljen)
+                    vrednost = 1;
+                string query = $"INSERT INTO Potrosaci VALUES (@jedinstvenoIme, {potrosac.Potrosnja}, {vrednost})";
+
+                using (connection = new SqlConnection(connectionString))
+                using (SqlCommand command = new SqlCommand(query, connection))
+                {
+                    connection.Open();
+                    command.Parameters.AddWithValue("@jedinstvenoIme", potrosac.JedinstvenoIme);
+                    command.ExecuteNonQuery();
+                }
+
             }
         }
 
         public void UkloniPotrosaca(string jedinstvenoIme)
         {
-            if (BazaPodataka.Potrosaci.ContainsKey(jedinstvenoIme))
+            bool sadrzi = false;
+            foreach(Potrosac p in MainWindow.Potrosaci)
             {
-                BazaPodataka.Potrosaci.Remove(jedinstvenoIme);
+                if(p.JedinstvenoIme == jedinstvenoIme)
+                {
+                    sadrzi = true;
+                    App.Current.Dispatcher.Invoke((System.Action)delegate
+                    {
+                        MainWindow.Potrosaci.Remove(p);
+                    });
+                    break;
+                }
+            }
+
+            if (sadrzi)
+            {
+                string query = "DELETE FROM Potrosaci WHERE JedinstvenoIme = '" + jedinstvenoIme + "'";
+
+                using (connection = new SqlConnection(connectionString))
+                using (SqlCommand command = new SqlCommand(query, connection))
+                {
+                    connection.Open();
+                    command.ExecuteNonQuery();
+                }
             }
         }
 

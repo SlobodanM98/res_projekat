@@ -16,6 +16,13 @@
         </DataGrid>
         <Label x:Name="labelSnagaSunca" Content="" HorizontalAlignment="Left" Height="40" Margin="143,272,0,0" VerticalAlignment="Top" Width="94" FontSize="20"/>
         <Label Content="Snaga sunca :" HorizontalAlignment="Left" Height="40" Margin="10,272,0,0" VerticalAlignment="Top" Width="128" FontSize="20"/>
+        <DataGrid HorizontalAlignment="Left" Height="187" Margin="360,53,0,0" VerticalAlignment="Top" Width="300" ItemsSource="{Binding Potrosaci}" AutoGenerateColumns="False" IsReadOnly="True">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Jedinstveno Ime" Binding="{Binding JedinstvenoIme}" Width="*" FontSize="12"></DataGridTextColumn>
+                <DataGridTextColumn Header="Potrosnja" Binding="{Binding Potrosnja}" Width="*" FontSize="12"></DataGridTextColumn>
+                <DataGridTextColumn Header="Stanje" Binding="{Binding Upaljen}" Width="*" FontSize="12"></DataGridTextColumn>
+            </DataGrid.Columns>
+        </DataGrid>
 
     </Grid>
 </Window>
