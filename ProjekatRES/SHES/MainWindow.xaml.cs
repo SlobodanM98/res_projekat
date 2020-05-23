@@ -32,21 +32,27 @@ namespace SHES
         int StaraSnagaSunca;
 
         public static int SnagaSunca;
+        public static MaterialDesignThemes.Wpf.PackIconKind SlikaSnageSunca { get; set; }
+        //public static BindingList<MaterialDesignThemes.Wpf.PackIconKind> SlikaSnageSunca { get; set; }
 
         public static BindingList<Baterija> Baterije { get; set; }
         public static BindingList<Potrosac> Potrosaci { get; set; }
+        public static BindingList<SolarniPanel> SolarniPaneli { get; set; }
 
         public MainWindow()
         {
             connectionString = ConfigurationManager.ConnectionStrings["SHES.Properties.Settings.BazaPodatakaConnectionString"].ConnectionString;
             Baterije = new BindingList<Baterija>();
             Potrosaci = new BindingList<Potrosac>();
+            SolarniPaneli = new BindingList<SolarniPanel>();
             SnagaSunca = 0;
             StaraSnagaSunca = 0;
 
             UcitajUredjaje();
 
             InitializeComponent();
+
+            vreme.Kind = MaterialDesignThemes.Wpf.PackIconKind.MoonAndStars;
 
             labelSnagaSunca.Content = SnagaSunca.ToString();
             labelSnagaSunca.Foreground = Brushes.Blue;
@@ -92,23 +98,32 @@ namespace SHES
             StaraSnagaSunca = novaVrednost;
             App.Current.Dispatcher.Invoke((System.Action)delegate
             {
-                labelSnagaSunca.Content = SnagaSunca.ToString();
+                labelSnagaSunca.Content = SnagaSunca.ToString() + " " + "Snaga sunca";
+                if(SnagaSunca == 0)
+                {
+                    labelSnagaSunca.Foreground = Brushes.Black;
+                    vreme.Kind = MaterialDesignThemes.Wpf.PackIconKind.MoonAndStars;
+                }
 
-                if (SnagaSunca >= 0 && SnagaSunca < 20)
+                else if (SnagaSunca > 0 && SnagaSunca < 20)
                 {
                     labelSnagaSunca.Foreground = Brushes.Blue;
+                    vreme.Kind = MaterialDesignThemes.Wpf.PackIconKind.WeatherCloudy;
                 }
                 else if (SnagaSunca >= 20 && SnagaSunca < 50)
                 {
                     labelSnagaSunca.Foreground = Brushes.Green;
+                    vreme.Kind = MaterialDesignThemes.Wpf.PackIconKind.WeatherPartlyCloudy;
                 }
                 else if (SnagaSunca >= 50 && SnagaSunca < 80)
                 {
                     labelSnagaSunca.Foreground = Brushes.Orange;
+                    vreme.Kind = MaterialDesignThemes.Wpf.PackIconKind.WeatherSunny;
                 }
                 else
                 {
                     labelSnagaSunca.Foreground = Brushes.Red;
+                    vreme.Kind = MaterialDesignThemes.Wpf.PackIconKind.WeatherSunnyAlert;
                 }
             });
         }
@@ -149,6 +164,23 @@ namespace SHES
                     Potrosac novi = new Potrosac(jedinstvenoIme, potrosnja);
                     novi.Upaljen = stanje;
                     Potrosaci.Add(novi);
+                }
+            }
+
+            string querySolarniPaneli = "SELECT * FROM SolarnePanele";
+            using (connection = new SqlConnection(connectionString))
+            using (SqlCommand command = new SqlCommand(querySolarniPaneli, connection))
+            using (SqlDataAdapter adapter = new SqlDataAdapter(command))
+            {
+                DataTable table = new DataTable();
+                adapter.Fill(table);
+
+                for (int i = 0; i < table.Rows.Count; i++)
+                {
+                    string jedinstvenoIme = table.Rows[i]["JedinstvenoIme"].ToString();
+                    double maksimalnaSnaga = double.Parse(table.Rows[i]["MaksimalnaSnaga"].ToString());
+                    SolarniPanel novi = new SolarniPanel(jedinstvenoIme, maksimalnaSnaga);
+                    SolarniPaneli.Add(novi);
                 }
             }
         }

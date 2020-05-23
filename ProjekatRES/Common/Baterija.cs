@@ -16,12 +16,15 @@ namespace Common
         public double MaksimalnaSnaga { get; set; }
         [DataMember]
         public int Kapacitet { get; set; }
+        [DataMember]
+        public MaterialDesignThemes.Wpf.PackIconKind Slika { get; set; }
 
         public Baterija(string jedinstvenoIme, double maksimalnaSnaga, int kapacitet)
         {
             JedinstvenoIme = jedinstvenoIme;
             MaksimalnaSnaga = maksimalnaSnaga;
             Kapacitet = kapacitet;
+            Slika = MaterialDesignThemes.Wpf.PackIconKind.Battery0;
         }
     }
 }

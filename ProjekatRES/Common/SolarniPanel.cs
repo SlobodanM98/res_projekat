@@ -14,11 +14,14 @@ namespace Common
         public string JedinstvenoIme { get; set; }
         [DataMember]
         public double MaksimalnaSnaga { get; set; }
+        [DataMember]
+        public MaterialDesignThemes.Wpf.PackIconKind Slika { get; set; }
 
         public SolarniPanel(string jedinstvenoIme, double maksimalnaSnaga)
         {
             JedinstvenoIme = jedinstvenoIme;
             MaksimalnaSnaga = maksimalnaSnaga;
+            Slika = MaterialDesignThemes.Wpf.PackIconKind.Waze;
         }
     }
 }

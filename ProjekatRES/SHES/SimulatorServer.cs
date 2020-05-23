@@ -17,17 +17,62 @@ namespace SHES
 
         public void DodajSolarniPanel(SolarniPanel noviPanel)
         {
-            if (!BazaPodataka.SolarniPaneli.ContainsKey(noviPanel.JedinstvenoIme))
+            bool sadrzi = false;
+            foreach (SolarniPanel sp in MainWindow.SolarniPaneli)
             {
-                BazaPodataka.SolarniPaneli.Add(noviPanel.JedinstvenoIme,noviPanel);
+                if (sp.JedinstvenoIme == noviPanel.JedinstvenoIme)
+                {
+                    sadrzi = true;
+                    break;
+                }
+            }
+
+            if (!sadrzi)
+            {
+                App.Current.Dispatcher.Invoke((System.Action)delegate
+                {
+                    MainWindow.SolarniPaneli.Add(noviPanel);
+                });
+          
+                string query = $"INSERT INTO SolarnePanele VALUES (@jedinstvenoIme, {noviPanel.MaksimalnaSnaga})";
+
+                using (connection = new SqlConnection(connectionString))
+                using (SqlCommand command = new SqlCommand(query, connection))
+                {
+                    connection.Open();
+                    command.Parameters.AddWithValue("@jedinstvenoIme", noviPanel.JedinstvenoIme);
+                    command.ExecuteNonQuery();
+                }
+
             }
         }
 
         public void UkloniSolarniPanel(string jedinstvenoIme)
         {
-            if (BazaPodataka.SolarniPaneli.ContainsKey(jedinstvenoIme))
+            bool sadrzi = false;
+            foreach (SolarniPanel sp in MainWindow.SolarniPaneli)
             {
-                BazaPodataka.SolarniPaneli.Remove(jedinstvenoIme);
+                if (sp.JedinstvenoIme == jedinstvenoIme)
+                {
+                    sadrzi = true;
+                    App.Current.Dispatcher.Invoke((System.Action)delegate
+                    {
+                        MainWindow.SolarniPaneli.Remove(sp);
+                    });
+                    break;
+                }
+            }
+
+            if (sadrzi)
+            {
+                string query = "DELETE FROM SolarnePanele WHERE JedinstvenoIme = '" + jedinstvenoIme + "'";
+
+                using (connection = new SqlConnection(connectionString))
+                using (SqlCommand command = new SqlCommand(query, connection))
+                {
+                    connection.Open();
+                    command.ExecuteNonQuery();
+                }
             }
         }
 
