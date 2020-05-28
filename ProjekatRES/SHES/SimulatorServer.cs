@@ -140,7 +140,7 @@ namespace SHES
             }
         }
 
-        public void DodajBateriju(Baterija novaBaterija)
+        public void DodajBateriju(Baterija novaBaterija, bool jesteAutomobil, string AutomobilJedinstvenoIme)
         {
             bool sadrzi = false;
             foreach(Baterija b in MainWindow.Baterije)
@@ -154,13 +154,20 @@ namespace SHES
 
             if (!sadrzi)
             {
-                App.Current.Dispatcher.Invoke((System.Action)delegate
+                string query;
+
+                if (jesteAutomobil)
                 {
-                    MainWindow.Baterije.Add(novaBaterija);
-                });
-
-                string query = $"INSERT INTO Baterije VALUES (@jedinstvenoIme, {novaBaterija.MaksimalnaSnaga}, {novaBaterija.Kapacitet})";
-
+                    query = $"INSERT INTO Baterije VALUES (@jedinstvenoIme, {novaBaterija.MaksimalnaSnaga}, {novaBaterija.Kapacitet}, {AutomobilJedinstvenoIme})";
+                }
+                else
+                {
+                    App.Current.Dispatcher.Invoke((System.Action)delegate
+                    {
+                        MainWindow.Baterije.Add(novaBaterija);
+                    });
+                    query = $"INSERT INTO Baterije VALUES (@jedinstvenoIme, {novaBaterija.MaksimalnaSnaga}, {novaBaterija.Kapacitet}, {null})";
+                }
                 using (connection = new SqlConnection(connectionString))
                 using (SqlCommand command = new SqlCommand(query, connection))
                 {

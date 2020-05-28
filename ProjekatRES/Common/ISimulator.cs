@@ -23,7 +23,7 @@ namespace Common
         void UkloniPotrosaca(string jedinstvenoIme);
 
         [OperationContract]
-        void DodajBateriju(Baterija novaBaterija);
+        void DodajBateriju(Baterija novaBaterija, bool jesteAutomobil, string AutomobilJedinstvenoIme);
 
         [OperationContract]
         void UkloniBateriju(string jedinstvenoIme);

@@ -130,7 +130,7 @@ namespace SHES
 
         void UcitajUredjaje()
         {
-            string queryBaterije = "SELECT * FROM Baterije";
+            string queryBaterije = "SELECT * FROM Baterije WHERE AutomobilJedinstvenoIme IS NULL";
 
             using (connection = new SqlConnection(connectionString))
             using (SqlCommand command = new SqlCommand(queryBaterije, connection))

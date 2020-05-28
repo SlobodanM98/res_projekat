@@ -349,7 +349,7 @@ namespace Simulator
             bool jestePokrenut = true;
             baterije.Add(jedinstvenoIme, jestePokrenut);
             Console.WriteLine("Dodata baterija !");
-            proxy.DodajBateriju(new Baterija(jedinstvenoIme, maksimalnaSnaga, 0));
+            proxy.DodajBateriju(new Baterija(jedinstvenoIme, maksimalnaSnaga, 0), false, "");
 
             do
             {

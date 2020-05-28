@@ -15,7 +15,7 @@ namespace Common
         [DataMember]
         public bool NaPunjacu { get; set; }
         [DataMember]
-        public bool Punise { get; set; }
+        public bool PuniSe { get; set; }
         [DataMember]
         public Baterija BaterijaAuta { get; set; }
         [DataMember]
@@ -28,7 +28,7 @@ namespace Common
             Baterija baterija = new Baterija("BaterijaAuta" + brojBaterije.ToString(), maksimalnaSnaga, kapacitet);
             BaterijaAuta = baterija;
             NaPunjacu = false;
-            Punise = false;
+            PuniSe = false;
         }
     }
 }
