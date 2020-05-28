@@ -18,17 +18,23 @@ namespace Common
         public bool PuniSe { get; set; }
         [DataMember]
         public Baterija BaterijaAuta { get; set; }
-        [DataMember]
-        private static int brojBaterije = 0;
 
-        public ElektricniAutomobil(string jedinstvenoIme, double maksimalnaSnaga, int kapacitet)
+        public ElektricniAutomobil(string jedinstvenoIme, double maksimalnaSnaga, int kapacitet, int brojBaterije)
         {
             JedinstvenoIme = jedinstvenoIme;
-            brojBaterije++;
             Baterija baterija = new Baterija("BaterijaAuta" + brojBaterije.ToString(), maksimalnaSnaga, kapacitet);
             BaterijaAuta = baterija;
             NaPunjacu = false;
             PuniSe = false;
         }
+
+        public ElektricniAutomobil(Baterija baterija, string jedinstvenoIme, bool naPunjacu, bool puniSe)
+        {
+            JedinstvenoIme = jedinstvenoIme;
+            BaterijaAuta = baterija;
+            NaPunjacu = naPunjacu;
+            PuniSe = puniSe;
+        }
+
     }
 }

@@ -38,6 +38,11 @@ namespace SHES
         public static BindingList<Baterija> Baterije { get; set; }
         public static BindingList<Potrosac> Potrosaci { get; set; }
         public static BindingList<SolarniPanel> SolarniPaneli { get; set; }
+        public static BindingList<ElektricniAutomobil> ElektricniAutomobili { get; set; }
+
+        public static List<Baterija> autoBaterije { get; set; }
+
+        public static Punjac Punjac;
 
         public MainWindow()
         {
@@ -45,8 +50,11 @@ namespace SHES
             Baterije = new BindingList<Baterija>();
             Potrosaci = new BindingList<Potrosac>();
             SolarniPaneli = new BindingList<SolarniPanel>();
+            ElektricniAutomobili = new BindingList<ElektricniAutomobil>();
+            autoBaterije = new List<Baterija>();
             SnagaSunca = 0;
             StaraSnagaSunca = 0;
+            Punjac = new Punjac();
 
             UcitajUredjaje();
 
@@ -148,6 +156,27 @@ namespace SHES
                 }
             }
 
+            queryBaterije = "SELECT * FROM Baterije WHERE AutomobilJedinstvenoIme IS NOT NULL";
+
+            using (connection = new SqlConnection(connectionString))
+            using (SqlCommand command = new SqlCommand(queryBaterije, connection))
+            using (SqlDataAdapter adapter = new SqlDataAdapter(command))
+            {
+                DataTable table = new DataTable();
+                adapter.Fill(table);
+
+                for (int i = 0; i < table.Rows.Count; i++)
+                {
+                    string jedinstvenoIme = table.Rows[i]["JedinstvenoIme"].ToString();
+                    double maksimalnaSnaga = double.Parse(table.Rows[i]["MaksimalnaSnaga"].ToString());
+                    int kapacitet = int.Parse(table.Rows[i]["Kapacitet"].ToString());
+                    string autoJedinstvenoIme = table.Rows[i]["AutomobilJedinstvenoIme"].ToString();
+                    Baterija novaBaterija = new Baterija(jedinstvenoIme, maksimalnaSnaga, kapacitet);
+                    novaBaterija.AutomobilJedinstvenoIme = autoJedinstvenoIme;
+                    autoBaterije.Add(novaBaterija);
+                }
+            }
+
             string queryPotrosaci = "SELECT * FROM Potrosaci";
             using (connection = new SqlConnection(connectionString))
             using (SqlCommand command = new SqlCommand(queryPotrosaci, connection))
@@ -181,6 +210,25 @@ namespace SHES
                     double maksimalnaSnaga = double.Parse(table.Rows[i]["MaksimalnaSnaga"].ToString());
                     SolarniPanel novi = new SolarniPanel(jedinstvenoIme, maksimalnaSnaga);
                     SolarniPaneli.Add(novi);
+                }
+            }
+
+            string queryAutomobil = "SELECT * FROM Automobili";
+            using (connection = new SqlConnection(connectionString))
+            using (SqlCommand command = new SqlCommand(queryAutomobil, connection))
+            using (SqlDataAdapter adapter = new SqlDataAdapter(command))
+            {
+                DataTable table = new DataTable();
+                adapter.Fill(table);
+
+                for (int i = 0; i < table.Rows.Count; i++)
+                {
+                    string jedinstvenoIme = table.Rows[i]["JedinstvenoIme"].ToString();
+                    bool naPunjacu = bool.Parse(table.Rows[i]["NaPunjacu"].ToString());
+                    bool puniSe = bool.Parse(table.Rows[i]["Punise"].ToString());
+                    Baterija baterija = autoBaterije.Find(b => b.AutomobilJedinstvenoIme.Equals(jedinstvenoIme));
+                    ElektricniAutomobil noviAuto = new ElektricniAutomobil(baterija, jedinstvenoIme, naPunjacu, puniSe);
+                    ElektricniAutomobili.Add(noviAuto);
                 }
             }
         }

@@ -158,7 +158,7 @@ namespace SHES
 
                 if (jesteAutomobil)
                 {
-                    query = $"INSERT INTO Baterije VALUES (@jedinstvenoIme, {novaBaterija.MaksimalnaSnaga}, {novaBaterija.Kapacitet}, {AutomobilJedinstvenoIme})";
+                    query = $"INSERT INTO Baterije VALUES (@jedinstvenoIme, {novaBaterija.MaksimalnaSnaga}, {novaBaterija.Kapacitet}, @automobilJedinstvenoIme)";
                 }
                 else
                 {
@@ -166,13 +166,19 @@ namespace SHES
                     {
                         MainWindow.Baterije.Add(novaBaterija);
                     });
-                    query = $"INSERT INTO Baterije VALUES (@jedinstvenoIme, {novaBaterija.MaksimalnaSnaga}, {novaBaterija.Kapacitet}, {null})";
+                    query = $"INSERT INTO Baterije VALUES (@jedinstvenoIme, {novaBaterija.MaksimalnaSnaga}, {novaBaterija.Kapacitet}, NULL)";
                 }
+
                 using (connection = new SqlConnection(connectionString))
                 using (SqlCommand command = new SqlCommand(query, connection))
                 {
                     connection.Open();
                     command.Parameters.AddWithValue("@jedinstvenoIme", novaBaterija.JedinstvenoIme);
+                    if (jesteAutomobil)
+                    {
+                        command.Parameters.AddWithValue("@automobilJedinstvenoIme", AutomobilJedinstvenoIme);
+                    }
+                    
                     command.ExecuteNonQuery();
                 }
             }
@@ -211,23 +217,159 @@ namespace SHES
 
         public void DodajElektricniAutomobil(ElektricniAutomobil automobil)
         {
-            if (!BazaPodataka.Automobili.ContainsKey(automobil.JedinstvenoIme))
+            bool sadrzi = false;
+            foreach (ElektricniAutomobil e in MainWindow.ElektricniAutomobili)
             {
-                BazaPodataka.Automobili.Add(automobil.JedinstvenoIme, automobil);
+                if (e.JedinstvenoIme == automobil.JedinstvenoIme)
+                {
+                    sadrzi = true;
+                    break;
+                }
+            }
+
+            if (!sadrzi)
+            {
+                App.Current.Dispatcher.Invoke((System.Action)delegate
+                {
+                    MainWindow.ElektricniAutomobili.Add(automobil);
+                });
+
+                int naPunjacu = 0;
+                if (automobil.NaPunjacu)
+                    naPunjacu = 1;
+                int puniSe = 0;
+                if (automobil.PuniSe)
+                    puniSe = 1;
+                string query = $"INSERT INTO Automobili VALUES (@jedinstvenoIme, {naPunjacu}, {puniSe})";
+
+                using (connection = new SqlConnection(connectionString))
+                using (SqlCommand command = new SqlCommand(query, connection))
+                {
+                    connection.Open();
+                    command.Parameters.AddWithValue("@jedinstvenoIme", automobil.JedinstvenoIme);
+                    command.ExecuteNonQuery();
+                }
+                DodajBateriju(automobil.BaterijaAuta, true, automobil.JedinstvenoIme);
             }
         }
 
         public void UkloniElektricniAutomobil(string jedinstvenoIme)
         {
-            if (BazaPodataka.Automobili.ContainsKey(jedinstvenoIme))
+            bool sadrzi = false;
+
+            foreach (ElektricniAutomobil a in MainWindow.ElektricniAutomobili)
             {
-                BazaPodataka.Automobili.Remove(jedinstvenoIme);
+                if (a.JedinstvenoIme == jedinstvenoIme)
+                {
+                    sadrzi = true;
+                    App.Current.Dispatcher.Invoke((System.Action)delegate
+                    {
+                        MainWindow.ElektricniAutomobili.Remove(a);
+                        MainWindow.autoBaterije.Remove(a.BaterijaAuta);
+                    });
+                    break;
+                }
+            }
+
+            if (sadrzi)
+            {
+                string query = "DELETE FROM Automobili WHERE JedinstvenoIme = '" + jedinstvenoIme + "'";
+
+                using (connection = new SqlConnection(connectionString))
+                using (SqlCommand command = new SqlCommand(query, connection))
+                {
+                    connection.Open();
+                    command.ExecuteNonQuery();
+                }
+
+                query = "DELETE FROM Baterije WHERE AutomobilJedinstvenoIme = '" + jedinstvenoIme + "'";
+
+                using (connection = new SqlConnection(connectionString))
+                using (SqlCommand command = new SqlCommand(query, connection))
+                {
+                    connection.Open();
+                    command.ExecuteNonQuery();
+                }
             }
         }
 
         public void PromeniSnaguSunca(int novaVrednost)
         {
             MainWindow.SnagaSunca = novaVrednost;
+        }
+
+        public bool UkljuciNaPunjac(string jedinstvenoIme)
+        {
+            if (MainWindow.Punjac.NaPunjacu)
+            {
+                return false;
+            }
+            MainWindow.Punjac.NaPunjacu = true;
+            foreach(ElektricniAutomobil e in MainWindow.ElektricniAutomobili)
+            {
+                if(e.JedinstvenoIme == jedinstvenoIme)
+                {
+                    MainWindow.Punjac.Automobil = e;
+                    e.NaPunjacu = true;
+                    break;
+                }
+            }
+            return true;
+        }
+
+        public bool IskljuciSaPunjaca(string jedinstvenoIme)
+        {
+            if (!MainWindow.Punjac.NaPunjacu)
+            {
+                return false;
+            }
+            MainWindow.Punjac.NaPunjacu = false;
+            foreach (ElektricniAutomobil e in MainWindow.ElektricniAutomobili)
+            {
+                if (e.JedinstvenoIme == jedinstvenoIme)
+                {
+                    MainWindow.Punjac.Automobil = null;
+                    e.NaPunjacu = false;
+                    break;
+                }
+            }
+            return true;
+        }
+
+        public bool PokreniPunjenje()
+        {
+            if(!MainWindow.Punjac.NaPunjacu || MainWindow.Punjac.PuniSe)
+            {
+                return false;
+            }
+            MainWindow.Punjac.PuniSe = true;
+            foreach (ElektricniAutomobil e in MainWindow.ElektricniAutomobili)
+            {
+                if (e.JedinstvenoIme == MainWindow.Punjac.Automobil.JedinstvenoIme)
+                {
+                    e.PuniSe = true;
+                    break;
+                }
+            }
+            return true;
+        }
+
+        public bool ZaustaviPunjenje()
+        {
+            if(!MainWindow.Punjac.NaPunjacu || !MainWindow.Punjac.PuniSe)
+            {
+                return false;
+            }
+            MainWindow.Punjac.PuniSe = false;
+            foreach (ElektricniAutomobil e in MainWindow.ElektricniAutomobili)
+            {
+                if (e.JedinstvenoIme == MainWindow.Punjac.Automobil.JedinstvenoIme)
+                {
+                    e.PuniSe = false;
+                    break;
+                }
+            }
+            return true;
         }
     }
 }

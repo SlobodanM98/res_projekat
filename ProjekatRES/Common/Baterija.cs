@@ -18,6 +18,8 @@ namespace Common
         public int Kapacitet { get; set; }
         [DataMember]
         public MaterialDesignThemes.Wpf.PackIconKind Slika { get; set; }
+        [DataMember]
+        public string AutomobilJedinstvenoIme { get; set; }
 
         public Baterija(string jedinstvenoIme, double maksimalnaSnaga, int kapacitet)
         {
@@ -25,6 +27,7 @@ namespace Common
             MaksimalnaSnaga = maksimalnaSnaga;
             Kapacitet = kapacitet;
             Slika = MaterialDesignThemes.Wpf.PackIconKind.Battery0;
+            AutomobilJedinstvenoIme = null;
         }
     }
 }

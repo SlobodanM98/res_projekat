@@ -36,5 +36,17 @@ namespace Common
 
         [OperationContract]
         void PromeniSnaguSunca(int novaVrednost);
+
+        [OperationContract]
+        bool UkljuciNaPunjac(string jedinstvenoIme);
+
+        [OperationContract]
+        bool IskljuciSaPunjaca(string jedinstvenoIme);
+
+        [OperationContract]
+        bool PokreniPunjenje();
+
+        [OperationContract]
+        bool ZaustaviPunjenje();
     }
 }

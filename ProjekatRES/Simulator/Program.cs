@@ -16,12 +16,18 @@ namespace Simulator
         private static Dictionary<string, bool> baterije = new Dictionary<string, bool>();
         private static Dictionary<string, bool> automobili = new Dictionary<string, bool>();
         private static ISimulator proxy = new ChannelFactory<ISimulator>("ServisSimulator").CreateChannel();
+        private static int brojBaterije = 0;
+
+        private static string zaUkljucivanje = "";
+        private static string zaIskljucivanje = "";
+        private static string zaPokretanjePunjenja = "";
+        private static string zaZaustavljanjePunjenja = "";
 
         static void Main(string[] args)
         {
             while (true)
             {
-                Console.WriteLine("Meni :\n1.Solarni panel\n2.Potrosac\n3.Baterija\n4.Elektricni automobil\n5.Snaga sunca");
+                Console.WriteLine("Meni :\n1.Solarni panel\n2.Potrosac\n3.Baterija\n4.Elektricni automobil\n5.Snaga sunca\n6.Punjac");
                 string tekst = Console.ReadLine();
                 int unos = 0;
                 try
@@ -210,18 +216,18 @@ namespace Simulator
 
                     case 4:
                         Console.WriteLine("Elektricni automobil :\n1.Dodaj elektricni automobila\n2.Obrisi elektricni automobil\n");
-                        string tekstPunjac = Console.ReadLine();
-                        int unosPunjac = 0;
+                        string tekstAuto = Console.ReadLine();
+                        int unosAuto = 0;
                         try
                         {
-                            unosPunjac = int.Parse(tekstPunjac);
+                            unosAuto = int.Parse(tekstAuto);
                         }
                         catch
                         {
                             Console.WriteLine("Mora se uneti broj !");
                         }
 
-                        switch (unosPunjac)
+                        switch (unosAuto)
                         {
                             case 1:
                                 Console.WriteLine("Unesi jedinstveno ime elektricnog automobila : ");
@@ -229,7 +235,7 @@ namespace Simulator
 
                                 Console.WriteLine("Unesi snagu baterije : ");
                                 string snaga = Console.ReadLine();
-                                double snagaBaterije;
+                                double snagaBaterije = 0;
                                 
                                 try
                                 {
@@ -242,7 +248,7 @@ namespace Simulator
 
                                 Console.WriteLine("Unesi kapacitet baterije : ");
                                 string kapacitet = Console.ReadLine();
-                                double kapacitetBaterije;
+                                int kapacitetBaterije = 0;
 
                                 try
                                 {
@@ -255,7 +261,7 @@ namespace Simulator
 
                                 if (!automobili.ContainsKey(jedinstvenoIme))
                                 {
-                                    new Thread(() => PokreniPunjacElektricnogAutomobila(jedinstvenoIme)).Start();
+                                    new Thread(() => PokreniElektricniAutomobil(jedinstvenoIme, snagaBaterije, kapacitetBaterije)).Start();
                                 }
                                 else
                                 {
@@ -302,7 +308,73 @@ namespace Simulator
                             Console.WriteLine("Snaga sunca mora biti broj u intervalu izmedju 0 i 100 !");
                         }
                         break;
-
+                    case 6:
+                        Console.WriteLine("1.Ukljuci na punjac\n2.Iskljuci sa punjaca\n3.Pokreni punjenje\n4.Zaustavi punjenje");
+                        string tekstPunjac = Console.ReadLine();
+                        int unosPunjac = 0;
+                        try
+                        {
+                            unosPunjac = int.Parse(tekstPunjac);
+                        }
+                        catch
+                        {
+                            Console.WriteLine("Mora se uneti broj !");
+                        }
+                        switch (unosPunjac)
+                        {
+                            case 1:
+                                Console.WriteLine("Unesi jedinstveno ime automobila : ");
+                                string imeAuto = Console.ReadLine();
+                                if (automobili.ContainsKey(imeAuto))
+                                {
+                                    zaUkljucivanje = imeAuto;
+                                }
+                                else
+                                {
+                                    Console.WriteLine("Ne postoji automobil sa unetim imenom!");
+                                }
+                                break;
+                            case 2:
+                                Console.WriteLine("Unesi jedinstveno ime automobila : ");
+                                imeAuto = Console.ReadLine();
+                                if (automobili.ContainsKey(imeAuto))
+                                {
+                                    zaIskljucivanje = imeAuto;
+                                }
+                                else
+                                {
+                                    Console.WriteLine("Ne postoji automobil sa unetim imenom!");
+                                }
+                                break;
+                            case 3:
+                                Console.WriteLine("Unesi jedinstveno ime automobila : ");
+                                imeAuto = Console.ReadLine();
+                                if (automobili.ContainsKey(imeAuto))
+                                {
+                                    zaPokretanjePunjenja = imeAuto;
+                                }
+                                else
+                                {
+                                    Console.WriteLine("Ne postoji automobil sa unetim imenom!");
+                                }
+                                break;
+                            case 4:
+                                Console.WriteLine("Unesi jedinstveno ime automobila : ");
+                                imeAuto = Console.ReadLine();
+                                if (automobili.ContainsKey(imeAuto))
+                                {
+                                    zaZaustavljanjePunjenja = imeAuto;
+                                }
+                                else
+                                {
+                                    Console.WriteLine("Ne postoji automobil sa unetim imenom!");
+                                }
+                                break;
+                            default:
+                                Console.WriteLine("Greska pri unosu!");
+                                break;
+                        }
+                        break;
                     default:
                         Console.WriteLine("Greska pri unosu !");
                         break;
@@ -362,20 +434,41 @@ namespace Simulator
             Console.WriteLine("Obrisana baterija !");
         }
 
-        public static void PokreniPunjacElektricnogAutomobila(string jedinstvenoIme)
+        public static void PokreniElektricniAutomobil(string jedinstvenoIme, double snaga, int kapacitet)
         {
-            /*bool jestePokrenut = true;
-            uredjaji.Add(jedinstvenoIme, jestePokrenut);
-            proxy.DodajPunjacElektricnogAutomobila(new PunjacElektricnogAutomobila(jedinstvenoIme));
+            bool jestePokrenut = true;
+            automobili.Add(jedinstvenoIme, jestePokrenut);
+            proxy.DodajElektricniAutomobil(new ElektricniAutomobil(jedinstvenoIme, snaga, kapacitet, brojBaterije));
+            brojBaterije++;
 
             do
             {
                 Thread.Sleep(100);
-                jestePokrenut = uredjaji[jedinstvenoIme];
+                if(zaUkljucivanje == jedinstvenoIme)
+                {
+                    proxy.UkljuciNaPunjac(jedinstvenoIme);
+                    zaUkljucivanje = "";
+                }
+                if(zaIskljucivanje == jedinstvenoIme)
+                {
+                    proxy.IskljuciSaPunjaca(jedinstvenoIme);
+                    zaIskljucivanje = "";
+                }
+                if (zaPokretanjePunjenja == jedinstvenoIme)
+                {
+                    proxy.PokreniPunjenje();
+                    zaPokretanjePunjenja = "";
+                }
+                if (zaZaustavljanjePunjenja == jedinstvenoIme)
+                {
+                    proxy.ZaustaviPunjenje();
+                    zaZaustavljanjePunjenja = "";
+                }
+                jestePokrenut = automobili[jedinstvenoIme];
             } while (jestePokrenut);
 
-            proxy.UkoloniPunjacElektricnogAutomobila(jedinstvenoIme);
-            uredjaji.Remove(jedinstvenoIme);*/
+            proxy.UkloniElektricniAutomobil(jedinstvenoIme);
+            automobili.Remove(jedinstvenoIme);
         }
     }
 }
