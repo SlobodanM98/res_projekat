@@ -65,8 +65,12 @@ namespace SHES
             labelSnagaSunca.Content = SnagaSunca.ToString();
             labelSnagaSunca.Foreground = Brushes.Blue;
 
-            new Thread(() => PokreniServer()).Start();
-            new Thread(() => Azuriranje()).Start();
+            Thread pokreniServer = new Thread(() => PokreniServer());
+            pokreniServer.IsBackground = true;
+            pokreniServer.Start();
+            Thread azuriranje = new Thread(() => Azuriranje());
+            azuriranje.IsBackground = true;
+            azuriranje.Start();
 
             DataContext = this;
         }
@@ -136,6 +140,8 @@ namespace SHES
             });
         }
 
+
+
         void UcitajUredjaje()
         {
             string queryBaterije = "SELECT * FROM Baterije WHERE AutomobilJedinstvenoIme IS NULL";
@@ -192,6 +198,10 @@ namespace SHES
                     bool stanje = bool.Parse(table.Rows[i]["Upaljen"].ToString());
                     Potrosac novi = new Potrosac(jedinstvenoIme, potrosnja);
                     novi.Upaljen = stanje;
+                    if(stanje)
+                    {
+                        novi.Slika = MaterialDesignThemes.Wpf.PackIconKind.PowerPlugOutline;
+                    }
                     Potrosaci.Add(novi);
                 }
             }

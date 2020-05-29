@@ -23,6 +23,12 @@ namespace Common
         void UkloniPotrosaca(string jedinstvenoIme);
 
         [OperationContract]
+        void UpaliPotrosac(string jedinstvenoIme);
+
+        [OperationContract]
+        void UgasiPotrosac(string jedinstvenoIme);
+
+        [OperationContract]
         void DodajBateriju(Baterija novaBaterija, bool jesteAutomobil, string AutomobilJedinstvenoIme);
 
         [OperationContract]
@@ -48,5 +54,11 @@ namespace Common
 
         [OperationContract]
         bool ZaustaviPunjenje();
+
+        [OperationContract]
+        bool PostavljanjeKapacitetaAuta(int kapacitet);
+
+        [OperationContract]
+        Uredjaji PreuzmiUredjaje();
     }
 }

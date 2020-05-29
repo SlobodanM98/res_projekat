@@ -58,6 +58,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Punjac.cs" />
     <Compile Include="SolarniPanel.cs" />
+    <Compile Include="Uredjaji.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

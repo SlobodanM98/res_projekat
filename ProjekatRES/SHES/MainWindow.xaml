@@ -14,106 +14,145 @@
             <Setter Property="FontSize" Value="16"/>
         </Style>
     </Window.Resources>
-    <Grid>
-        <TabControl>
-            <TabItem Header="view1">
-                <StackPanel Orientation="Vertical">
-                    <StackPanel Orientation="Horizontal">
-                        <materialDesign:Card Margin="50, 30, 0,0">
-                            <materialDesign:PackIcon x:Name="vreme" Kind="{Binding SnagaSunca}" Width="50" Height="50" Margin="0,0,0,0"></materialDesign:PackIcon>
-                        </materialDesign:Card>
-                        <Label x:Name="labelSnagaSunca" Content="" HorizontalAlignment="Left" Height="40" Margin="50,35,0,0" VerticalAlignment="Top" Width="160" FontSize="20"/>
-                    </StackPanel>
-                    <StackPanel Orientation="Horizontal">
-                        <DataGrid HorizontalAlignment="Left" Height="187" Margin="10,30,0,0" VerticalAlignment="Top" Width="330" ItemsSource="{Binding Baterije}" AutoGenerateColumns="False" IsReadOnly="True">
-                            <DataGrid.Columns>
-                                <DataGridTemplateColumn Header="Baterije"  Width="*" HeaderStyle="{StaticResource CenterGridHeaderStyle}">
-                                    <DataGridTemplateColumn.CellTemplate>
-                                        <DataTemplate>
-                                            <StackPanel  Orientation="Horizontal">
-                                                <materialDesign:Card>
-                                                    <materialDesign:PackIcon x:Name="baterija" Kind="{Binding Slika}" Height="80" Width="64"/>
-                                                </materialDesign:Card>
-                                                <StackPanel>
-                                                    <StackPanel Orientation="Horizontal">
-                                                        <Label Content="Jedinstveno ime:" FontSize="12"></Label>
-                                                        <Label Content="{Binding JedinstvenoIme}" FontSize="12"></Label>
-                                                    </StackPanel>
-                                                    <StackPanel Orientation="Horizontal">
-                                                        <Label Content="Maksimalna snaga:" FontSize="12"></Label>
-                                                        <Label Content="{Binding MaksimalnaSnaga}" FontSize="12"></Label>
-                                                    </StackPanel>
-                                                    <StackPanel Orientation="Horizontal">
-                                                        <Label Content="Kapacitet:" FontSize="12"></Label>
-                                                        <Label Content="{Binding Kapacitet}" FontSize="12"></Label>
-                                                    </StackPanel>
-                                                </StackPanel>
-                                            </StackPanel>
-                                        </DataTemplate>
-                                    </DataGridTemplateColumn.CellTemplate>
-                                </DataGridTemplateColumn>
-                            </DataGrid.Columns>
-                        </DataGrid>
-                        <DataGrid HorizontalAlignment="Left" Height="187" Margin="50,30,0,0" VerticalAlignment="Top" Width="300" ItemsSource="{Binding Potrosaci}" AutoGenerateColumns="False" IsReadOnly="True">
-                            <DataGrid.Columns>
-                                <DataGridTemplateColumn Header="Potrosaci" Width="*" HeaderStyle="{StaticResource CenterGridHeaderStyle}">
-                                    <DataGridTemplateColumn.CellTemplate>
-                                        <DataTemplate>
-                                            <StackPanel  Orientation="Horizontal">
-                                                <materialDesign:Card>
-                                                    <materialDesign:PackIcon x:Name="potrosac" Kind="{Binding Slika}" Height="80" Width="64"/>
-                                                </materialDesign:Card>
-                                                <StackPanel>
-                                                    <StackPanel Orientation="Horizontal">
-                                                        <Label Content="Jedinstveno ime:" FontSize="12"></Label>
-                                                        <Label Content="{Binding JedinstvenoIme}" FontSize="12"></Label>
-                                                    </StackPanel>
-                                                    <StackPanel Orientation="Horizontal">
-                                                        <Label Content="Potrosnja:" FontSize="12"></Label>
-                                                        <Label Content="{Binding Potrosnja}" FontSize="12"></Label>
-                                                    </StackPanel>
-                                                    <StackPanel Orientation="Horizontal">
-                                                        <Label Content="Upaljen:" FontSize="12"></Label>
-                                                        <Label Content="{Binding Upaljen}" FontSize="12"></Label>
+    <Viewbox>
+        <Grid Height="647" Width="1195">
+            <TabControl>
+                <TabItem Header="view1">
+                    <StackPanel Orientation="Vertical">
+                        <StackPanel Orientation="Horizontal" Height="100">
+                            <materialDesign:Card Margin="50, 30, 0,0">
+                                <materialDesign:PackIcon x:Name="vreme" Kind="{Binding SnagaSunca}" Width="50" Height="50" Margin="0,0,0,0"></materialDesign:PackIcon>
+                            </materialDesign:Card>
+                            <Label x:Name="labelSnagaSunca" Content="" HorizontalAlignment="Left" Height="40" Margin="50,35,0,0" VerticalAlignment="Top" Width="160" FontSize="20"/>
+                            
+                            <StackPanel Orientation="Vertical" Margin="650, 0, 0, 0">
+                                <Label x:Name="labelNaPunjacu" Content="2222" HorizontalAlignment="Left" Height="40" Margin="0,10,0,0" VerticalAlignment="Top" Width="160" FontSize="20"/>
+                                <Label x:Name="labelPuniSe" Content="3333" HorizontalAlignment="Left" Height="40" Margin="0,10,0,0" VerticalAlignment="Top" Width="160" FontSize="20"/>
+                            </StackPanel>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal">
+                            <DataGrid HorizontalAlignment="Left" Height="187" Margin="10,30,0,0" VerticalAlignment="Top" Width="293" ItemsSource="{Binding Baterije}" AutoGenerateColumns="False" IsReadOnly="True">
+                                <DataGrid.Columns>
+                                    <DataGridTemplateColumn Header="Baterije"  Width="*" HeaderStyle="{StaticResource CenterGridHeaderStyle}">
+                                        <DataGridTemplateColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <StackPanel  Orientation="Horizontal">
+                                                    <materialDesign:Card>
+                                                        <materialDesign:PackIcon x:Name="baterija" Kind="{Binding Slika}" Height="80" Width="64"/>
+                                                    </materialDesign:Card>
+                                                    <StackPanel>
+                                                        <StackPanel Orientation="Horizontal">
+                                                            <Label Content="Jedinstveno ime:" FontSize="12"></Label>
+                                                            <Label Content="{Binding JedinstvenoIme}" FontSize="12"></Label>
+                                                        </StackPanel>
+                                                        <StackPanel Orientation="Horizontal">
+                                                            <Label Content="Maksimalna snaga:" FontSize="12"></Label>
+                                                            <Label Content="{Binding MaksimalnaSnaga}" FontSize="12"></Label>
+                                                        </StackPanel>
+                                                        <StackPanel Orientation="Horizontal">
+                                                            <Label Content="Kapacitet:" FontSize="12"></Label>
+                                                            <Label Content="{Binding Kapacitet}" FontSize="12"></Label>
+                                                        </StackPanel>
                                                     </StackPanel>
                                                 </StackPanel>
-                                            </StackPanel>
-                                        </DataTemplate>
-                                    </DataGridTemplateColumn.CellTemplate>
-                                </DataGridTemplateColumn>
-                            </DataGrid.Columns>
-                        </DataGrid>
-                        <DataGrid HorizontalAlignment="Left" Height="187" Margin="50,30,0,0" VerticalAlignment="Top" Width="300" ItemsSource="{Binding SolarniPaneli}" AutoGenerateColumns="False" IsReadOnly="True">
-                            <DataGrid.Columns>
-                                <DataGridTemplateColumn Header="Solarni Paneli" Width="*" HeaderStyle="{StaticResource CenterGridHeaderStyle}">
-                                    <DataGridTemplateColumn.CellTemplate>
-                                        <DataTemplate>
-                                            <StackPanel  Orientation="Horizontal">
-                                                <materialDesign:Card>
-                                                    <materialDesign:PackIcon x:Name="potrosac" Kind="{Binding Slika}" Height="80" Width="64"/>
-                                                </materialDesign:Card>
-                                                <StackPanel>
-                                                    <StackPanel Orientation="Horizontal">
-                                                        <Label Content="Jedinstveno ime:" FontSize="12"></Label>
-                                                        <Label Content="{Binding JedinstvenoIme}" FontSize="12"></Label>
-                                                    </StackPanel>
-                                                    <StackPanel Orientation="Horizontal">
-                                                        <Label Content="Maksimalna snaga:" FontSize="12"></Label>
-                                                        <Label Content="{Binding MaksimalnaSnaga}" FontSize="12"></Label>
-                                                    </StackPanel>
-                                                </StackPanel>
-                                            </StackPanel>
-                                        </DataTemplate>
-                                    </DataGridTemplateColumn.CellTemplate>
-                                </DataGridTemplateColumn>
-                            </DataGrid.Columns>
+                                            </DataTemplate>
+                                        </DataGridTemplateColumn.CellTemplate>
+                                    </DataGridTemplateColumn>
+                                </DataGrid.Columns>
                             </DataGrid>
+                            <DataGrid HorizontalAlignment="Left" Height="187" Margin="0,30,0,0" VerticalAlignment="Top" Width="293" ItemsSource="{Binding Potrosaci}" AutoGenerateColumns="False" IsReadOnly="True">
+                                <DataGrid.Columns>
+                                    <DataGridTemplateColumn Header="Potrosaci" Width="*" HeaderStyle="{StaticResource CenterGridHeaderStyle}">
+                                        <DataGridTemplateColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <StackPanel  Orientation="Horizontal">
+                                                    <materialDesign:Card>
+                                                        <materialDesign:PackIcon x:Name="potrosac" Kind="{Binding Slika}" Height="80" Width="64"/>
+                                                    </materialDesign:Card>
+                                                    <StackPanel>
+                                                        <StackPanel Orientation="Horizontal">
+                                                            <Label Content="Jedinstveno ime:" FontSize="12"></Label>
+                                                            <Label Content="{Binding JedinstvenoIme}" FontSize="12"></Label>
+                                                        </StackPanel>
+                                                        <StackPanel Orientation="Horizontal">
+                                                            <Label Content="Potrosnja:" FontSize="12"></Label>
+                                                            <Label Content="{Binding Potrosnja}" FontSize="12"></Label>
+                                                        </StackPanel>
+                                                        <StackPanel Orientation="Horizontal">
+                                                            <Label Content="Upaljen:" FontSize="12"></Label>
+                                                            <Label Content="{Binding Upaljen}" FontSize="12"></Label>
+                                                        </StackPanel>
+                                                    </StackPanel>
+                                                </StackPanel>
+                                            </DataTemplate>
+                                        </DataGridTemplateColumn.CellTemplate>
+                                    </DataGridTemplateColumn>
+                                </DataGrid.Columns>
+                            </DataGrid>
+                            <DataGrid HorizontalAlignment="Left" Height="187" Margin="00,30,0,0" VerticalAlignment="Top" Width="293" ItemsSource="{Binding SolarniPaneli}" AutoGenerateColumns="False" IsReadOnly="True">
+                                <DataGrid.Columns>
+                                    <DataGridTemplateColumn Header="Solarni Paneli" Width="*" HeaderStyle="{StaticResource CenterGridHeaderStyle}">
+                                        <DataGridTemplateColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <StackPanel  Orientation="Horizontal">
+                                                    <materialDesign:Card>
+                                                        <materialDesign:PackIcon x:Name="potrosac" Kind="{Binding Slika}" Height="80" Width="64"/>
+                                                    </materialDesign:Card>
+                                                    <StackPanel>
+                                                        <StackPanel Orientation="Horizontal">
+                                                            <Label Content="Jedinstveno ime:" FontSize="12"></Label>
+                                                            <Label Content="{Binding JedinstvenoIme}" FontSize="12"></Label>
+                                                        </StackPanel>
+                                                        <StackPanel Orientation="Horizontal">
+                                                            <Label Content="Maksimalna snaga:" FontSize="12"></Label>
+                                                            <Label Content="{Binding MaksimalnaSnaga}" FontSize="12"></Label>
+                                                        </StackPanel>
+                                                    </StackPanel>
+                                                </StackPanel>
+                                            </DataTemplate>
+                                        </DataGridTemplateColumn.CellTemplate>
+                                    </DataGridTemplateColumn>
+                                </DataGrid.Columns>
+                            </DataGrid>
+                            <DataGrid HorizontalAlignment="Left" Height="187" Margin="00,30,0,0" VerticalAlignment="Top" Width="293" ItemsSource="{Binding ElektricniAutomobili}" AutoGenerateColumns="False" IsReadOnly="True">
+                                <DataGrid.Columns>
+                                    <DataGridTemplateColumn Header="Elektricni automobili" Width="*" HeaderStyle="{StaticResource CenterGridHeaderStyle}">
+                                        <DataGridTemplateColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <StackPanel  Orientation="Horizontal">
+                                                    <materialDesign:Card>
+                                                        <materialDesign:PackIcon x:Name="automobil" Kind="{Binding Slika}" Height="100" Width="64"/>
+                                                    </materialDesign:Card>
+                                                    <StackPanel>
+                                                        <StackPanel Orientation="Horizontal">
+                                                            <Label Content="Jedinstveno ime:" FontSize="12"></Label>
+                                                            <Label Content="{Binding JedinstvenoIme}" FontSize="12"></Label>
+                                                        </StackPanel>
+                                                        <StackPanel Orientation="Horizontal">
+                                                            <Label Content="Na punjacu:" FontSize="12"></Label>
+                                                            <Label Content="{Binding NaPunjacu}" FontSize="12"></Label>
+                                                        </StackPanel>
+                                                        <StackPanel Orientation="Horizontal">
+                                                            <Label Content="Puni se:" FontSize="12"></Label>
+                                                            <Label Content="{Binding PuniSe}" FontSize="12"></Label>
+                                                        </StackPanel>
+                                                        <StackPanel Orientation="Horizontal">
+                                                            <Label Content="Kapacitet:" FontSize="12"></Label>
+                                                            <Label Content="{Binding BaterijaAuta.Kapacitet}" FontSize="12"></Label>
+                                                        </StackPanel>
+                                                    </StackPanel>
+                                                </StackPanel>
+                                            </DataTemplate>
+                                        </DataGridTemplateColumn.CellTemplate>
+                                    </DataGridTemplateColumn>
+                                </DataGrid.Columns>
+                            </DataGrid>
+                        </StackPanel>
                     </StackPanel>
-                </StackPanel>
-            </TabItem>
-            <TabItem Header="view2"></TabItem>
-        </TabControl>
-        <!--DataGrid HorizontalAlignment="Left" Height="187" Margin="10,53,0,0" VerticalAlignment="Top" Width="330" ItemsSource="{Binding Baterije}" AutoGenerateColumns="False" IsReadOnly="True">
+                </TabItem>
+                <TabItem Header="view2"></TabItem>
+            </TabControl>
+            <!--DataGrid HorizontalAlignment="Left" Height="187" Margin="10,53,0,0" VerticalAlignment="Top" Width="330" ItemsSource="{Binding Baterije}" AutoGenerateColumns="False" IsReadOnly="True">
             <DataGrid.Columns>
                 <DataGridTemplateColumn Header="Baterije"  Width="*" HeaderStyle="{StaticResource CenterGridHeaderStyle}">
                     <DataGridTemplateColumn.CellTemplate>
@@ -200,5 +239,6 @@
                 </DataGridTemplateColumn>
             </DataGrid.Columns>
         </DataGrid-->
-    </Grid>
+        </Grid>
+    </Viewbox>
 </Window>

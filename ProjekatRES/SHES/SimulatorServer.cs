@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Configuration;
+using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
 using System.Text;
@@ -136,6 +137,45 @@ namespace SHES
                 {
                     connection.Open();
                     command.ExecuteNonQuery();
+                }
+            }
+        }
+
+        public void UpaliPotrosac(string jedinstvenoIme)
+        {
+            bool sadrzi = false;
+            foreach(Potrosac p in MainWindow.Potrosaci)
+            {
+                if(p.JedinstvenoIme == jedinstvenoIme)
+                {
+                    sadrzi = true;
+                    p.Upaljen = true;
+                    p.Slika = MaterialDesignThemes.Wpf.PackIconKind.PowerPlugOutline;
+                }
+            }
+
+            if(sadrzi)
+            {
+                string query = "UPDATE Potrosaci SET Upaljen=@up  WHERE JedinstvenoIme = '" + jedinstvenoIme + "'";
+
+                using (connection = new SqlConnection(connectionString))
+                using (SqlCommand command = new SqlCommand(query, connection))
+                {
+                    command.Parameters.Add("@up", SqlDbType.Bit).Value = true;
+                    connection.Open();
+                    command.ExecuteNonQuery();
+                }
+            }
+        }
+
+        public void UgasiPotrosac(string jedinstvenoIme)
+        {
+            foreach (Potrosac p in MainWindow.Potrosaci)
+            {
+                if (p.JedinstvenoIme == jedinstvenoIme)
+                {
+                    p.Upaljen = false;
+                    p.Slika = MaterialDesignThemes.Wpf.PackIconKind.PowerPlugOffOutline;
                 }
             }
         }
@@ -314,6 +354,7 @@ namespace SHES
                     break;
                 }
             }
+
             return true;
         }
 
@@ -348,6 +389,7 @@ namespace SHES
                 if (e.JedinstvenoIme == MainWindow.Punjac.Automobil.JedinstvenoIme)
                 {
                     e.PuniSe = true;
+
                     break;
                 }
             }
@@ -366,10 +408,88 @@ namespace SHES
                 if (e.JedinstvenoIme == MainWindow.Punjac.Automobil.JedinstvenoIme)
                 {
                     e.PuniSe = false;
+                    int kapacitet = e.BaterijaAuta.Kapacitet;
+                    if (kapacitet > 0 && kapacitet <= 20)
+                    {
+                        e.Slika = MaterialDesignThemes.Wpf.PackIconKind.BatteryCharging10;
+                    }
+                    else if (kapacitet > 20 && kapacitet <= 40)
+                    {
+                        e.Slika = MaterialDesignThemes.Wpf.PackIconKind.BatteryCharging30;
+                    }
+                    else if (kapacitet > 40 && kapacitet <= 60)
+                    {
+                        e.Slika = MaterialDesignThemes.Wpf.PackIconKind.BatteryCharging50;
+                    }
+                    else if (kapacitet > 60 && kapacitet <= 80)
+                    {
+                        e.Slika = MaterialDesignThemes.Wpf.PackIconKind.BatteryCharging70;
+                    }
+                    else if (kapacitet > 80 && kapacitet <= 90)
+                    {
+                        e.Slika = MaterialDesignThemes.Wpf.PackIconKind.BatteryCharging90;
+                    }
+                    else
+                    {
+                        e.Slika = MaterialDesignThemes.Wpf.PackIconKind.BatteryCharging100;
+                    }
                     break;
                 }
             }
             return true;
+        }
+
+        public bool PostavljanjeKapacitetaAuta(int kapacitet)
+        {
+            if (!MainWindow.Punjac.NaPunjacu || !MainWindow.Punjac.PuniSe)
+            {
+                return false;
+            }
+            foreach (ElektricniAutomobil e in MainWindow.ElektricniAutomobili)
+            {
+                if (e.JedinstvenoIme == MainWindow.Punjac.Automobil.JedinstvenoIme)
+                {
+                    e.BaterijaAuta.Kapacitet = kapacitet;
+                    if(kapacitet > 0 && kapacitet <= 20)
+                    {
+                        e.Slika = MaterialDesignThemes.Wpf.PackIconKind.BatteryCharging10;
+                    }
+                    else if(kapacitet > 20 && kapacitet <= 40)
+                    {
+                        e.Slika = MaterialDesignThemes.Wpf.PackIconKind.BatteryCharging30;
+                    }
+                    else if (kapacitet > 40 && kapacitet <= 60)
+                    {
+                        e.Slika = MaterialDesignThemes.Wpf.PackIconKind.BatteryCharging50;
+                    }
+                    else if (kapacitet > 60 && kapacitet <= 80)
+                    {
+                        e.Slika = MaterialDesignThemes.Wpf.PackIconKind.BatteryCharging70;
+                    }
+                    else if (kapacitet > 80 && kapacitet <= 90)
+                    {
+                        e.Slika = MaterialDesignThemes.Wpf.PackIconKind.BatteryCharging90;
+                    }
+                    else
+                    {
+                        e.Slika = MaterialDesignThemes.Wpf.PackIconKind.BatteryCharging100;
+                    }
+
+                    break;
+                }
+            }
+            return true;
+        }
+
+        public Uredjaji PreuzmiUredjaje()
+        {
+            Uredjaji uredjaji = new Uredjaji();
+            uredjaji.Automobili = MainWindow.ElektricniAutomobili.ToList();
+            uredjaji.Baterije = MainWindow.Baterije.ToList();
+            uredjaji.Potrosaci = MainWindow.Potrosaci.ToList();
+            uredjaji.Paneli = MainWindow.SolarniPaneli.ToList();
+
+            return uredjaji;
         }
     }
 }
