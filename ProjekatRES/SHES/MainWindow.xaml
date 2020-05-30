@@ -25,10 +25,17 @@
                             </materialDesign:Card>
                             <Label x:Name="labelSnagaSunca" Content="" HorizontalAlignment="Left" Height="40" Margin="50,35,0,0" VerticalAlignment="Top" Width="160" FontSize="20"/>
                             
-                            <StackPanel Orientation="Vertical" Margin="650, 0, 0, 0">
-                                <Label x:Name="labelNaPunjacu" Content="2222" HorizontalAlignment="Left" Height="40" Margin="0,10,0,0" VerticalAlignment="Top" Width="160" FontSize="20"/>
-                                <Label x:Name="labelPuniSe" Content="3333" HorizontalAlignment="Left" Height="40" Margin="0,10,0,0" VerticalAlignment="Top" Width="160" FontSize="20"/>
+                            <Label x:Name="labelTrenutnoVreme" Content="" Height="40" Width="160" FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="200,35,0,0" />
+
+                            <StackPanel Orientation="Vertical" Margin="200, 0, 0, 0">
+                                <Label Content="Snaga razmene :" HorizontalAlignment="Left" Height="40" Margin="0,10,0,0" VerticalAlignment="Top" Width="160" FontSize="20"/>
+                                <Label Content="Cena :" HorizontalAlignment="Left" Height="40" Margin="0,10,0,0" VerticalAlignment="Top" Width="160" FontSize="20"/>
                             </StackPanel>
+                            <StackPanel Orientation="Vertical" Margin="0, 0, 0, 0">
+                                <Label x:Name="labelSnagaRazmene" Content="" HorizontalAlignment="Left" Height="40" Margin="0,10,0,0" VerticalAlignment="Top" Width="160" FontSize="20"/>
+                                <Label x:Name="labelCena" Content="" HorizontalAlignment="Left" Height="40" Margin="0,10,0,0" VerticalAlignment="Top" Width="160" FontSize="20"/>
+                            </StackPanel>
+
                         </StackPanel>
                         <StackPanel Orientation="Horizontal">
                             <DataGrid HorizontalAlignment="Left" Height="187" Margin="10,30,0,0" VerticalAlignment="Top" Width="293" ItemsSource="{Binding Baterije}" AutoGenerateColumns="False" IsReadOnly="True">
@@ -148,9 +155,14 @@
                                 </DataGrid.Columns>
                             </DataGrid>
                         </StackPanel>
+                        <StackPanel Orientation="Vertical" Margin="360, 0, 0, 0">
+                            <Label x:Name="labelNaPunjacu" Content="2222" HorizontalAlignment="Left" Height="40" Margin="0,10,0,0" VerticalAlignment="Top" Width="160" FontSize="20"/>
+                            <Label x:Name="labelPuniSe" Content="3333" HorizontalAlignment="Left" Height="40" Margin="0,10,0,0" VerticalAlignment="Top" Width="160" FontSize="20"/>
+                        </StackPanel>
                     </StackPanel>
                 </TabItem>
                 <TabItem Header="view2"></TabItem>
+                
             </TabControl>
             <!--DataGrid HorizontalAlignment="Left" Height="187" Margin="10,53,0,0" VerticalAlignment="Top" Width="330" ItemsSource="{Binding Baterije}" AutoGenerateColumns="False" IsReadOnly="True">
             <DataGrid.Columns>

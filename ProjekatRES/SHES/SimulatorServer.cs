@@ -365,12 +365,14 @@ namespace SHES
                 return false;
             }
             MainWindow.Punjac.NaPunjacu = false;
+            MainWindow.Punjac.PuniSe = false;
             foreach (ElektricniAutomobil e in MainWindow.ElektricniAutomobili)
             {
                 if (e.JedinstvenoIme == jedinstvenoIme)
                 {
                     MainWindow.Punjac.Automobil = null;
                     e.NaPunjacu = false;
+                    e.PuniSe = false;
                     break;
                 }
             }
@@ -490,6 +492,16 @@ namespace SHES
             uredjaji.Paneli = MainWindow.SolarniPaneli.ToList();
 
             return uredjaji;
+        }
+
+        public void PodesiOdnost(int noviOdnos)
+        {
+            MainWindow.jednaSekundaJe = noviOdnos;
+        }
+
+        public void PodesavanjeCene(int cena)
+        {
+            MainWindow.distribucija.Cena = cena;
         }
     }
 }

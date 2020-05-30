@@ -31,7 +31,7 @@ namespace Simulator
             ucitajUredjaje();
             while (true)
             {
-                Console.WriteLine("Meni :\n1.Solarni panel\n2.Potrosac\n3.Baterija\n4.Elektricni automobil\n5.Snaga sunca\n6.Punjac");
+                Console.WriteLine("Meni :\n1.Solarni panel\n2.Potrosac\n3.Baterija\n4.Elektricni automobil\n5.Snaga sunca\n6.Punjac\n7.Vreme\n8.Cena");
                 string tekst = Console.ReadLine();
                 int unos = 0;
                 try
@@ -434,6 +434,50 @@ namespace Simulator
                             default:
                                 Console.WriteLine("Greska pri unosu!");
                                 break;
+                        }
+                        break;
+                    case 7:
+                        Console.WriteLine("Unesi koliko sekundi prodje u sistemu svake realne sekunde : ");
+                        string tekstVreme = Console.ReadLine();
+                        int unosVreme = -1;
+                        try
+                        {
+                            unosVreme = int.Parse(tekstVreme);
+                        }
+                        catch
+                        {
+                            Console.WriteLine("Mora se uneti broj !");
+                        }
+
+                        if(unosVreme > 0)
+                        {
+                            proxy.PodesiOdnost(unosVreme);
+                        }
+                        else
+                        {
+                            Console.WriteLine("Broj sekundi mora biti pozitivan broj!");
+                        }
+                        break;
+                    case 8:
+                        Console.WriteLine("Unesi cenu jednog kWh : ");
+                        string tekstCena = Console.ReadLine();
+                        int unosCena = -1;
+                        try
+                        {
+                            unosCena = int.Parse(tekstCena);
+                        }
+                        catch
+                        {
+                            Console.WriteLine("Mora se uneti broj !");
+                        }
+
+                        if (unosCena > 0)
+                        {
+                            proxy.PodesavanjeCene(unosCena);
+                        }
+                        else
+                        {
+                            Console.WriteLine("Cena mora biti pozitivan broj!");
                         }
                         break;
                     default:

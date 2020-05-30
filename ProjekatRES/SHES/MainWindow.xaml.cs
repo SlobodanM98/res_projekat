@@ -29,7 +29,6 @@ namespace SHES
     {
         SqlConnection connection;
         string connectionString;
-        int StaraSnagaSunca;
 
         public static int SnagaSunca;
         public static MaterialDesignThemes.Wpf.PackIconKind SlikaSnageSunca { get; set; }
@@ -44,6 +43,11 @@ namespace SHES
 
         public static Punjac Punjac;
 
+        public static int jednaSekundaJe;
+        public static DateTime trenutnoVreme;
+
+        public static Elektrodistribucija distribucija;
+
         public MainWindow()
         {
             connectionString = ConfigurationManager.ConnectionStrings["SHES.Properties.Settings.BazaPodatakaConnectionString"].ConnectionString;
@@ -53,8 +57,10 @@ namespace SHES
             ElektricniAutomobili = new BindingList<ElektricniAutomobil>();
             autoBaterije = new List<Baterija>();
             SnagaSunca = 0;
-            StaraSnagaSunca = 0;
             Punjac = new Punjac();
+            jednaSekundaJe = int.Parse(ConfigurationManager.AppSettings["jednaSekundaJe"]);
+            trenutnoVreme = DateTime.Now;
+            distribucija = new Elektrodistribucija();
 
             UcitajUredjaje();
 
@@ -64,6 +70,8 @@ namespace SHES
 
             labelSnagaSunca.Content = SnagaSunca.ToString();
             labelSnagaSunca.Foreground = Brushes.Blue;
+            labelSnagaRazmene.Content = distribucija.SnagaRazmene.ToString();
+            labelCena.Content = distribucija.Cena.ToString();
 
             Thread pokreniServer = new Thread(() => PokreniServer());
             pokreniServer.IsBackground = true;
@@ -97,20 +105,38 @@ namespace SHES
         {
             while (true)
             {
+                trenutnoVreme = trenutnoVreme.AddSeconds(1);
+                PodesiTrenutnoVreme();
+                int StaraSnagaSunca = 0;
+                double StaraSnagaRazmene = 0;
+                double StaraCena = 0;
+                App.Current.Dispatcher.Invoke((System.Action)delegate
+                {
+                    int.TryParse(labelSnagaSunca.Content.ToString(), out StaraSnagaSunca);
+                    double.TryParse(labelSnagaRazmene.Content.ToString(), out StaraSnagaRazmene);
+                    double.TryParse(labelCena.Content.ToString(), out StaraCena);
+                });
                 if (StaraSnagaSunca != SnagaSunca)
                 {
                     PodesiSnaguSunca(SnagaSunca);
                 }
-                Thread.Sleep(1000);
+                if(StaraSnagaRazmene != distribucija.SnagaRazmene)
+                {
+                    PodesiSnaguRazmene(distribucija.SnagaRazmene);
+                }
+                if(StaraCena != distribucija.Cena)
+                {
+                    PodesiCenu(distribucija.Cena);
+                }
+                Thread.Sleep(1000 / jednaSekundaJe);
             }
         }
 
         public void PodesiSnaguSunca(int novaVrednost)
         {
-            StaraSnagaSunca = novaVrednost;
             App.Current.Dispatcher.Invoke((System.Action)delegate
             {
-                labelSnagaSunca.Content = SnagaSunca.ToString() + " " + "Snaga sunca";
+                labelSnagaSunca.Content = SnagaSunca.ToString();
                 if(SnagaSunca == 0)
                 {
                     labelSnagaSunca.Foreground = Brushes.Black;
@@ -140,7 +166,29 @@ namespace SHES
             });
         }
 
+        public void PodesiSnaguRazmene(double novaSnaga)
+        {
+            App.Current.Dispatcher.Invoke((System.Action)delegate
+            {
+                labelSnagaRazmene.Content = novaSnaga.ToString();
+            });
+        }
 
+        public void PodesiCenu(double novaCena)
+        {
+            App.Current.Dispatcher.Invoke((System.Action)delegate
+            {
+                labelCena.Content = novaCena.ToString();
+            });
+        }
+
+        public void PodesiTrenutnoVreme()
+        {
+            App.Current.Dispatcher.Invoke((System.Action)delegate
+            {
+                labelTrenutnoVreme.Content = trenutnoVreme.ToLongTimeString();
+            });
+        }
 
         void UcitajUredjaje()
         {

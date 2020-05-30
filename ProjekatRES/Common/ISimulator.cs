@@ -60,5 +60,11 @@ namespace Common
 
         [OperationContract]
         Uredjaji PreuzmiUredjaje();
+
+        [OperationContract]
+        void PodesiOdnost(int noviOdnos);
+
+        [OperationContract]
+        void PodesavanjeCene(int cena);
     }
 }
