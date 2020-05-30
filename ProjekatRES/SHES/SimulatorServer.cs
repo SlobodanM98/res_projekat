@@ -494,7 +494,7 @@ namespace SHES
             return uredjaji;
         }
 
-        public void PodesiOdnost(int noviOdnos)
+        public void PodesiOdnos(int noviOdnos)
         {
             MainWindow.jednaSekundaJe = noviOdnos;
         }

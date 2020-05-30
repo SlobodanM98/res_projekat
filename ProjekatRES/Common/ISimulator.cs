@@ -62,7 +62,7 @@ namespace Common
         Uredjaji PreuzmiUredjaje();
 
         [OperationContract]
-        void PodesiOdnost(int noviOdnos);
+        void PodesiOdnos(int noviOdnos);
 
         [OperationContract]
         void PodesavanjeCene(int cena);
