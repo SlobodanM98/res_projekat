@@ -107,15 +107,19 @@ namespace SHES
             {
                 trenutnoVreme = trenutnoVreme.AddSeconds(1);
                 PodesiTrenutnoVreme();
+
+                double potrosnja = 0;
                 int StaraSnagaSunca = 0;
                 double StaraSnagaRazmene = 0;
                 double StaraCena = 0;
+
                 App.Current.Dispatcher.Invoke((System.Action)delegate
                 {
                     int.TryParse(labelSnagaSunca.Content.ToString(), out StaraSnagaSunca);
                     double.TryParse(labelSnagaRazmene.Content.ToString(), out StaraSnagaRazmene);
                     double.TryParse(labelCena.Content.ToString(), out StaraCena);
                 });
+
                 if (StaraSnagaSunca != SnagaSunca)
                 {
                     PodesiSnaguSunca(SnagaSunca);
@@ -128,6 +132,48 @@ namespace SHES
                 {
                     PodesiCenu(distribucija.Cena);
                 }
+
+                if(trenutnoVreme.Hour >= 3 && trenutnoVreme.Hour <= 6)
+                {
+                    foreach(Baterija b in Baterije)
+                    {
+                        potrosnja += PunjenjeBaterije(b);
+                    }
+                }else if(trenutnoVreme.Hour >= 14 && trenutnoVreme.Hour <= 17)
+                {
+                    foreach(Baterija b in Baterije)
+                    {
+                        potrosnja -= PraznjenjeBaterije(b);
+                    }
+                }
+                else
+                {
+                    foreach(Baterija b in Baterije)
+                    {
+                        ResetBaterije(b);
+                    }
+                }
+
+                foreach(Potrosac p in Potrosaci)
+                {
+                    if (p.Upaljen)
+                    {
+                        potrosnja += p.Potrosnja / 3600;
+                    }
+                }
+
+                if (Punjac.PuniSe)
+                {
+                    potrosnja += PunjenjeBaterije(Punjac.Automobil.BaterijaAuta);
+                }
+
+                foreach(SolarniPanel s in SolarniPaneli)
+                {
+                    potrosnja -= ((s.MaksimalnaSnaga / 3600) / 100) * SnagaSunca;
+                }
+
+                distribucija.SnagaRazmene += potrosnja;
+
                 Thread.Sleep(1000 / jednaSekundaJe);
             }
         }
@@ -190,6 +236,81 @@ namespace SHES
             });
         }
 
+        public double PunjenjeBaterije(Baterija baterija)
+        {
+            string query;
+            if (!baterija.PuniSe)
+            {
+                baterija.PuniSe = true;
+                query = "UPDATE Baterije SET PuniSe=@up  WHERE JedinstvenoIme = '" + baterija.JedinstvenoIme + "'";
+
+                using (connection = new SqlConnection(connectionString))
+                using (SqlCommand command = new SqlCommand(query, connection))
+                {
+                    command.Parameters.Add("@up", SqlDbType.Bit).Value = true;
+                    connection.Open();
+                    command.ExecuteNonQuery();
+                }
+            }
+            baterija.Kapacitet++;
+            query = $"UPDATE Baterije SET Kapacitet={baterija.Kapacitet}  WHERE JedinstvenoIme = '" + baterija.JedinstvenoIme + "'";
+
+            using (connection = new SqlConnection(connectionString))
+            using (SqlCommand command = new SqlCommand(query, connection))
+            {
+                connection.Open();
+                command.ExecuteNonQuery();
+            }
+            return baterija.MaksimalnaSnaga / 3600;
+        }
+
+        public double PraznjenjeBaterije(Baterija baterija)
+        {
+            string query;
+            if (!baterija.PrazniSe)
+            {
+                baterija.PrazniSe = true;
+                query = "UPDATE Baterije SET PrazniSe=@up  WHERE JedinstvenoIme = '" + baterija.JedinstvenoIme + "'";
+
+                using (connection = new SqlConnection(connectionString))
+                using (SqlCommand command = new SqlCommand(query, connection))
+                {
+                    command.Parameters.Add("@up", SqlDbType.Bit).Value = true;
+                    connection.Open();
+                    command.ExecuteNonQuery();
+                }
+            }
+            if (baterija.Kapacitet != 0)
+            {
+                baterija.Kapacitet--;
+                query = $"UPDATE Baterije SET Kapacitet={baterija.Kapacitet}  WHERE JedinstvenoIme = '" + baterija.JedinstvenoIme + "'";
+
+                using (connection = new SqlConnection(connectionString))
+                using (SqlCommand command = new SqlCommand(query, connection))
+                {
+                    connection.Open();
+                    command.ExecuteNonQuery();
+                }
+                return baterija.MaksimalnaSnaga / 3600;
+            }
+            else
+            {
+                return 0;
+            }
+        }
+
+        public void ResetBaterije(Baterija baterija)
+        {
+            if (baterija.PuniSe)
+            {
+                baterija.PuniSe = false;
+            }
+            if (baterija.PrazniSe)
+            {
+                baterija.PrazniSe = false;
+            }
+        }
+
         void UcitajUredjaje()
         {
             string queryBaterije = "SELECT * FROM Baterije WHERE AutomobilJedinstvenoIme IS NULL";
@@ -206,7 +327,12 @@ namespace SHES
                     string jedinstvenoIme = table.Rows[i]["JedinstvenoIme"].ToString();
                     double maksimalnaSnaga = double.Parse(table.Rows[i]["MaksimalnaSnaga"].ToString());
                     int kapacitet = int.Parse(table.Rows[i]["Kapacitet"].ToString());
-                    Baterije.Add(new Baterija(jedinstvenoIme, maksimalnaSnaga, kapacitet));
+                    bool puniSe = bool.Parse(table.Rows[i]["PuniSe"].ToString());
+                    bool prazniSe = bool.Parse(table.Rows[i]["PrazniSe"].ToString());
+                    Baterija novaBaterija = new Baterija(jedinstvenoIme, maksimalnaSnaga, kapacitet);
+                    novaBaterija.PuniSe = puniSe;
+                    novaBaterija.PrazniSe = prazniSe;
+                    Baterije.Add(novaBaterija);
                 }
             }
 
@@ -225,7 +351,11 @@ namespace SHES
                     double maksimalnaSnaga = double.Parse(table.Rows[i]["MaksimalnaSnaga"].ToString());
                     int kapacitet = int.Parse(table.Rows[i]["Kapacitet"].ToString());
                     string autoJedinstvenoIme = table.Rows[i]["AutomobilJedinstvenoIme"].ToString();
+                    bool puniSe = bool.Parse(table.Rows[i]["PuniSe"].ToString());
+                    bool prazniSe = bool.Parse(table.Rows[i]["PrazniSe"].ToString());
                     Baterija novaBaterija = new Baterija(jedinstvenoIme, maksimalnaSnaga, kapacitet);
+                    novaBaterija.PuniSe = puniSe;
+                    novaBaterija.PrazniSe = prazniSe;
                     novaBaterija.AutomobilJedinstvenoIme = autoJedinstvenoIme;
                     autoBaterije.Add(novaBaterija);
                 }

@@ -151,6 +151,7 @@ namespace SHES
                     sadrzi = true;
                     p.Upaljen = true;
                     p.Slika = MaterialDesignThemes.Wpf.PackIconKind.PowerPlugOutline;
+                    break;
                 }
             }
 
@@ -170,12 +171,28 @@ namespace SHES
 
         public void UgasiPotrosac(string jedinstvenoIme)
         {
+            bool sadrzi = false;
             foreach (Potrosac p in MainWindow.Potrosaci)
             {
                 if (p.JedinstvenoIme == jedinstvenoIme)
                 {
+                    sadrzi = true;
                     p.Upaljen = false;
                     p.Slika = MaterialDesignThemes.Wpf.PackIconKind.PowerPlugOffOutline;
+                    break;
+                }
+            }
+
+            if (sadrzi)
+            {
+                string query = "UPDATE Potrosaci SET Upaljen=@down  WHERE JedinstvenoIme = '" + jedinstvenoIme + "'";
+
+                using (connection = new SqlConnection(connectionString))
+                using (SqlCommand command = new SqlCommand(query, connection))
+                {
+                    command.Parameters.Add("@down", SqlDbType.Bit).Value = false;
+                    connection.Open();
+                    command.ExecuteNonQuery();
                 }
             }
         }
@@ -195,10 +212,20 @@ namespace SHES
             if (!sadrzi)
             {
                 string query;
+                int puniSe = 0;
+                int prazniSe = 0;
+                if (novaBaterija.PuniSe)
+                {
+                    puniSe = 1;
+                }
+                if (novaBaterija.PrazniSe)
+                {
+                    prazniSe = 1;
+                }
 
                 if (jesteAutomobil)
                 {
-                    query = $"INSERT INTO Baterije VALUES (@jedinstvenoIme, {novaBaterija.MaksimalnaSnaga}, {novaBaterija.Kapacitet}, @automobilJedinstvenoIme)";
+                    query = $"INSERT INTO Baterije VALUES (@jedinstvenoIme, {novaBaterija.MaksimalnaSnaga}, {novaBaterija.Kapacitet}, @automobilJedinstvenoIme, {puniSe}, {prazniSe})";
                 }
                 else
                 {
@@ -206,7 +233,7 @@ namespace SHES
                     {
                         MainWindow.Baterije.Add(novaBaterija);
                     });
-                    query = $"INSERT INTO Baterije VALUES (@jedinstvenoIme, {novaBaterija.MaksimalnaSnaga}, {novaBaterija.Kapacitet}, NULL)";
+                    query = $"INSERT INTO Baterije VALUES (@jedinstvenoIme, {novaBaterija.MaksimalnaSnaga}, {novaBaterija.Kapacitet}, NULL, {puniSe}, {prazniSe})";
                 }
 
                 using (connection = new SqlConnection(connectionString))

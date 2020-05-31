@@ -63,6 +63,10 @@ namespace Common
             }
         }
 
+        public bool PuniSe { get; set; }
+
+        public bool PrazniSe { get; set; }
+
         public event PropertyChangedEventHandler PropertyChanged;
 
         public Baterija(string jedinstvenoIme, double maksimalnaSnaga, int kapacitet)
@@ -72,6 +76,8 @@ namespace Common
             Kapacitet = kapacitet;
             Slika = MaterialDesignThemes.Wpf.PackIconKind.Battery0;
             AutomobilJedinstvenoIme = null;
+            PuniSe = false;
+            PrazniSe = false;
         }
 
         private void OnPropertyChanged(string propertyName)

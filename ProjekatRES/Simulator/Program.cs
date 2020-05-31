@@ -451,7 +451,7 @@ namespace Simulator
 
                         if(unosVreme > 0)
                         {
-                            proxy.PodesiOdnost(unosVreme);
+                            proxy.PodesiOdnos(unosVreme);
                         }
                         else
                         {
