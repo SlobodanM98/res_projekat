@@ -25,11 +25,11 @@
                             </materialDesign:Card>
                             <Label x:Name="labelSnagaSunca" Content="" HorizontalAlignment="Left" Height="40" Margin="50,35,0,0" VerticalAlignment="Top" Width="160" FontSize="20"/>
                             
-                            <Label x:Name="labelTrenutnoVreme" Content="" Height="40" Width="160" FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="200,35,0,0" />
+                            <Label x:Name="labelTrenutnoVreme" Content="" Height="60" Width="120" FontSize="25" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="230,35,0,0" />
 
                             <StackPanel Orientation="Vertical" Margin="200, 0, 0, 0">
                                 <Label Content="Snaga razmene :" HorizontalAlignment="Left" Height="40" Margin="0,10,0,0" VerticalAlignment="Top" Width="160" FontSize="20"/>
-                                <Label Content="Cena :" HorizontalAlignment="Left" Height="40" Margin="0,10,0,0" VerticalAlignment="Top" Width="160" FontSize="20"/>
+                                <Label Content="Zaradjeno :" HorizontalAlignment="Left" Height="40" Margin="0,10,0,0" VerticalAlignment="Top" Width="160" FontSize="20"/>
                             </StackPanel>
                             <StackPanel Orientation="Vertical" Margin="0, 0, 0, 0">
                                 <Label x:Name="labelSnagaRazmene" Content="" HorizontalAlignment="Left" Height="40" Margin="0,10,0,0" VerticalAlignment="Top" Width="160" FontSize="20"/>
@@ -37,15 +37,15 @@
                             </StackPanel>
 
                         </StackPanel>
-                        <StackPanel Orientation="Horizontal">
-                            <DataGrid HorizontalAlignment="Left" Height="187" Margin="10,30,0,0" VerticalAlignment="Top" Width="293" ItemsSource="{Binding Baterije}" AutoGenerateColumns="False" IsReadOnly="True">
+                        <StackPanel Orientation="Horizontal" Height="400">
+                            <DataGrid HorizontalAlignment="Left" Height="350" Margin="10,30,0,0" VerticalAlignment="Top" Width="293" ItemsSource="{Binding Baterije}" AutoGenerateColumns="False" IsReadOnly="True">
                                 <DataGrid.Columns>
                                     <DataGridTemplateColumn Header="Baterije"  Width="*" HeaderStyle="{StaticResource CenterGridHeaderStyle}">
                                         <DataGridTemplateColumn.CellTemplate>
                                             <DataTemplate>
                                                 <StackPanel  Orientation="Horizontal">
                                                     <materialDesign:Card>
-                                                        <materialDesign:PackIcon x:Name="baterija" Kind="{Binding Slika}" Height="80" Width="64"/>
+                                                        <materialDesign:PackIcon x:Name="baterija" Kind="{Binding Slika}" Height="100" Width="64"/>
                                                     </materialDesign:Card>
                                                     <StackPanel>
                                                         <StackPanel Orientation="Horizontal">
@@ -57,8 +57,12 @@
                                                             <Label Content="{Binding MaksimalnaSnaga}" FontSize="12"></Label>
                                                         </StackPanel>
                                                         <StackPanel Orientation="Horizontal">
-                                                            <Label Content="Kapacitet:" FontSize="12"></Label>
+                                                            <Label Content="Maksimalni kapacitet:" FontSize="12"></Label>
                                                             <Label Content="{Binding Kapacitet}" FontSize="12"></Label>
+                                                        </StackPanel>
+                                                        <StackPanel Orientation="Horizontal">
+                                                            <Label Content="Trenutni kapacitet:" FontSize="12"></Label>
+                                                            <Label Content="{Binding TrenutniKapacitet, StringFormat=N2}" FontSize="12"></Label>
                                                         </StackPanel>
                                                     </StackPanel>
                                                 </StackPanel>
@@ -67,7 +71,7 @@
                                     </DataGridTemplateColumn>
                                 </DataGrid.Columns>
                             </DataGrid>
-                            <DataGrid HorizontalAlignment="Left" Height="187" Margin="0,30,0,0" VerticalAlignment="Top" Width="293" ItemsSource="{Binding Potrosaci}" AutoGenerateColumns="False" IsReadOnly="True">
+                            <DataGrid HorizontalAlignment="Left" Height="350" Margin="0,30,0,0" VerticalAlignment="Top" Width="293" ItemsSource="{Binding Potrosaci}" AutoGenerateColumns="False" IsReadOnly="True">
                                 <DataGrid.Columns>
                                     <DataGridTemplateColumn Header="Potrosaci" Width="*" HeaderStyle="{StaticResource CenterGridHeaderStyle}">
                                         <DataGridTemplateColumn.CellTemplate>
@@ -96,7 +100,7 @@
                                     </DataGridTemplateColumn>
                                 </DataGrid.Columns>
                             </DataGrid>
-                            <DataGrid HorizontalAlignment="Left" Height="187" Margin="00,30,0,0" VerticalAlignment="Top" Width="293" ItemsSource="{Binding SolarniPaneli}" AutoGenerateColumns="False" IsReadOnly="True">
+                            <DataGrid HorizontalAlignment="Left" Height="350" Margin="00,30,0,0" VerticalAlignment="Top" Width="293" ItemsSource="{Binding SolarniPaneli}" AutoGenerateColumns="False" IsReadOnly="True">
                                 <DataGrid.Columns>
                                     <DataGridTemplateColumn Header="Solarni Paneli" Width="*" HeaderStyle="{StaticResource CenterGridHeaderStyle}">
                                         <DataGridTemplateColumn.CellTemplate>
@@ -121,14 +125,14 @@
                                     </DataGridTemplateColumn>
                                 </DataGrid.Columns>
                             </DataGrid>
-                            <DataGrid HorizontalAlignment="Left" Height="187" Margin="00,30,0,0" VerticalAlignment="Top" Width="293" ItemsSource="{Binding ElektricniAutomobili}" AutoGenerateColumns="False" IsReadOnly="True">
+                            <DataGrid HorizontalAlignment="Left" Height="350" Margin="00,30,0,0" VerticalAlignment="Top" Width="293" ItemsSource="{Binding ElektricniAutomobili}" AutoGenerateColumns="False" IsReadOnly="True">
                                 <DataGrid.Columns>
                                     <DataGridTemplateColumn Header="Elektricni automobili" Width="*" HeaderStyle="{StaticResource CenterGridHeaderStyle}">
                                         <DataGridTemplateColumn.CellTemplate>
                                             <DataTemplate>
                                                 <StackPanel  Orientation="Horizontal">
                                                     <materialDesign:Card>
-                                                        <materialDesign:PackIcon x:Name="automobil" Kind="{Binding Slika}" Height="100" Width="64"/>
+                                                        <materialDesign:PackIcon x:Name="automobil" Kind="{Binding Slika}" Height="120" Width="64"/>
                                                     </materialDesign:Card>
                                                     <StackPanel>
                                                         <StackPanel Orientation="Horizontal">
@@ -144,8 +148,12 @@
                                                             <Label Content="{Binding PuniSe}" FontSize="12"></Label>
                                                         </StackPanel>
                                                         <StackPanel Orientation="Horizontal">
-                                                            <Label Content="Kapacitet:" FontSize="12"></Label>
+                                                            <Label Content="Maksimalni kapacitet:" FontSize="12"></Label>
                                                             <Label Content="{Binding BaterijaAuta.Kapacitet}" FontSize="12"></Label>
+                                                        </StackPanel>
+                                                        <StackPanel Orientation="Horizontal">
+                                                            <Label Content="Trenutni kapacitet:" FontSize="12"></Label>
+                                                            <Label Content="{Binding BaterijaAuta.TrenutniKapacitet}" FontSize="12"></Label>
                                                         </StackPanel>
                                                     </StackPanel>
                                                 </StackPanel>
@@ -155,9 +163,15 @@
                                 </DataGrid.Columns>
                             </DataGrid>
                         </StackPanel>
-                        <StackPanel Orientation="Vertical" Margin="360, 0, 0, 0">
-                            <Label x:Name="labelNaPunjacu" Content="2222" HorizontalAlignment="Left" Height="40" Margin="0,10,0,0" VerticalAlignment="Top" Width="160" FontSize="20"/>
-                            <Label x:Name="labelPuniSe" Content="3333" HorizontalAlignment="Left" Height="40" Margin="0,10,0,0" VerticalAlignment="Top" Width="160" FontSize="20"/>
+                        <StackPanel Orientation="Vertical" Margin="860, 0, 0, 0">
+                            <StackPanel Orientation="Horizontal">
+                                <Label x:Name="labelPunjac" Content="Na punjacu je " HorizontalAlignment="Left" Height="40" Margin="0,10,0,0" VerticalAlignment="Top" Width="130" FontSize="20"/>
+                                <Label x:Name="labelNaPunjacu" Content="" HorizontalAlignment="Left" Height="40" Margin="0,10,0,0" VerticalAlignment="Top" Width="180" FontSize="20"/>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal">
+                                <Label x:Name="labelPuni" Content="Puni se" HorizontalAlignment="Left" Height="40" Margin="0,10,0,0" VerticalAlignment="Top" Width="75" FontSize="20"/>
+                                <Label x:Name="labelPuniSe" Content="" HorizontalAlignment="Left" Height="40" Margin="0,10,0,0" VerticalAlignment="Top" Width="235" FontSize="20"/>
+                            </StackPanel>
                         </StackPanel>
                     </StackPanel>
                 </TabItem>

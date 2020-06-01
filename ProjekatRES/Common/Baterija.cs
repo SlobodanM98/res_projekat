@@ -33,9 +33,9 @@ namespace Common
             }
         }
 
-        private int kapacitet;
+        private double kapacitet;
         [DataMember]
-        public int Kapacitet
+        public double Kapacitet
         {
             get { return kapacitet; }
             set { kapacitet = value;
@@ -63,17 +63,29 @@ namespace Common
             }
         }
 
+        private double trenutniKapacitet;
+        [DataMember]
+        public double TrenutniKapacitet
+        {
+            get { return trenutniKapacitet; }
+            set { trenutniKapacitet = value;
+                OnPropertyChanged("TrenutniKapacitet");
+            }
+        }
+
+
         public bool PuniSe { get; set; }
 
         public bool PrazniSe { get; set; }
 
         public event PropertyChangedEventHandler PropertyChanged;
 
-        public Baterija(string jedinstvenoIme, double maksimalnaSnaga, int kapacitet)
+        public Baterija(string jedinstvenoIme, double maksimalnaSnaga, double kapacitet)
         {
             JedinstvenoIme = jedinstvenoIme;
             MaksimalnaSnaga = maksimalnaSnaga;
             Kapacitet = kapacitet;
+            TrenutniKapacitet = 0;
             Slika = MaterialDesignThemes.Wpf.PackIconKind.Battery0;
             AutomobilJedinstvenoIme = null;
             PuniSe = false;

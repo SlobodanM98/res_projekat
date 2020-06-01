@@ -63,7 +63,7 @@ namespace Common
 
         public event PropertyChangedEventHandler PropertyChanged;
 
-        public ElektricniAutomobil(string jedinstvenoIme, double maksimalnaSnaga, int kapacitet, int brojBaterije)
+        public ElektricniAutomobil(string jedinstvenoIme, double maksimalnaSnaga, double kapacitet, int brojBaterije)
         {
             JedinstvenoIme = jedinstvenoIme;
             Baterija baterija = new Baterija("BaterijaAuta" + brojBaterije.ToString(), maksimalnaSnaga, kapacitet);

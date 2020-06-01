@@ -48,6 +48,8 @@ namespace SHES
 
         public static Elektrodistribucija distribucija;
 
+        double cenovnik = 1000;
+
         public MainWindow()
         {
             connectionString = ConfigurationManager.ConnectionStrings["SHES.Properties.Settings.BazaPodatakaConnectionString"].ConnectionString;
@@ -69,7 +71,7 @@ namespace SHES
             vreme.Kind = MaterialDesignThemes.Wpf.PackIconKind.MoonAndStars;
 
             labelSnagaSunca.Content = SnagaSunca.ToString();
-            labelSnagaSunca.Foreground = Brushes.Blue;
+            labelSnagaSunca.Foreground = Brushes.Black;
             labelSnagaRazmene.Content = distribucija.SnagaRazmene.ToString();
             labelCena.Content = distribucija.Cena.ToString();
 
@@ -103,6 +105,9 @@ namespace SHES
 
         void Azuriranje()
         {
+            int pozoviBaterije = 0;
+            bool puni = false;
+            bool puni2 = false;
             while (true)
             {
                 trenutnoVreme = trenutnoVreme.AddSeconds(1);
@@ -112,13 +117,51 @@ namespace SHES
                 int StaraSnagaSunca = 0;
                 double StaraSnagaRazmene = 0;
                 double StaraCena = 0;
+                string puniSE = "";
+                string staroIme = "";
 
                 App.Current.Dispatcher.Invoke((System.Action)delegate
                 {
                     int.TryParse(labelSnagaSunca.Content.ToString(), out StaraSnagaSunca);
                     double.TryParse(labelSnagaRazmene.Content.ToString(), out StaraSnagaRazmene);
                     double.TryParse(labelCena.Content.ToString(), out StaraCena);
+                    puniSE = labelPuniSe.Content.ToString();
+                    staroIme = labelNaPunjacu.Content.ToString();
                 });
+                if(Punjac.Automobil != null)
+                {
+                    if (puni2 != Punjac.NaPunjacu)
+                    {
+                        if (Punjac.NaPunjacu == false)
+                        {
+                            PodesiPuniSe("");
+                        }
+                        else
+                        {
+                            PodesiPunjac(Punjac.Automobil.JedinstvenoIme);
+                        }
+                        puni2 = Punjac.NaPunjacu;
+                    }
+                    if(puni != Punjac.PuniSe)
+                    {
+                        if (Punjac.PuniSe == false)
+                        {
+                            PodesiPuniSe("");
+                        }
+                        else
+                        {
+                            PodesiPuniSe(Punjac.Automobil.JedinstvenoIme);
+                        }
+                        puni = Punjac.PuniSe;
+                    }
+                }
+                else
+                {
+                    PodesiPunjac("");
+                    puni = false;
+                    PodesiPuniSe("");
+                    puni2 = false;
+                }
 
                 if (StaraSnagaSunca != SnagaSunca)
                 {
@@ -133,16 +176,43 @@ namespace SHES
                     PodesiCenu(distribucija.Cena);
                 }
 
-                if(trenutnoVreme.Hour >= 3 && trenutnoVreme.Hour <= 6)
+                if (pozoviBaterije == 60)
                 {
-                    foreach(Baterija b in Baterije)
+                    pozoviBaterije = 0;
+                }
+                if (trenutnoVreme.Hour >= 3 && trenutnoVreme.Hour < 6)
+                {
+                    foreach (Baterija b in Baterije)
                     {
-                        potrosnja += PunjenjeBaterije(b);
+                        if(pozoviBaterije == 0 && b.TrenutniKapacitet <= b.Kapacitet)
+                        {
+                            if (b.TrenutniKapacitet + (b.MaksimalnaSnaga / 60) <= b.Kapacitet)
+                            {
+                                b.TrenutniKapacitet += b.MaksimalnaSnaga / 60;
+                            }
+                            else
+                            {
+                                b.TrenutniKapacitet = b.Kapacitet;
+                            }
+                        }
+                        potrosnja += PunjenjeBaterije(b, false);
                     }
-                }else if(trenutnoVreme.Hour >= 14 && trenutnoVreme.Hour <= 17)
+
+                }else if(trenutnoVreme.Hour >= 14 && trenutnoVreme.Hour < 17)
                 {
-                    foreach(Baterija b in Baterije)
+                    foreach (Baterija b in Baterije)
                     {
+                        if(pozoviBaterije == 0 && b.TrenutniKapacitet >= 0)
+                        {
+                            if (b.TrenutniKapacitet - (b.MaksimalnaSnaga / 60) >= 0)
+                            {
+                                b.TrenutniKapacitet -= b.MaksimalnaSnaga / 60;
+                            }
+                            else
+                            {
+                                b.TrenutniKapacitet = 0;
+                            }
+                        }
                         potrosnja -= PraznjenjeBaterije(b);
                     }
                 }
@@ -164,7 +234,18 @@ namespace SHES
 
                 if (Punjac.PuniSe)
                 {
-                    potrosnja += PunjenjeBaterije(Punjac.Automobil.BaterijaAuta);
+                    if(pozoviBaterije == 0 && Punjac.Automobil.BaterijaAuta.TrenutniKapacitet <= Punjac.Automobil.BaterijaAuta.Kapacitet)
+                    {
+                        if(Punjac.Automobil.BaterijaAuta.TrenutniKapacitet + (Punjac.Automobil.BaterijaAuta.MaksimalnaSnaga / 60) <= Punjac.Automobil.BaterijaAuta.Kapacitet)
+                        {
+                            Punjac.Automobil.BaterijaAuta.TrenutniKapacitet += Punjac.Automobil.BaterijaAuta.MaksimalnaSnaga / 60;
+                        }
+                        else
+                        {
+                            Punjac.Automobil.BaterijaAuta.TrenutniKapacitet = Punjac.Automobil.BaterijaAuta.Kapacitet;
+                        }
+                    }
+                    potrosnja += PunjenjeBaterije(Punjac.Automobil.BaterijaAuta, true);
                 }
 
                 foreach(SolarniPanel s in SolarniPaneli)
@@ -172,7 +253,11 @@ namespace SHES
                     potrosnja -= ((s.MaksimalnaSnaga / 3600) / 100) * SnagaSunca;
                 }
 
-                distribucija.SnagaRazmene += potrosnja;
+                distribucija.Cena += (cenovnik / 3600 * (potrosnja * (-1)));
+
+                distribucija.SnagaRazmene += (potrosnja * (-1));
+
+                pozoviBaterije++;
 
                 Thread.Sleep(1000 / jednaSekundaJe);
             }
@@ -212,11 +297,27 @@ namespace SHES
             });
         }
 
+        public void PodesiPunjac(string ime)
+        {
+            App.Current.Dispatcher.Invoke((System.Action)delegate
+            {
+                labelNaPunjacu.Content = ime;
+            });
+        }
+
+        public void PodesiPuniSe(string ime)
+        {
+            App.Current.Dispatcher.Invoke((System.Action)delegate
+            {
+                labelPuniSe.Content = ime;
+            });
+        }
+
         public void PodesiSnaguRazmene(double novaSnaga)
         {
             App.Current.Dispatcher.Invoke((System.Action)delegate
             {
-                labelSnagaRazmene.Content = novaSnaga.ToString();
+                labelSnagaRazmene.Content = novaSnaga.ToString("N4") + "kw";
             });
         }
 
@@ -224,7 +325,7 @@ namespace SHES
         {
             App.Current.Dispatcher.Invoke((System.Action)delegate
             {
-                labelCena.Content = novaCena.ToString();
+                labelCena.Content =  novaCena.ToString("N4") + "$";
             });
         }
 
@@ -232,11 +333,12 @@ namespace SHES
         {
             App.Current.Dispatcher.Invoke((System.Action)delegate
             {
-                labelTrenutnoVreme.Content = trenutnoVreme.ToLongTimeString();
+                //labelTrenutnoVreme.Content = trenutnoVreme.ToLongTimeString();
+                labelTrenutnoVreme.Content = trenutnoVreme.ToString("HH:mm:ss");
             });
         }
 
-        public double PunjenjeBaterije(Baterija baterija)
+        public double PunjenjeBaterije(Baterija baterija, bool baterijaAuta)
         {
             string query;
             if (!baterija.PuniSe)
@@ -252,8 +354,70 @@ namespace SHES
                     command.ExecuteNonQuery();
                 }
             }
-            baterija.Kapacitet++;
-            query = $"UPDATE Baterije SET Kapacitet={baterija.Kapacitet}  WHERE JedinstvenoIme = '" + baterija.JedinstvenoIme + "'";
+            //if(baterija.Kapacitet != 180)
+              //  baterija.Kapacitet++;
+
+            if (baterijaAuta == true)
+            {
+                if (baterija.TrenutniKapacitet == 0)
+                {
+                    Punjac.Automobil.Slika = MaterialDesignThemes.Wpf.PackIconKind.Battery0;
+                }
+                else if (baterija.TrenutniKapacitet > 0 && baterija.TrenutniKapacitet <= baterija.Kapacitet * 20 / 100)
+                {
+                    Punjac.Automobil.Slika = MaterialDesignThemes.Wpf.PackIconKind.BatteryCharging10;
+                }
+                else if (baterija.TrenutniKapacitet > baterija.Kapacitet * 20 / 100 && baterija.TrenutniKapacitet <= baterija.Kapacitet * 40 / 100)
+                {
+                    Punjac.Automobil.Slika = MaterialDesignThemes.Wpf.PackIconKind.BatteryCharging30;
+                }
+                else if (baterija.TrenutniKapacitet > baterija.Kapacitet * 40 / 100 && baterija.TrenutniKapacitet <= baterija.Kapacitet * 60 / 100)
+                {
+                    Punjac.Automobil.Slika = MaterialDesignThemes.Wpf.PackIconKind.BatteryCharging50;
+                }
+                else if (baterija.TrenutniKapacitet > baterija.Kapacitet * 60 / 100 && baterija.TrenutniKapacitet <= baterija.Kapacitet * 80 / 100)
+                {
+                    Punjac.Automobil.Slika = MaterialDesignThemes.Wpf.PackIconKind.BatteryCharging70;
+                }
+                else if (baterija.TrenutniKapacitet > baterija.Kapacitet * 80 / 100 && baterija.TrenutniKapacitet <= baterija.Kapacitet * 95 / 100)
+                {
+                    Punjac.Automobil.Slika = MaterialDesignThemes.Wpf.PackIconKind.BatteryCharging90;
+                }
+                else
+                {
+                    Punjac.Automobil.Slika = MaterialDesignThemes.Wpf.PackIconKind.BatteryCharging100;
+                }
+            }
+            if (baterija.TrenutniKapacitet == 0)
+            {
+                baterija.Slika = MaterialDesignThemes.Wpf.PackIconKind.Battery0;
+            }
+            else if (baterija.TrenutniKapacitet > 0 && baterija.TrenutniKapacitet <= baterija.Kapacitet * 20 / 100)
+            {
+                baterija.Slika = MaterialDesignThemes.Wpf.PackIconKind.BatteryCharging10;
+            }
+            else if (baterija.TrenutniKapacitet > baterija.Kapacitet * 20 / 100 && baterija.TrenutniKapacitet <= baterija.Kapacitet * 40 / 100)
+            {
+                baterija.Slika = MaterialDesignThemes.Wpf.PackIconKind.BatteryCharging30;
+            }
+            else if (baterija.TrenutniKapacitet > baterija.Kapacitet * 40 / 100 && baterija.TrenutniKapacitet <= baterija.Kapacitet * 60 / 100)
+            {
+                baterija.Slika = MaterialDesignThemes.Wpf.PackIconKind.BatteryCharging50;
+            }
+            else if (baterija.TrenutniKapacitet > baterija.Kapacitet * 60 / 100 && baterija.TrenutniKapacitet <= baterija.Kapacitet * 80 / 100)
+            {
+                baterija.Slika = MaterialDesignThemes.Wpf.PackIconKind.BatteryCharging70;
+            }
+            else if (baterija.TrenutniKapacitet > baterija.Kapacitet * 80 / 100 && baterija.TrenutniKapacitet <= baterija.Kapacitet * 95 / 100)
+            {
+                baterija.Slika = MaterialDesignThemes.Wpf.PackIconKind.BatteryCharging90;
+            }
+            else
+            {
+                baterija.Slika = MaterialDesignThemes.Wpf.PackIconKind.BatteryCharging100;
+            }
+
+            query = $"UPDATE Baterije SET TrenutniKapacitet={baterija.TrenutniKapacitet}  WHERE JedinstvenoIme = '" + baterija.JedinstvenoIme + "'";
 
             using (connection = new SqlConnection(connectionString))
             using (SqlCommand command = new SqlCommand(query, connection))
@@ -280,10 +444,39 @@ namespace SHES
                     command.ExecuteNonQuery();
                 }
             }
-            if (baterija.Kapacitet != 0)
+            if (baterija.TrenutniKapacitet >= 0)//---------------------------------------------------
             {
-                baterija.Kapacitet--;
-                query = $"UPDATE Baterije SET Kapacitet={baterija.Kapacitet}  WHERE JedinstvenoIme = '" + baterija.JedinstvenoIme + "'";
+                //baterija.Kapacitet--;
+                if (baterija.TrenutniKapacitet == 0)
+                {
+                    baterija.Slika = MaterialDesignThemes.Wpf.PackIconKind.Battery0;
+                }
+                else if (baterija.TrenutniKapacitet > 0 && baterija.TrenutniKapacitet <= baterija.Kapacitet * 20 / 100)
+                {
+                    baterija.Slika = MaterialDesignThemes.Wpf.PackIconKind.Battery10;
+                }
+                else if (baterija.TrenutniKapacitet > baterija.Kapacitet * 20 / 100 && baterija.TrenutniKapacitet <= baterija.Kapacitet * 40 / 100)
+                {
+                    baterija.Slika = MaterialDesignThemes.Wpf.PackIconKind.Battery30;
+                }
+                else if (baterija.TrenutniKapacitet > baterija.Kapacitet * 40 / 100 && baterija.TrenutniKapacitet <= baterija.Kapacitet * 60 / 100)
+                {
+                    baterija.Slika = MaterialDesignThemes.Wpf.PackIconKind.Battery50;
+                }
+                else if (baterija.TrenutniKapacitet > baterija.Kapacitet * 60 / 100 && baterija.TrenutniKapacitet <= baterija.Kapacitet * 80 / 100)
+                {
+                    baterija.Slika = MaterialDesignThemes.Wpf.PackIconKind.Battery70;
+                }
+                else if (baterija.TrenutniKapacitet > baterija.Kapacitet * 80 / 100 && baterija.TrenutniKapacitet <= baterija.Kapacitet * 95 / 100)
+                {
+                    baterija.Slika = MaterialDesignThemes.Wpf.PackIconKind.Battery90;
+                }
+                else
+                {
+                    baterija.Slika = MaterialDesignThemes.Wpf.PackIconKind.Battery100;
+                }
+
+                query = $"UPDATE Baterije SET TrenutniKapacitet={baterija.TrenutniKapacitet}  WHERE JedinstvenoIme = '" + baterija.JedinstvenoIme + "'";
 
                 using (connection = new SqlConnection(connectionString))
                 using (SqlCommand command = new SqlCommand(query, connection))
@@ -326,12 +519,42 @@ namespace SHES
                 {
                     string jedinstvenoIme = table.Rows[i]["JedinstvenoIme"].ToString();
                     double maksimalnaSnaga = double.Parse(table.Rows[i]["MaksimalnaSnaga"].ToString());
-                    int kapacitet = int.Parse(table.Rows[i]["Kapacitet"].ToString());
+                    double kapacitet = double.Parse(table.Rows[i]["Kapacitet"].ToString());
                     bool puniSe = bool.Parse(table.Rows[i]["PuniSe"].ToString());
                     bool prazniSe = bool.Parse(table.Rows[i]["PrazniSe"].ToString());
+                    double trenutniKapacitet = double.Parse(table.Rows[i]["TrenutniKapacitet"].ToString());
                     Baterija novaBaterija = new Baterija(jedinstvenoIme, maksimalnaSnaga, kapacitet);
                     novaBaterija.PuniSe = puniSe;
                     novaBaterija.PrazniSe = prazniSe;
+                    novaBaterija.TrenutniKapacitet = trenutniKapacitet;
+                    if(novaBaterija.TrenutniKapacitet == 0)
+                    {
+                        novaBaterija.Slika = MaterialDesignThemes.Wpf.PackIconKind.Battery0;
+                    }
+                    else if(novaBaterija.TrenutniKapacitet > 0 && novaBaterija.TrenutniKapacitet <= novaBaterija.Kapacitet * 20/100)
+                    {
+                        novaBaterija.Slika = MaterialDesignThemes.Wpf.PackIconKind.Battery10;
+                    }
+                    else if(novaBaterija.TrenutniKapacitet > novaBaterija.Kapacitet * 20 / 100 && novaBaterija.TrenutniKapacitet <= novaBaterija.Kapacitet * 40 / 100)
+                    {
+                        novaBaterija.Slika = MaterialDesignThemes.Wpf.PackIconKind.Battery30;
+                    }
+                    else if(novaBaterija.TrenutniKapacitet > novaBaterija.Kapacitet * 40 / 100 && novaBaterija.TrenutniKapacitet <= novaBaterija.Kapacitet * 60 / 100)
+                    {
+                        novaBaterija.Slika = MaterialDesignThemes.Wpf.PackIconKind.Battery50;
+                    }
+                    else if(novaBaterija.TrenutniKapacitet > novaBaterija.Kapacitet * 60 / 100 && novaBaterija.TrenutniKapacitet <= novaBaterija.Kapacitet * 80 / 100)
+                    {
+                        novaBaterija.Slika = MaterialDesignThemes.Wpf.PackIconKind.Battery70;
+                    }
+                    else if(novaBaterija.TrenutniKapacitet > novaBaterija.Kapacitet * 80 / 100 && novaBaterija.TrenutniKapacitet <= novaBaterija.Kapacitet * 95 / 100)
+                    {
+                        novaBaterija.Slika = MaterialDesignThemes.Wpf.PackIconKind.Battery90;
+                    }
+                    else
+                    {
+                        novaBaterija.Slika = MaterialDesignThemes.Wpf.PackIconKind.Battery100;
+                    }
                     Baterije.Add(novaBaterija);
                 }
             }
@@ -349,14 +572,16 @@ namespace SHES
                 {
                     string jedinstvenoIme = table.Rows[i]["JedinstvenoIme"].ToString();
                     double maksimalnaSnaga = double.Parse(table.Rows[i]["MaksimalnaSnaga"].ToString());
-                    int kapacitet = int.Parse(table.Rows[i]["Kapacitet"].ToString());
+                    double kapacitet = double.Parse(table.Rows[i]["Kapacitet"].ToString());
                     string autoJedinstvenoIme = table.Rows[i]["AutomobilJedinstvenoIme"].ToString();
                     bool puniSe = bool.Parse(table.Rows[i]["PuniSe"].ToString());
                     bool prazniSe = bool.Parse(table.Rows[i]["PrazniSe"].ToString());
+                    double trenutniKapacitet = double.Parse(table.Rows[i]["TrenutniKapacitet"].ToString());
                     Baterija novaBaterija = new Baterija(jedinstvenoIme, maksimalnaSnaga, kapacitet);
                     novaBaterija.PuniSe = puniSe;
                     novaBaterija.PrazniSe = prazniSe;
                     novaBaterija.AutomobilJedinstvenoIme = autoJedinstvenoIme;
+                    novaBaterija.TrenutniKapacitet = trenutniKapacitet;
                     autoBaterije.Add(novaBaterija);
                 }
             }
@@ -416,6 +641,45 @@ namespace SHES
                     bool puniSe = bool.Parse(table.Rows[i]["Punise"].ToString());
                     Baterija baterija = autoBaterije.Find(b => b.AutomobilJedinstvenoIme.Equals(jedinstvenoIme));
                     ElektricniAutomobil noviAuto = new ElektricniAutomobil(baterija, jedinstvenoIme, naPunjacu, puniSe);
+
+                    if (naPunjacu == true)
+                    {
+                        Punjac.Automobil = noviAuto;
+                        Punjac.NaPunjacu = true;
+                        if(puniSe == true)
+                        {
+                            Punjac.PuniSe = true;
+                        }
+                    }
+
+                    if (noviAuto.BaterijaAuta.TrenutniKapacitet == 0)
+                    {
+                        noviAuto.Slika = MaterialDesignThemes.Wpf.PackIconKind.Battery0;
+                    }
+                    else if (noviAuto.BaterijaAuta.TrenutniKapacitet > 0 && noviAuto.BaterijaAuta.TrenutniKapacitet <= noviAuto.BaterijaAuta.Kapacitet * 20 / 100)
+                    {
+                        noviAuto.Slika = MaterialDesignThemes.Wpf.PackIconKind.Battery10;
+                    }
+                    else if (noviAuto.BaterijaAuta.TrenutniKapacitet > noviAuto.BaterijaAuta.Kapacitet * 20 / 100 && noviAuto.BaterijaAuta.TrenutniKapacitet <= noviAuto.BaterijaAuta.Kapacitet *40 / 100)
+                    {
+                        noviAuto.Slika = MaterialDesignThemes.Wpf.PackIconKind.Battery30;
+                    }
+                    else if (noviAuto.BaterijaAuta.TrenutniKapacitet > noviAuto.BaterijaAuta.Kapacitet * 40 / 100 && noviAuto.BaterijaAuta.TrenutniKapacitet <= noviAuto.BaterijaAuta.Kapacitet * 60 / 100)
+                    {
+                        noviAuto.Slika = MaterialDesignThemes.Wpf.PackIconKind.Battery50;
+                    }
+                    else if (noviAuto.BaterijaAuta.TrenutniKapacitet > noviAuto.BaterijaAuta.Kapacitet * 60 / 100 && noviAuto.BaterijaAuta.TrenutniKapacitet <= noviAuto.BaterijaAuta.Kapacitet * 80 / 100)
+                    {
+                        noviAuto.Slika = MaterialDesignThemes.Wpf.PackIconKind.Battery70;
+                    }
+                    else if (noviAuto.BaterijaAuta.TrenutniKapacitet > noviAuto.BaterijaAuta.Kapacitet * 80 / 100 && noviAuto.BaterijaAuta.TrenutniKapacitet <= noviAuto.BaterijaAuta.Kapacitet * 95 / 100)
+                    {
+                        noviAuto.Slika = MaterialDesignThemes.Wpf.PackIconKind.Battery90;
+                    }
+                    else
+                    {
+                        noviAuto.Slika = MaterialDesignThemes.Wpf.PackIconKind.Battery100;
+                    }
                     ElektricniAutomobili.Add(noviAuto);
                 }
             }

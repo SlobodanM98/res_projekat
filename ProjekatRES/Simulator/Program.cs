@@ -137,6 +137,7 @@ namespace Simulator
 
                                 if (potrosnja > 0 && !potrosaci.ContainsKey(jedinstvenoIme))
                                 {
+                                    potrosaciUpaljeni.Add(jedinstvenoIme, false);
                                     new Thread(() => PokreniPotrosac(jedinstvenoIme, potrosnja)).Start();
                                 }
                                 else
@@ -218,14 +219,25 @@ namespace Simulator
                                 {
                                     Console.WriteLine("Maksimalna snaga mora biti broj !");
                                 }
-
-                                if (maksimalnaSnaga > 0 && !baterije.ContainsKey(jedinstvenoIme))
+                                Console.WriteLine("Unesi maksimalni kapacitet baterije : ");
+                                tekst = Console.ReadLine();
+                                double maksimalniKapacitet = -1;
+                                try
                                 {
-                                    new Thread(() => PokreniBateriju(jedinstvenoIme, maksimalnaSnaga)).Start();
+                                    maksimalniKapacitet = double.Parse(tekst);
+                                }
+                                catch
+                                {
+                                    Console.WriteLine("Maksimalni kapacitet mora biti broj !");
+                                }
+
+                                if (maksimalnaSnaga > 0 && maksimalniKapacitet > 0 && !baterije.ContainsKey(jedinstvenoIme))
+                                {
+                                    new Thread(() => PokreniBateriju(jedinstvenoIme, maksimalnaSnaga, maksimalniKapacitet)).Start();
                                 }
                                 else
                                 {
-                                    Console.WriteLine("Maksimalna snaga mora biti broj veci od 0 i ime mora biti jedistveno!");
+                                    Console.WriteLine("Maksimalna snaga i maksimalni kapacitet mora biti broj veci od 0 i ime mora biti jedistveno!");
                                 }
                                 break;
                             case 2:
@@ -280,32 +292,33 @@ namespace Simulator
                                     Console.WriteLine("Mora se uneti broj !");
                                 }
 
-                                /*Console.WriteLine("Unesi kapacitet baterije : ");
+                                Console.WriteLine("Unesi kapacitet baterije : ");
                                 string kapacitet = Console.ReadLine();
-                                int kapacitetBaterije = 0;
+                                double kapacitetBaterije = 0;
 
                                 try
                                 {
-                                    kapacitetBaterije = int.Parse(kapacitet);
+                                    kapacitetBaterije = double.Parse(kapacitet);
                                 }
                                 catch
                                 {
                                     Console.WriteLine("Mora se uneti broj !");
-                                }*/
+                                }
 
-                                if (!automobili.ContainsKey(jedinstvenoIme))
+                                if (!automobili.ContainsKey(jedinstvenoIme) && snagaBaterije > 0 && kapacitetBaterije > 0)
                                 {
-                                    new Thread(() => PokreniElektricniAutomobil(jedinstvenoIme, snagaBaterije)).Start();
+                                    new Thread(() => PokreniElektricniAutomobil(jedinstvenoIme, snagaBaterije, kapacitetBaterije)).Start();
                                 }
                                 else
                                 {
-                                    Console.WriteLine("Ime mora biti jedinstveno !");
+                                    Console.WriteLine("Snaga i kapacitet mora biti broj veci od nule i ime mora biti jedinstveno !");
                                 }
                                 
                                 break;
                             case 2:
                                 Console.WriteLine("Unesi jedinstveno ime punjaca elektricnog automobila : ");
                                 string imeBrisanje = Console.ReadLine();
+                               
                                 if (automobili.ContainsKey(imeBrisanje))
                                 {
                                     automobili[imeBrisanje] = false;
@@ -361,19 +374,21 @@ namespace Simulator
                             case 1:
                                 Console.WriteLine("Unesi jedinstveno ime automobila : ");
                                 string imeAuto = Console.ReadLine();
-                                //if (automobili.ContainsKey(imeAuto))
+                                
+                                if (automobili.ContainsKey(imeAuto) && zaUkljucivanje == "")
                                 {
                                     zaUkljucivanje = imeAuto;
                                 }
-                                //else
+                                else
                                 {
-                                    //Console.WriteLine("Ne postoji automobil sa unetim imenom!");
+                                    Console.WriteLine("Ne postoji automobil sa unetim imenom!");
                                 }
                                 break;
                             case 2:
                                 Console.WriteLine("Unesi jedinstveno ime automobila : ");
                                 imeAuto = Console.ReadLine();
-                                if (automobili.ContainsKey(imeAuto))
+                                
+                                if (automobili.ContainsKey(imeAuto) && zaIskljucivanje == "")
                                 {
                                     zaIskljucivanje = imeAuto;
                                 }
@@ -385,11 +400,20 @@ namespace Simulator
                             case 3:
                                 Console.WriteLine("Unesi jedinstveno ime automobila : ");
                                 imeAuto = Console.ReadLine();
-                                if (automobili.ContainsKey(imeAuto))
+                                /*bool postoji3 = false;
+                                foreach (ElektricniAutomobil elektricnia in automobili.Keys)
+                                {
+                                    if (elektricnia.JedinstvenoIme == imeAuto)
+                                    {
+                                        elektricnia.PuniSe = true;
+                                        postoji3 = true;
+                                        break;
+                                    }
+                                }*/
+                                if (automobili.ContainsKey(imeAuto) && zaPokretanjePunjenja == "")
                                 {
                                     zaPokretanjePunjenja = imeAuto;
-                                }
-                                else
+                                }else
                                 {
                                     Console.WriteLine("Ne postoji automobil sa unetim imenom!");
                                 }
@@ -397,7 +421,8 @@ namespace Simulator
                             case 4:
                                 Console.WriteLine("Unesi jedinstveno ime automobila : ");
                                 imeAuto = Console.ReadLine();
-                                if (automobili.ContainsKey(imeAuto))
+                                
+                                if (automobili.ContainsKey(imeAuto) && zaZaustavljanjePunjenja == "")
                                 {
                                     zaZaustavljanjePunjenja = imeAuto;
                                 }
@@ -419,6 +444,7 @@ namespace Simulator
                                 }
                                 Console.WriteLine("Unesi jedinstveno ime automobila : ");
                                 imeAuto = Console.ReadLine();
+                                
                                 if (automobili.ContainsKey(imeAuto))
                                 {
                                     autoIme = imeAuto;
@@ -512,7 +538,7 @@ namespace Simulator
             bool first = true;
             bool ugasi = false;
             potrosaci.Add(jedinstvenoIme, jesteDodat);
-            potrosaciUpaljeni.Add(jedinstvenoIme, jesteUpaljen);
+            jesteUpaljen = potrosaciUpaljeni[jedinstvenoIme];
             proxy.DodajPotrosaca(new Potrosac(jedinstvenoIme, potrosnja));
 
             do
@@ -544,11 +570,11 @@ namespace Simulator
             potrosaciUpaljeni.Remove(jedinstvenoIme);
         }
 
-        public static void PokreniBateriju(string jedinstvenoIme, double maksimalnaSnaga)
+        public static void PokreniBateriju(string jedinstvenoIme, double maksimalnaSnaga, double maksimalniKapacitet)
         {
             bool jestePokrenut = true;
             baterije.Add(jedinstvenoIme, jestePokrenut);
-            proxy.DodajBateriju(new Baterija(jedinstvenoIme, maksimalnaSnaga, 0), false, "");
+            proxy.DodajBateriju(new Baterija(jedinstvenoIme, maksimalnaSnaga, maksimalniKapacitet), false, "");
 
             do
             {
@@ -560,11 +586,11 @@ namespace Simulator
             baterije.Remove(jedinstvenoIme);
         }
 
-        public static void PokreniElektricniAutomobil(string jedinstvenoIme, double snaga)
+        public static void PokreniElektricniAutomobil(string jedinstvenoIme, double snaga, double maksimalniKapacitet)
         {
             bool jestePokrenut = true;
             automobili.Add(jedinstvenoIme, jestePokrenut);
-            proxy.DodajElektricniAutomobil(new ElektricniAutomobil(jedinstvenoIme, snaga, 0, brojBaterije));
+            proxy.DodajElektricniAutomobil(new ElektricniAutomobil(jedinstvenoIme, snaga, maksimalniKapacitet, brojBaterije));
             brojBaterije++;
 
             do
@@ -648,17 +674,26 @@ namespace Simulator
 
             foreach (Baterija b in uredjaji.Baterije)
             {
-                new Thread(() => PokreniBateriju(b.JedinstvenoIme, b.MaksimalnaSnaga)).Start();
+                new Thread(() => PokreniBateriju(b.JedinstvenoIme, b.MaksimalnaSnaga, b.Kapacitet)).Start();
             }
 
             foreach (Potrosac p in uredjaji.Potrosaci)
             {
+                potrosaciUpaljeni.Add(p.JedinstvenoIme, p.Upaljen);
                 new Thread(() => PokreniPotrosac(p.JedinstvenoIme, p.Potrosnja)).Start();
             }
 
             foreach (ElektricniAutomobil ea in uredjaji.Automobili)
             {
-                new Thread(() => PokreniElektricniAutomobil(ea.JedinstvenoIme, ea.BaterijaAuta.MaksimalnaSnaga)).Start();
+                if(ea.NaPunjacu)
+                {
+                    zaUkljucivanje = ea.JedinstvenoIme;
+                    if(ea.PuniSe)
+                    {
+                        zaPokretanjePunjenja = ea.JedinstvenoIme;
+                    }
+                }
+                new Thread(() => PokreniElektricniAutomobil(ea.JedinstvenoIme, ea.BaterijaAuta.MaksimalnaSnaga, ea.BaterijaAuta.Kapacitet)).Start();
             }
         }
     }
