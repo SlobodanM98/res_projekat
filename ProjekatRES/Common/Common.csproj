@@ -52,6 +52,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Baterija.cs" />
+    <Compile Include="Datum.cs" />
     <Compile Include="ElektricniAutomobil.cs" />
     <Compile Include="Elektrodistribucija.cs" />
     <Compile Include="ISimulator.cs" />

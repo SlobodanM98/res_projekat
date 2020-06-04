@@ -3,6 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:lvc="clr-namespace:LiveCharts.Wpf;assembly=LiveCharts.Wpf"
         xmlns:local="clr-namespace:SHES"
         mc:Ignorable="d"
         xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
@@ -163,19 +164,49 @@
                                 </DataGrid.Columns>
                             </DataGrid>
                         </StackPanel>
-                        <StackPanel Orientation="Vertical" Margin="860, 0, 0, 0">
-                            <StackPanel Orientation="Horizontal">
-                                <Label x:Name="labelPunjac" Content="Na punjacu je " HorizontalAlignment="Left" Height="40" Margin="0,10,0,0" VerticalAlignment="Top" Width="130" FontSize="20"/>
-                                <Label x:Name="labelNaPunjacu" Content="" HorizontalAlignment="Left" Height="40" Margin="0,10,0,0" VerticalAlignment="Top" Width="180" FontSize="20"/>
+                        <StackPanel Orientation="Horizontal">
+                            <StackPanel Orientation="Horizontal" Margin="50, 30, 300, 30">
+                                <Label Content="Cenovnik :" Height="40" Width="110" FontSize="20"></Label>
+                                <Label x:Name="labelCenovnik" Content="" Height="40" Width="150" FontSize="20"></Label>
                             </StackPanel>
-                            <StackPanel Orientation="Horizontal">
-                                <Label x:Name="labelPuni" Content="Puni se" HorizontalAlignment="Left" Height="40" Margin="0,10,0,0" VerticalAlignment="Top" Width="75" FontSize="20"/>
-                                <Label x:Name="labelPuniSe" Content="" HorizontalAlignment="Left" Height="40" Margin="0,10,0,0" VerticalAlignment="Top" Width="235" FontSize="20"/>
+                            <StackPanel Orientation="Vertical" Margin="260, 0, 0, 0">
+                                <StackPanel Orientation="Horizontal">
+                                    <Label x:Name="labelPunjac" Content="Na punjacu je " HorizontalAlignment="Left" Height="40" Margin="0,10,0,0" VerticalAlignment="Top" Width="130" FontSize="20"/>
+                                    <Label x:Name="labelNaPunjacu" Content="" HorizontalAlignment="Left" Height="40" Margin="0,10,0,0" VerticalAlignment="Top" Width="180" FontSize="20"/>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal">
+                                    <Label x:Name="labelPuni" Content="Puni se" HorizontalAlignment="Left" Height="40" Margin="0,10,0,0" VerticalAlignment="Top" Width="75" FontSize="20"/>
+                                    <Label x:Name="labelPuniSe" Content="" HorizontalAlignment="Left" Height="40" Margin="0,10,0,0" VerticalAlignment="Top" Width="235" FontSize="20"/>
+                                </StackPanel>
                             </StackPanel>
                         </StackPanel>
                     </StackPanel>
                 </TabItem>
-                <TabItem Header="view2"></TabItem>
+                <TabItem Header="view2">
+                    <StackPanel Orientation="Vertical">
+                        <StackPanel Orientation="Horizontal" Margin="20, 10">
+                            <ComboBox x:Name="cmbDatum" Width="150" ItemsSource="{Binding Datumi}">
+                                <ComboBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding DatumBaza}" FontSize="18"/>
+                                    </DataTemplate>
+                                </ComboBox.ItemTemplate>
+                            </ComboBox>
+                            <Button x:Name="buttonDodaj" Content="Prikazi" Height="30" Width="150" Margin="20, 0,0,0" Click="ButtonDodaj_Click"></Button>
+                            <Button x:Name="buttonObrisi" Content="Obris iz baze" Height="30" Width="150" Margin="20, 0,0,0" Click="ButtonObrisi_Click"></Button>
+                            <Label Content="Ukupan trosak: " Width="150" Margin="300,0,0,0" FontSize="18"/>
+                            <Label x:Name="labelTrosakDatum" Width="200" FontSize="18" Content="0 $"/>
+                        </StackPanel>
+                        <lvc:CartesianChart x:Name="garf1" Series="{Binding SeriesCollection}" LegendLocation="Left" Margin="0,0,-0.4,73" Height="566">
+                            <lvc:CartesianChart.AxisX>
+                                <lvc:Axis Title="Sati" Labels="{Binding Labels}"></lvc:Axis>
+                            </lvc:CartesianChart.AxisX>
+                            <lvc:CartesianChart.AxisY>
+                                <lvc:Axis Title="kw/h" LabelFormatter="{Binding Formatter}"></lvc:Axis>
+                            </lvc:CartesianChart.AxisY>
+                        </lvc:CartesianChart>
+                    </StackPanel>
+                </TabItem>
                 
             </TabControl>
             <!--DataGrid HorizontalAlignment="Left" Height="187" Margin="10,53,0,0" VerticalAlignment="Top" Width="330" ItemsSource="{Binding Baterije}" AutoGenerateColumns="False" IsReadOnly="True">

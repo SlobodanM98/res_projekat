@@ -365,6 +365,25 @@ namespace SHES
         public void PromeniSnaguSunca(int novaVrednost)
         {
             MainWindow.SnagaSunca = novaVrednost;
+
+            string query = "DELETE FROM Vreme WHERE Id = '" + "SnagaSunca" + "'";
+
+            using (connection = new SqlConnection(connectionString))
+            using (SqlCommand command = new SqlCommand(query, connection))
+            {
+                connection.Open();
+                command.ExecuteNonQuery();
+            }
+
+            query = $"INSERT INTO Vreme VALUES (@Id, NULL, {novaVrednost})";
+
+            using (connection = new SqlConnection(connectionString))
+            using (SqlCommand command = new SqlCommand(query, connection))
+            {
+                connection.Open();
+                command.Parameters.AddWithValue("@Id", "SnagaSunca");
+                command.ExecuteNonQuery();
+            }
         }
 
         public bool UkljuciNaPunjac(string jedinstvenoIme)
@@ -664,7 +683,7 @@ namespace SHES
 
         public void PodesavanjeCene(int cena)
         {
-            MainWindow.distribucija.Cena = cena;
+            MainWindow.cenovnik = cena;
         }
     }
 }
