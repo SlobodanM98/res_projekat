@@ -56,7 +56,12 @@ namespace SHES
 
         public static Elektrodistribucija distribucija;
 
-        public static double cenovnik; 
+        public static double cenovnik;
+
+        public static double baterije = 0;
+        public static double distribucijaSat = 0;
+        public static double potrosaci = 0;
+        public static double solarniPaneli = 0;
 
         public MainWindow()
         {
@@ -73,9 +78,9 @@ namespace SHES
             jednaSekundaJe = int.Parse(ConfigurationManager.AppSettings["jednaSekundaJe"]);
             distribucija = new Elektrodistribucija();
 
-            UcitajUredjaje();
-
             InitializeComponent();
+
+            UcitajUredjaje();
 
             Labels = new[] { "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24" };
             Formatter = value => value.ToString("N");
@@ -121,10 +126,15 @@ namespace SHES
             int pozoviBaterije = 0;
             bool puni = false;
             bool puni2 = false;
+            int vremeZaAzuriranje = trenutnoVreme.Minute * 60 + trenutnoVreme.Second;
+            
+            //da se pozove ucitavanje
+
             while (true)
             {
                 trenutnoVreme = trenutnoVreme.AddSeconds(1);
                 PodesiTrenutnoVreme();
+                vremeZaAzuriranje++;
 
                 double potrosnja = 0;
                 int StaraSnagaSunca = 0;
@@ -132,10 +142,6 @@ namespace SHES
                 double StaraCena = 0;
                 string puniSE = "";
                 string staroIme = "";
-                double baterije = 0;
-                double distribucijaSat = 0;
-                double potrosaci = 0;
-                double solarniPaneli = 0;
                 string staraCena = "";
 
                 App.Current.Dispatcher.Invoke((System.Action)delegate
@@ -248,7 +254,7 @@ namespace SHES
                         }
                     }
                 }
-                else
+                else if((trenutnoVreme.Hour == 6 && trenutnoVreme.Minute == 0 && trenutnoVreme.Second == 0) || (trenutnoVreme.Hour == 17 && trenutnoVreme.Minute == 0 && trenutnoVreme.Second == 0))
                 {
                     foreach(Baterija b in Baterije)
                     {
@@ -299,10 +305,14 @@ namespace SHES
 
                 pozoviBaterije++;
 
-                ZapamtiDatumVreme();
-
-                ZapamtiZaGraf(baterije * (-1), solarniPaneli * (-1), distribucijaSat * (-1), potrosaci * (-1));
-
+                if (vremeZaAzuriranje % 3600 == 0)
+                {
+                    ZapamtiZaGraf(baterije * (-1), solarniPaneli * (-1), distribucijaSat * (-1), potrosaci * (-1));
+                    baterije = 0;
+                    solarniPaneli = 0;
+                    distribucijaSat = 0;
+                    potrosaci = 0;
+                }
                 Thread.Sleep(1000 / jednaSekundaJe);
             }
         }
@@ -552,29 +562,6 @@ namespace SHES
             if (baterija.PrazniSe)
             {
                 baterija.PrazniSe = false;
-            }
-        }
-
-        public void ZapamtiDatumVreme()
-        {
-            string query = "DELETE FROM Vreme WHERE Id = '" + "DatumVreme" + "'";
-
-            using (connection = new SqlConnection(connectionString))
-            using (SqlCommand command = new SqlCommand(query, connection))
-            {
-                connection.Open();
-                command.ExecuteNonQuery();
-            }
-
-            query = $"INSERT INTO Vreme VALUES (@Id, @TrenutnoVreme, NULL)";
-
-            using (connection = new SqlConnection(connectionString))
-            using (SqlCommand command = new SqlCommand(query, connection))
-            {
-                connection.Open();
-                command.Parameters.AddWithValue("@Id", "DatumVreme");
-                command.Parameters.AddWithValue("@TrenutnoVreme", trenutnoVreme);
-                command.ExecuteNonQuery();
             }
         }
 
@@ -1144,6 +1131,51 @@ namespace SHES
             }
 
             UcitajDatume();
+        }
+
+        //ovo da se implementira
+        private void UcitajPoslednjiSat()
+        {
+            DataTable table = new DataTable();
+
+            string queryDatumVreme = $"SELECT * FROM Graf WHERE Datum = @Datum AND Sat = @Sat";
+            using (connection = new SqlConnection(connectionString))
+            using (SqlCommand command = new SqlCommand(queryDatumVreme, connection))
+            using (SqlDataAdapter adapter = new SqlDataAdapter(command))
+            {
+                command.Parameters.AddWithValue("@Datum", trenutnoVreme.Date);
+                command.Parameters.AddWithValue("@Sat", trenutnoVreme.Hour + 1);
+                adapter.Fill(table);
+                for(int i = 0; i < table.Rows.Count; i++)
+                {
+
+                }
+            }
+        }
+
+        private void Window_Closing(object sender, CancelEventArgs e)
+        {
+            ZapamtiZaGraf(baterije * (-1), solarniPaneli * (-1), distribucijaSat * (-1), potrosaci * (-1));
+
+            string query = "DELETE FROM Vreme WHERE Id = '" + "DatumVreme" + "'";
+
+            using (connection = new SqlConnection(connectionString))
+            using (SqlCommand command = new SqlCommand(query, connection))
+            {
+                connection.Open();
+                command.ExecuteNonQuery();
+            }
+
+            query = $"INSERT INTO Vreme VALUES (@Id, @TrenutnoVreme, NULL)";
+
+            using (connection = new SqlConnection(connectionString))
+            using (SqlCommand command = new SqlCommand(query, connection))
+            {
+                connection.Open();
+                command.Parameters.AddWithValue("@Id", "DatumVreme");
+                command.Parameters.AddWithValue("@TrenutnoVreme", trenutnoVreme);
+                command.ExecuteNonQuery();
+            }
         }
     }
 }
