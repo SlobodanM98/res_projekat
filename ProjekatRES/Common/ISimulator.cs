@@ -50,10 +50,10 @@ namespace Common
         bool IskljuciSaPunjaca(string jedinstvenoIme);
 
         [OperationContract]
-        bool PokreniPunjenje();
+        bool PokreniPunjenje(string jedinstvenoIme);
 
         [OperationContract]
-        bool ZaustaviPunjenje();
+        bool ZaustaviPunjenje(string jedinstvenoIme);
 
         [OperationContract]
         bool PostavljanjeKapacitetaAuta(int kapacitet);

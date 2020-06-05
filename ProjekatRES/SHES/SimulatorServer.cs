@@ -476,87 +476,34 @@ namespace SHES
             return true;
         }
 
-        public bool PokreniPunjenje()
+        public bool PokreniPunjenje(string jedinstvenoIme)
         {
             if(!MainWindow.Punjac.NaPunjacu || MainWindow.Punjac.PuniSe)
             {
                 return false;
             }
-            MainWindow.Punjac.PuniSe = true;
-            foreach (ElektricniAutomobil e in MainWindow.ElektricniAutomobili)
+            if (MainWindow.Punjac.Automobil.JedinstvenoIme == jedinstvenoIme)
             {
-                if (e.JedinstvenoIme == MainWindow.Punjac.Automobil.JedinstvenoIme)
+                MainWindow.Punjac.PuniSe = true;
+                foreach (ElektricniAutomobil e in MainWindow.ElektricniAutomobili)
                 {
-                    e.PuniSe = true;
-                    string query = "UPDATE Automobili SET Punise=@up  WHERE JedinstvenoIme = '" + e.JedinstvenoIme + "'";
-
-                    using (connection = new SqlConnection(connectionString))
-                    using (SqlCommand command = new SqlCommand(query, connection))
+                    if (e.JedinstvenoIme == jedinstvenoIme)
                     {
-                        command.Parameters.Add("@up", SqlDbType.Bit).Value = true;
-                        connection.Open();
-                        command.ExecuteNonQuery();
+                        e.PuniSe = true;
+                        string query = "UPDATE Automobili SET Punise=@up  WHERE JedinstvenoIme = '" + e.JedinstvenoIme + "'";
+
+                        using (connection = new SqlConnection(connectionString))
+                        using (SqlCommand command = new SqlCommand(query, connection))
+                        {
+                            command.Parameters.Add("@up", SqlDbType.Bit).Value = true;
+                            connection.Open();
+                            command.ExecuteNonQuery();
+                        }
+                        return true;
                     }
-                    break;
                 }
             }
-            return true;
-        }
-
-        public bool ZaustaviPunjenje()
-        {
-            if(!MainWindow.Punjac.NaPunjacu || !MainWindow.Punjac.PuniSe)
-            {
-                return false;
-            }
-            MainWindow.Punjac.PuniSe = false;
-            foreach (ElektricniAutomobil e in MainWindow.ElektricniAutomobili)
-            {
-                if (e.JedinstvenoIme == MainWindow.Punjac.Automobil.JedinstvenoIme)
-                {
-                    e.PuniSe = false;
-                    if (e.BaterijaAuta.TrenutniKapacitet == 0)
-                    {
-                        e.Slika = MaterialDesignThemes.Wpf.PackIconKind.Battery0;
-                    }
-                    else if (e.BaterijaAuta.TrenutniKapacitet > 0 && e.BaterijaAuta.TrenutniKapacitet <= e.BaterijaAuta.Kapacitet * 20 / 100)
-                    {
-                        e.Slika = MaterialDesignThemes.Wpf.PackIconKind.BatteryCharging10;
-                    }
-                    else if (e.BaterijaAuta.TrenutniKapacitet > e.BaterijaAuta.Kapacitet * 20 / 100 && e.BaterijaAuta.TrenutniKapacitet <= e.BaterijaAuta.Kapacitet * 40 / 100)
-                    {
-                        e.Slika = MaterialDesignThemes.Wpf.PackIconKind.BatteryCharging30;
-                    }
-                    else if (e.BaterijaAuta.TrenutniKapacitet > e.BaterijaAuta.Kapacitet * 40 / 100 && e.BaterijaAuta.TrenutniKapacitet <= e.BaterijaAuta.Kapacitet * 60 / 100)
-                    {
-                        e.Slika = MaterialDesignThemes.Wpf.PackIconKind.BatteryCharging50;
-                    }
-                    else if (e.BaterijaAuta.TrenutniKapacitet > e.BaterijaAuta.Kapacitet * 60 / 100 && e.BaterijaAuta.TrenutniKapacitet <= e.BaterijaAuta.Kapacitet * 80 / 100)
-                    {
-                        e.Slika = MaterialDesignThemes.Wpf.PackIconKind.BatteryCharging70;
-                    }
-                    else if (e.BaterijaAuta.TrenutniKapacitet > e.BaterijaAuta.Kapacitet * 80 / 100 && e.BaterijaAuta.TrenutniKapacitet <= e.BaterijaAuta.Kapacitet * 95 / 100)
-                    {
-                        e.Slika = MaterialDesignThemes.Wpf.PackIconKind.BatteryCharging90;
-                    }
-                    else
-                    {
-                        e.Slika = MaterialDesignThemes.Wpf.PackIconKind.BatteryCharging100;
-                    }
-
-                    string query = "UPDATE Automobili SET Punise=@up  WHERE JedinstvenoIme = '" + e.JedinstvenoIme + "'";
-
-                    using (connection = new SqlConnection(connectionString))
-                    using (SqlCommand command = new SqlCommand(query, connection))
-                    {
-                        command.Parameters.Add("@up", SqlDbType.Bit).Value = false;
-                        connection.Open();
-                        command.ExecuteNonQuery();
-                    }
-                    break;
-                }
-            }
-            return true;
+            return false;
         }
 
         public bool ZaustaviPunjenje(string jedinstvenoIme)

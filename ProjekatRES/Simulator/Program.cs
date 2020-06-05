@@ -622,7 +622,7 @@ namespace Simulator
                 }
                 if (zaPokretanjePunjenja == jedinstvenoIme)
                 {
-                    if(proxy.PokreniPunjenje())
+                    if(proxy.PokreniPunjenje(jedinstvenoIme))
                     {
                         Console.WriteLine("Punjenje pokrenuto.");
                     }
@@ -634,7 +634,7 @@ namespace Simulator
                 }
                 if (zaZaustavljanjePunjenja == jedinstvenoIme)
                 {
-                    if(proxy.ZaustaviPunjenje())
+                    if(proxy.ZaustaviPunjenje(jedinstvenoIme))
                     {
                         Console.WriteLine("Prekinuto punjenje.");
                     }

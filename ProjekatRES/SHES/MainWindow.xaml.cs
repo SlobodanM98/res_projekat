@@ -748,11 +748,20 @@ namespace SHES
                 command.Parameters.AddWithValue("@Sat", trenutnoVreme.Hour + 1);
                 adapter.Fill(table);
 
-                baterije = double.Parse(table.Rows[0]["Baterije"].ToString()) * (-1);
-                distribucijaSat = double.Parse(table.Rows[0]["Distribucija"].ToString()) * (-1);
-                solarniPaneli = double.Parse(table.Rows[0]["SolarniPaneli"].ToString()) * (-1);
-                potrosaci = double.Parse(table.Rows[0]["Potrosaci"].ToString()) * (-1);
-
+                if (table.Rows.Count > 0)
+                {
+                    baterije = double.Parse(table.Rows[0]["Baterije"].ToString()) * (-1);
+                    distribucijaSat = double.Parse(table.Rows[0]["Distribucija"].ToString()) * (-1);
+                    solarniPaneli = double.Parse(table.Rows[0]["SolarniPaneli"].ToString()) * (-1);
+                    potrosaci = double.Parse(table.Rows[0]["Potrosaci"].ToString()) * (-1);
+                }
+                else
+                {
+                    baterije = 0;
+                    distribucijaSat = 0;
+                    solarniPaneli = 0;
+                    potrosaci = 0;
+                }
             }
 
             string queryBaterije = "SELECT * FROM Baterije WHERE AutomobilJedinstvenoIme IS NULL";
