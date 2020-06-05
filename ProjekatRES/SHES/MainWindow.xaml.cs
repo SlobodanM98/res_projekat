@@ -41,6 +41,8 @@ namespace SHES
         public static BindingList<SolarniPanel> SolarniPaneli { get; set; }
         public static BindingList<ElektricniAutomobil> ElektricniAutomobili { get; set; }
 
+        public static List<PodaciZaGraf> podaciZaGraf;
+
         public SeriesCollection SeriesCollection { get; set; }
         public string[] Labels { get; set; }
         public Func<double, string> Formatter { get; set; }
@@ -77,6 +79,7 @@ namespace SHES
             Punjac = new Punjac();
             jednaSekundaJe = int.Parse(ConfigurationManager.AppSettings["jednaSekundaJe"]);
             distribucija = new Elektrodistribucija();
+            podaciZaGraf = new List<PodaciZaGraf>();
 
             InitializeComponent();
 
@@ -127,12 +130,18 @@ namespace SHES
             bool puni = false;
             bool puni2 = false;
             int vremeZaAzuriranje = trenutnoVreme.Minute * 60 + trenutnoVreme.Second;
-            
-            //da se pozove ucitavanje
+            DateTime staraSekunda = DateTime.Now;
+            int stariSat = trenutnoVreme.Hour;
+            int brSekunda = 0;
+            bool prosaoDan = false;
+            DateTime stariDatum = trenutnoVreme.Date;
 
+            //da se pozove ucitavanje
+            //UcitajPoslednjiSat();
             while (true)
             {
                 trenutnoVreme = trenutnoVreme.AddSeconds(1);
+                brSekunda++;
                 PodesiTrenutnoVreme();
                 vremeZaAzuriranje++;
 
@@ -214,21 +223,23 @@ namespace SHES
                 {
                     foreach (Baterija b in Baterije)
                     {
-                        if(pozoviBaterije == 0 && b.TrenutniKapacitet <= b.Kapacitet)
+                        if (b.TrenutniKapacitet < b.Kapacitet)
+                        {
+                            double povratnaBaterije = PunjenjeBaterije(b, false);
+                            baterije += povratnaBaterije;
+                            potrosnja += povratnaBaterije;
+                        }
+                        if (pozoviBaterije == 0 && b.TrenutniKapacitet <= b.Kapacitet)
                         {
                             if (b.TrenutniKapacitet + (b.MaksimalnaSnaga / 60) <= b.Kapacitet)
                             {
                                 b.TrenutniKapacitet += b.MaksimalnaSnaga / 60;
+                                b.TrenutniKapacitet = Math.Round(b.TrenutniKapacitet, 4);
                             }
                             else
                             {
                                 b.TrenutniKapacitet = b.Kapacitet;
                             }
-                        }
-                        if(b.TrenutniKapacitet <= b.Kapacitet)
-                        {
-                            baterije += PunjenjeBaterije(b, false);
-                            potrosnja = baterije;
                         }
                     }
 
@@ -236,21 +247,23 @@ namespace SHES
                 {
                     foreach (Baterija b in Baterije)
                     {
-                        if(pozoviBaterije == 0 && b.TrenutniKapacitet >= 0)
+                        if (b.TrenutniKapacitet > 0)
+                        {
+                            double povratnaBaterije = PraznjenjeBaterije(b);
+                            baterije -= povratnaBaterije;
+                            potrosnja -= povratnaBaterije;
+                        }
+                        if (pozoviBaterije == 0 && b.TrenutniKapacitet >= 0)
                         {
                             if (b.TrenutniKapacitet - (b.MaksimalnaSnaga / 60) >= 0)
                             {
                                 b.TrenutniKapacitet -= b.MaksimalnaSnaga / 60;
+                                b.TrenutniKapacitet = Math.Round(b.TrenutniKapacitet, 4);
                             }
                             else
                             {
                                 b.TrenutniKapacitet = 0;
                             }
-                        }
-                        if(b.TrenutniKapacitet >= 0)
-                        {
-                            baterije -= PraznjenjeBaterije(b);
-                            potrosnja = baterije;
                         }
                     }
                 }
@@ -273,18 +286,22 @@ namespace SHES
 
                 if (Punjac.PuniSe)
                 {
+                    if(Punjac.Automobil.BaterijaAuta.TrenutniKapacitet < Punjac.Automobil.BaterijaAuta.Kapacitet)
+                    {
+                        potrosnja += PunjenjeBaterije(Punjac.Automobil.BaterijaAuta, true);
+                    }
                     if(pozoviBaterije == 0 && Punjac.Automobil.BaterijaAuta.TrenutniKapacitet <= Punjac.Automobil.BaterijaAuta.Kapacitet)
                     {
                         if(Punjac.Automobil.BaterijaAuta.TrenutniKapacitet + (Punjac.Automobil.BaterijaAuta.MaksimalnaSnaga / 60) <= Punjac.Automobil.BaterijaAuta.Kapacitet)
                         {
                             Punjac.Automobil.BaterijaAuta.TrenutniKapacitet += Punjac.Automobil.BaterijaAuta.MaksimalnaSnaga / 60;
+                            Punjac.Automobil.BaterijaAuta.TrenutniKapacitet = Math.Round(Punjac.Automobil.BaterijaAuta.TrenutniKapacitet, 4);
                         }
                         else
                         {
                             Punjac.Automobil.BaterijaAuta.TrenutniKapacitet = Punjac.Automobil.BaterijaAuta.Kapacitet;
                         }
                     }
-                    potrosnja += PunjenjeBaterije(Punjac.Automobil.BaterijaAuta, true);
                 }
 
                 foreach(SolarniPanel s in SolarniPaneli)
@@ -293,26 +310,69 @@ namespace SHES
                     potrosnja -= ((s.MaksimalnaSnaga / 3600) / 100) * SnagaSunca;
                 }
 
-                if(trenutnoVreme.Hour == 0 && trenutnoVreme.Minute == 0 && trenutnoVreme.Second == 1)
-                {
-                    UcitajDatume();
-                }
-
-                distribucija.Cena += (cenovnik / 3600 * (potrosnja * (-1)));
+                distribucija.Cena += (cenovnik * (potrosnja * (-1)));
 
                 distribucija.SnagaRazmene += (potrosnja * (-1));
                 distribucijaSat += potrosnja;
 
                 pozoviBaterije++;
 
-                if (vremeZaAzuriranje % 3600 == 0)
+                if (podaciZaGraf.Count != 0)
                 {
+                    foreach (PodaciZaGraf pzg in podaciZaGraf.ToList())
+                    {
+                        if (pzg.Datum.Date == trenutnoVreme.Date)
+                        {
+                            if (pzg.Sat == trenutnoVreme.Hour)
+                            {
+                                pzg.Baterije = baterije * (-1);
+                                pzg.Distribucija = distribucijaSat * (-1);
+                                pzg.SolarniPaneli = solarniPaneli * (-1);
+                                pzg.Potrosaci = potrosaci * (-1);
+                            }
+                            else
+                            {
+                                podaciZaGraf.Add(new PodaciZaGraf(trenutnoVreme.Hour, trenutnoVreme.Date, baterije * (-1), distribucijaSat * (-1), solarniPaneli * (-1), potrosaci * (-1)));
+                            }
+                        }
+                        else
+                        {
+                            podaciZaGraf.Add(new PodaciZaGraf(trenutnoVreme.Hour, trenutnoVreme.Date, baterije * (-1), distribucijaSat * (-1), solarniPaneli * (-1), potrosaci * (-1)));
+                        }
+                    }
+                }
+                else
+                {
+                    podaciZaGraf.Add(new PodaciZaGraf(trenutnoVreme.Hour, trenutnoVreme.Date, baterije * (-1), distribucijaSat * (-1), solarniPaneli * (-1), potrosaci * (-1)));
+                    if (stariDatum.Date != trenutnoVreme.Date)
+                    {
+                        stariDatum = trenutnoVreme.Date;
+                        prosaoDan = true;
+                    }
+                }
+
+                //ZapamtiVreme();
+                if (staraSekunda.Second != DateTime.Now.Second)
+                {
+                    brSekunda = 0;
                     ZapamtiZaGraf(baterije * (-1), solarniPaneli * (-1), distribucijaSat * (-1), potrosaci * (-1));
+                    if(prosaoDan == true)
+                    {
+                        UcitajDatume();
+                        prosaoDan = false;
+                    }
+                    staraSekunda = DateTime.Now;
+                }
+
+                if (stariSat != trenutnoVreme.Hour)
+                {
+                    stariSat = trenutnoVreme.Hour;
                     baterije = 0;
                     solarniPaneli = 0;
                     distribucijaSat = 0;
                     potrosaci = 0;
                 }
+                
                 Thread.Sleep(1000 / jednaSekundaJe);
             }
         }
@@ -568,97 +628,73 @@ namespace SHES
         public void ZapamtiZaGraf(double baterije, double paneli, double distribucija, double potrosaci)
         {
             DataTable table = new DataTable();
-            string queryDatumVreme = $"SELECT * FROM Graf WHERE  Datum = @Datum and Sat = {trenutnoVreme.Hour + 1}";
             using (connection = new SqlConnection(connectionString))
-            using (SqlCommand command = new SqlCommand(queryDatumVreme, connection))
-            using (SqlDataAdapter adapter = new SqlDataAdapter(command))
             {
-                command.Parameters.AddWithValue("@Datum", trenutnoVreme.Date);
-
-                adapter.Fill(table);
-            
-
-                if (table.Rows.Count == 0)
+                connection.Open();
+                foreach (PodaciZaGraf pzg in podaciZaGraf)
                 {
-                    string query = $"INSERT INTO Graf VALUES (@Datum2, @Sat, 'Baterije', {baterije})";
-
-                    using (connection = new SqlConnection(connectionString))
-                    using (SqlCommand command1 = new SqlCommand(query, connection))
+                    string queryDVreme = $"SELECT * FROM Graf WHERE  Datum = @Datum and Sat = @Sat2";
+                    using (SqlCommand command = new SqlCommand(queryDVreme, connection))
                     {
-                        connection.Open();
-                        command1.Parameters.AddWithValue("@Datum2", trenutnoVreme.Date);
-                        command1.Parameters.AddWithValue("@Sat", trenutnoVreme.Hour + 1);
-                        command1.ExecuteNonQuery();
-                    }
+                        using (SqlDataAdapter adapter = new SqlDataAdapter(command))
+                        {
+                            command.Parameters.AddWithValue("@Datum", pzg.Datum.Date);
+                            command.Parameters.AddWithValue("@Sat2", pzg.Sat + 1);
 
-                    query = $"INSERT INTO Graf VALUES (@Datum3, {trenutnoVreme.Hour + 1}, 'Distribucija', {distribucija})";
+                            adapter.Fill(table);
 
-                    using (connection = new SqlConnection(connectionString))
-                    using (SqlCommand command2 = new SqlCommand(query, connection))
-                    {
-                        connection.Open();
-                        command2.Parameters.AddWithValue("@Datum3", trenutnoVreme.Date);
-                        command2.ExecuteNonQuery();
-                    }
 
-                    query = $"INSERT INTO Graf VALUES (@Datum4, {trenutnoVreme.Hour + 1}, 'SolarniPaneli', {paneli})";
+                            if (table.Rows.Count == 0)
+                            {
+                                command.CommandText = $"INSERT INTO Graf VALUES (@Datum2, @Sat, {pzg.Baterije}, {pzg.Distribucija}, {pzg.SolarniPaneli}, {pzg.Potrosaci})";
 
-                    using (connection = new SqlConnection(connectionString))
-                    using (SqlCommand command3 = new SqlCommand(query, connection))
-                    {
-                        connection.Open();
-                        command3.Parameters.AddWithValue("@Datum4", trenutnoVreme.Date);
-                        command3.ExecuteNonQuery();
-                    }
+                                //using (SqlCommand command1 = new SqlCommand(query, connection))
+                                //{
+                                //connection.Open();
+                                command.Parameters.AddWithValue("@Datum2", pzg.Datum.Date);
+                                command.Parameters.AddWithValue("@Sat", pzg.Sat + 1);
+                                int i = command.ExecuteNonQuery();
+                                //}
+                            }
+                            else
+                            {
+                                for (int i = 0; i < table.Rows.Count; i++)
+                                {
+                                    DateTime datum = DateTime.Parse(table.Rows[i]["Datum"].ToString());
+                                    int sat = int.Parse(table.Rows[i]["Sat"].ToString());
+                                    /*double vrednostBaterije = double.Parse(table.Rows[i]["Baterije"].ToString()) + baterije;
+                                    double vrednostDistribucija = double.Parse(table.Rows[i]["Distribucija"].ToString()) + distribucija;
+                                    double vrednostPaneli = double.Parse(table.Rows[i]["SolarniPaneli"].ToString()) + paneli;
+                                    double vrednostPotrosaci = double.Parse(table.Rows[i]["Potrosaci"].ToString()) + potrosaci;*/
 
-                    query = $"INSERT INTO Graf VALUES (@Datum5, {trenutnoVreme.Hour + 1}, 'Potrosaci', {potrosaci})";
+                                    command.CommandText = "UPDATE Graf SET Baterije=@vb, Distribucija=@vd, SolarniPaneli=@vsp, Potrosaci=@vp WHERE Datum = @Datum2" + " and " + "Sat = @Sat";
 
-                    using (connection = new SqlConnection(connectionString))
-                    using (SqlCommand command4 = new SqlCommand(query, connection))
-                    {
-                        connection.Open();
-                        command4.Parameters.AddWithValue("@Datum5", trenutnoVreme.Date);
-                        command4.ExecuteNonQuery();
+
+                                    //using (SqlCommand command5 = new SqlCommand(query, connection))
+                                    //{
+                                    command.Parameters.AddWithValue("@Datum2", pzg.Datum.Date);
+                                    command.Parameters.AddWithValue("@Sat", pzg.Sat + 1);
+                                    command.Parameters.Add("@vb", SqlDbType.Float).Value = pzg.Baterije;
+                                    command.Parameters.Add("@vd", SqlDbType.Float).Value = pzg.Distribucija;
+                                    command.Parameters.Add("@vsp", SqlDbType.Float).Value = pzg.SolarniPaneli;
+                                    command.Parameters.Add("@vp", SqlDbType.Float).Value = pzg.Potrosaci;
+                                    //connection.Open();
+                                    int iss = command.ExecuteNonQuery();
+                                    
+                                    // }
+                                }
+                            }
+                        }
                     }
                 }
-                else
+                string queryDatumVreme  = "UPDATE Vreme SET DatumVreme=@dv WHERE Id = 'DatumVreme'";
+                using (SqlCommand command = new SqlCommand(queryDatumVreme, connection))
                 {
-                    for (int i = 0; i < table.Rows.Count; i++)
-                    {
-                        DateTime datum = DateTime.Parse(table.Rows[i]["Datum"].ToString());
-                        int sat = int.Parse(table.Rows[i]["Sat"].ToString());
-                        string uredjaj = table.Rows[i]["Uredjaj"].ToString();
-                        double vrednost = double.Parse(table.Rows[i]["Vrednost"].ToString());
-
-                        if (uredjaj == "Baterije")
-                        {
-                            vrednost += baterije;
-                        }
-                        else if (uredjaj == "Distribucija")
-                        {
-                            vrednost += distribucija;
-                        }
-                        else if (uredjaj == "SolarniPaneli")
-                        {
-                            vrednost += paneli;
-                        }
-                        else if (uredjaj == "Potrosaci")
-                        {
-                            vrednost += potrosaci;
-                        }
-
-                        string query = "UPDATE Graf SET Vrednost=@up  WHERE Datum = '" + datum.Date + "'" + " and " + "Sat = " + sat + "and Uredjaj = '" + uredjaj + "'";
-
-                        using (connection = new SqlConnection(connectionString))
-                        using (SqlCommand command5 = new SqlCommand(query, connection))
-                        {
-                            command5.Parameters.Add("@up", SqlDbType.Float).Value = vrednost;
-                            connection.Open();
-                            command5.ExecuteNonQuery();
-                        }
-                    }
+                    command.Parameters.AddWithValue("@dv", trenutnoVreme);
+                    command.ExecuteNonQuery();
                 }
             }
+            podaciZaGraf.Clear();
         }
 
         void UcitajUredjaje()
@@ -700,6 +736,23 @@ namespace SHES
                     string id = table.Rows[i]["Id"].ToString();
                     SnagaSunca = int.Parse(table.Rows[i]["SnagaSunca"].ToString());
                 }
+            }
+
+            string queryDatum = "SELECT * FROM Graf WHERE Datum = @Datum and Sat = @Sat";
+            using (connection = new SqlConnection(connectionString))
+            using (SqlCommand command = new SqlCommand(queryDatum, connection))
+            using (SqlDataAdapter adapter = new SqlDataAdapter(command))
+            {
+                DataTable table = new DataTable();
+                command.Parameters.AddWithValue("@Datum", trenutnoVreme.Date);
+                command.Parameters.AddWithValue("@Sat", trenutnoVreme.Hour + 1);
+                adapter.Fill(table);
+
+                baterije = double.Parse(table.Rows[0]["Baterije"].ToString()) * (-1);
+                distribucijaSat = double.Parse(table.Rows[0]["Distribucija"].ToString()) * (-1);
+                solarniPaneli = double.Parse(table.Rows[0]["SolarniPaneli"].ToString()) * (-1);
+                potrosaci = double.Parse(table.Rows[0]["Potrosaci"].ToString()) * (-1);
+
             }
 
             string queryBaterije = "SELECT * FROM Baterije WHERE AutomobilJedinstvenoIme IS NULL";
@@ -892,7 +945,7 @@ namespace SHES
                 using (SqlCommand command = new SqlCommand(queryDatumVreme, connection))
                 using (SqlDataAdapter adapter = new SqlDataAdapter(command))
                 {
-                    command.Parameters.AddWithValue("@Datum", trenutnoVreme.Date);
+                    //command.Parameters.AddWithValue("@Datum", trenutnoVreme.Date);
                     adapter.Fill(table);
 
                     for (int i = 0; i < table.Rows.Count; i++)
@@ -937,130 +990,23 @@ namespace SHES
 
                     for (int i = 0; i < table.Rows.Count; i++)
                     {
-                        int sat = 0;
-                        double vrednost = 0;
-                        switch (int.Parse(table.Rows[i]["Sat"].ToString()))
-                        {
-                            case 1:
-                                sat = 1;
-                                vrednost = double.Parse(table.Rows[i]["Vrednost"].ToString());
-                                break;
-                            case 2:
-                                sat = 2;
-                                vrednost = double.Parse(table.Rows[i]["Vrednost"].ToString());
-                                break;
-                            case 3:
-                                sat = 3;
-                                vrednost = double.Parse(table.Rows[i]["Vrednost"].ToString());
-                                break;
-                            case 4:
-                                sat = 4;
-                                vrednost = double.Parse(table.Rows[i]["Vrednost"].ToString());
-                                break;
-                            case 5:
-                                sat = 5;
-                                vrednost = double.Parse(table.Rows[i]["Vrednost"].ToString());
-                                break;
-                            case 6:
-                                sat = 6;
-                                vrednost = double.Parse(table.Rows[i]["Vrednost"].ToString());
-                                break;
-                            case 7:
-                                sat = 7;
-                                vrednost = double.Parse(table.Rows[i]["Vrednost"].ToString());
-                                break;
-                            case 8:
-                                sat = 8;
-                                vrednost = double.Parse(table.Rows[i]["Vrednost"].ToString());
-                                break;
-                            case 9:
-                                sat = 9;
-                                vrednost = double.Parse(table.Rows[i]["Vrednost"].ToString());
-                                break;
-                            case 10:
-                                sat = 10;
-                                vrednost = double.Parse(table.Rows[i]["Vrednost"].ToString());
-                                break;
-                            case 11:
-                                sat = 11;
-                                vrednost = double.Parse(table.Rows[i]["Vrednost"].ToString());
-                                break;
-                            case 12:
-                                sat = 12;
-                                vrednost = double.Parse(table.Rows[i]["Vrednost"].ToString());
-                                break;
-                            case 13:
-                                sat = 13;
-                                vrednost = double.Parse(table.Rows[i]["Vrednost"].ToString());
-                                break;
-                            case 14:
-                                sat = 14;
-                                vrednost = double.Parse(table.Rows[i]["Vrednost"].ToString());
-                                break;
-                            case 15:
-                                sat = 15;
-                                vrednost = double.Parse(table.Rows[i]["Vrednost"].ToString());
-                                break;
-                            case 16:
-                                sat = 16;
-                                vrednost = double.Parse(table.Rows[i]["Vrednost"].ToString());
-                                break;
-                            case 17:
-                                sat = 17;
-                                vrednost = double.Parse(table.Rows[i]["Vrednost"].ToString());
-                                break;
-                            case 18:
-                                sat = 18;
-                                vrednost = double.Parse(table.Rows[i]["Vrednost"].ToString());
-                                break;
-                            case 19:
-                                sat = 19;
-                                vrednost = double.Parse(table.Rows[i]["Vrednost"].ToString());
-                                break;
-                            case 20:
-                                sat = 20;
-                                vrednost = double.Parse(table.Rows[i]["Vrednost"].ToString());
-                                break;
-                            case 21:
-                                sat = 21;
-                                vrednost = double.Parse(table.Rows[i]["Vrednost"].ToString());
-                                break;
-                            case 22:
-                                sat = 22;
-                                vrednost = double.Parse(table.Rows[i]["Vrednost"].ToString());
-                                break;
-                            case 23:
-                                sat = 23;
-                                vrednost = double.Parse(table.Rows[i]["Vrednost"].ToString());
-                                break;
-                            case 24:
-                                sat = 24;
-                                vrednost = double.Parse(table.Rows[i]["Vrednost"].ToString());
-                                break;
-                            default:
-                                break;
-                        }
-                        switch (table.Rows[i]["Uredjaj"].ToString())
-                        {
-                            case "Baterije":
-                                vBaterije[sat] = vrednost;
-                                ukupnoBaterije += vrednost;
-                                break;
-                            case "Distribucija":
-                                vDistribucije[sat] = vrednost;
-                                ukupnoDistribucija += vrednost;
-                                break;
-                            case "SolarniPaneli":
-                                vPanela[sat] = vrednost;
-                                ukupnoPaneli += vrednost;
-                                break;
-                            case "Potrosaci":
-                                vPotrosaca[sat] = vrednost;
-                                ukupnoPotrosaci += vrednost;
-                                break;
-                            default:
-                                break;
-                        }
+                        int sat = int.Parse(table.Rows[i]["Sat"].ToString());
+                        double vrednostBaterije = double.Parse(table.Rows[i]["Baterije"].ToString());
+                        double vrednostDistribucija = double.Parse(table.Rows[i]["Distribucija"].ToString());
+                        double vrednostPaneli = double.Parse(table.Rows[i]["SolarniPaneli"].ToString());
+                        double vrednostPotrosaci = double.Parse(table.Rows[i]["Potrosaci"].ToString());
+
+                        vBaterije[sat] = vrednostBaterije;
+                        ukupnoBaterije += vrednostBaterije; 
+
+                        vDistribucije[sat] = vrednostDistribucija;
+                        ukupnoDistribucija += vrednostDistribucija;
+
+                        vPanela[sat] = vrednostPaneli;
+                        ukupnoPaneli += vrednostPaneli;
+
+                        vPotrosaca[sat] = vrednostPotrosaci;
+                        ukupnoPotrosaci += vrednostPotrosaci;
                     }
                 }
 
@@ -1075,7 +1021,6 @@ namespace SHES
                 }
             };
 
-                //adding series will update and animate the chart automatically
                 SeriesCollection.Add(new ColumnSeries
                 {
                     Title = "Distribucija",
@@ -1148,7 +1093,10 @@ namespace SHES
                 adapter.Fill(table);
                 for(int i = 0; i < table.Rows.Count; i++)
                 {
-
+                    baterije = double.Parse(table.Rows[i]["Baterije"].ToString());
+                    distribucijaSat = double.Parse(table.Rows[i]["Distribucija"].ToString());
+                    solarniPaneli = double.Parse(table.Rows[i]["SolarniPaneli"].ToString());
+                    potrosaci = double.Parse(table.Rows[i]["Potrosaci"].ToString());
                 }
             }
         }
@@ -1174,6 +1122,19 @@ namespace SHES
                 connection.Open();
                 command.Parameters.AddWithValue("@Id", "DatumVreme");
                 command.Parameters.AddWithValue("@TrenutnoVreme", trenutnoVreme);
+                command.ExecuteNonQuery();
+            }
+        }
+
+        public void ZapamtiVreme()
+        {
+            string query = "UPDATE Vreme SET DatumVreme=@dv WHERE Id = 'DatumVreme'";
+
+            using (connection = new SqlConnection(connectionString))
+            using (SqlCommand command = new SqlCommand(query, connection))
+            {
+                command.Parameters.AddWithValue("@dv", trenutnoVreme);
+                connection.Open();
                 command.ExecuteNonQuery();
             }
         }
