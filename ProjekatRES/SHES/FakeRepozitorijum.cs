@@ -10,20 +10,25 @@ namespace SHES
     public class FakeRepozitorijum : IRepozitorijum
     {
         public List<SolarniPanel> solarniPaneli = new List<SolarniPanel>();
+        public List<Potrosac> potrosaci = new List<Potrosac>();
+        public List<Baterija> baterije = new List<Baterija>();
+        public List<ElektricniAutomobil> automobili = new List<ElektricniAutomobil>();
+        public int snagaSunca = 0;
+        public bool puniSePunjac = false;
 
         public void DodajBateriju(Baterija novaBaterija, bool jesteAutomobil, string AutomobilJedinstvenoIme)
         {
-            throw new NotImplementedException();
+            baterije.Add(novaBaterija);
         }
 
         public void DodajElektricniAutomobil(ElektricniAutomobil automobil)
         {
-            throw new NotImplementedException();
+            automobili.Add(automobil);
         }
 
         public void DodajPotrosaca(Potrosac potrosac)
         {
-            throw new NotImplementedException();
+            potrosaci.Add(potrosac);
         }
 
         public void DodajSolarniPanel(SolarniPanel noviPanel)
@@ -31,59 +36,152 @@ namespace SHES
             solarniPaneli.Add(noviPanel);
         }
 
-        public void IskljuciSaPunjaca(string jedinstvenoIme)
+        public void IskljuciSaPunjaca(ElektricniAutomobil e)
         {
-            throw new NotImplementedException();
+            int i = 0;
+            foreach (ElektricniAutomobil automobil in automobili)
+            {
+                if (automobil.JedinstvenoIme == e.JedinstvenoIme)
+                {
+                    automobil.NaPunjacu = false;
+                    break;
+                }
+                i++;
+            }
         }
 
         public void PokreniPunjenje(ElektricniAutomobil e)
         {
-            throw new NotImplementedException();
+            int i = 0;
+            puniSePunjac = true;
+            foreach (ElektricniAutomobil automobil in automobili)
+            {
+                if (automobil.JedinstvenoIme == e.JedinstvenoIme)
+                {
+                    automobil.PuniSe = true;
+                    break;
+                }
+                i++;
+            }
+            
         }
 
         public void PromeniSnaguSunca(int novaVrednost)
         {
-            throw new NotImplementedException();
+            snagaSunca = novaVrednost;
         }
 
-        public void UgasiPotrosac(string jedinstvenoIme)
+        public void UgasiPotrosac(Potrosac p)
         {
-            throw new NotImplementedException();
+            int i = 0;
+            foreach (Potrosac potrosac in potrosaci)
+            {
+                if (potrosac.JedinstvenoIme == p.JedinstvenoIme)
+                {
+                    potrosac.Upaljen = false;
+                    break;
+                }
+                i++;
+            }
         }
 
-        public void UkljuciNaPunjac(string jedinstvenoIme)
+        public void UkljuciNaPunjac(ElektricniAutomobil e)
         {
-            throw new NotImplementedException();
+            int i = 0;
+            foreach (ElektricniAutomobil automobil in automobili)
+            {
+                if (automobil.JedinstvenoIme == e.JedinstvenoIme)
+                {
+                    automobil.NaPunjacu = true;
+                    break;
+                }
+                i++;
+            }
         }
 
         public void UkloniBateriju(Baterija b)
         {
-            throw new NotImplementedException();
+            int i = 0;
+            foreach(Baterija baterija in baterije)
+            {
+                if(baterija.JedinstvenoIme == b.JedinstvenoIme)
+                {
+                    baterije.RemoveAt(i);
+                    break;
+                }
+                i++;
+            }
         }
 
         public void UkloniElektricniAutomobil(ElektricniAutomobil a)
         {
-            throw new NotImplementedException();
+            int i = 0;
+            foreach(ElektricniAutomobil automobil in automobili)
+            {
+                if(automobil.JedinstvenoIme == a.JedinstvenoIme)
+                {
+                    automobili.RemoveAt(i);
+                    break;
+                }
+                i++;
+            }
         }
 
         public void UkloniPotrosaca(Potrosac p)
         {
-            throw new NotImplementedException();
+            int i = 0;
+            foreach (Potrosac potrosac in potrosaci)
+            {
+                if (potrosac.JedinstvenoIme == p.JedinstvenoIme)
+                {
+                    potrosaci.RemoveAt(i);
+                    break;
+                }
+                i++;
+            }
         }
 
         public void UkloniSolarniPanel(SolarniPanel sp)
         {
-            solarniPaneli.Remove(sp);
+            int i = 0;
+            foreach(SolarniPanel solarniPanel in solarniPaneli)
+            {
+                if(solarniPanel.JedinstvenoIme == sp.JedinstvenoIme)
+                {
+                    solarniPaneli.RemoveAt(i);
+                    break;
+                }
+                i++;
+            }
         }
 
-        public void UpaliPotrosac(string jedinstvenoIme)
+        public void UpaliPotrosac(Potrosac p)
         {
-            throw new NotImplementedException();
+            int i = 0;
+            foreach (Potrosac potrosac in potrosaci)
+            {
+                if (potrosac.JedinstvenoIme == p.JedinstvenoIme)
+                {
+                    potrosac.Upaljen = true;
+                    break;
+                }
+                i++;
+            }
         }
 
         public void ZaustaviPunjenje(ElektricniAutomobil e)
         {
-            throw new NotImplementedException();
+            int i = 0;
+            puniSePunjac = false;
+            foreach (ElektricniAutomobil automobil in automobili)
+            {
+                if (automobil.JedinstvenoIme == e.JedinstvenoIme)
+                {
+                    automobil.PuniSe = false;
+                    break;
+                }
+                i++;
+            }
         }
     }
 }

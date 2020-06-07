@@ -23,10 +23,10 @@ namespace Common
         void UkloniPotrosaca(Potrosac p);
 
         [OperationContract]
-        void UpaliPotrosac(string jedinstvenoIme);
+        void UpaliPotrosac(Potrosac p);
 
         [OperationContract]
-        void UgasiPotrosac(string jedinstvenoIme);
+        void UgasiPotrosac(Potrosac p);
 
         [OperationContract]
         void DodajBateriju(Baterija novaBaterija, bool jesteAutomobil, string AutomobilJedinstvenoIme);
@@ -44,10 +44,10 @@ namespace Common
         void PromeniSnaguSunca(int novaVrednost);
 
         [OperationContract]
-        void UkljuciNaPunjac(string jedinstvenoIme);
+        void UkljuciNaPunjac(ElektricniAutomobil a);
 
         [OperationContract]
-        void IskljuciSaPunjaca(string jedinstvenoIme);
+        void IskljuciSaPunjaca(ElektricniAutomobil a);
 
         [OperationContract]
         void PokreniPunjenje(ElektricniAutomobil e);

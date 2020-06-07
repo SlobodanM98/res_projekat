@@ -50,6 +50,10 @@ namespace SHES
             {
                 if (sp.JedinstvenoIme == jedinstvenoIme)
                 {
+                    if (repozitorijum == null)
+                    {
+                        repozitorijum = new Repozitorijum();
+                    }
                     repozitorijum.UkloniSolarniPanel(sp);
                     break;
                 }
@@ -99,13 +103,11 @@ namespace SHES
             {
                 if(p.JedinstvenoIme == jedinstvenoIme)
                 {
-                    p.Upaljen = true;
-                    p.Slika = MaterialDesignThemes.Wpf.PackIconKind.PowerPlugOutline;
                     if (repozitorijum == null)
                     {
                         repozitorijum = new Repozitorijum();
                     }
-                    repozitorijum.UpaliPotrosac(jedinstvenoIme);
+                    repozitorijum.UpaliPotrosac(p);
                     break;
                 }
             }
@@ -117,13 +119,11 @@ namespace SHES
             {
                 if (p.JedinstvenoIme == jedinstvenoIme)
                 {
-                    p.Upaljen = false;
-                    p.Slika = MaterialDesignThemes.Wpf.PackIconKind.PowerPlugOffOutline;
                     if (repozitorijum == null)
                     {
                         repozitorijum = new Repozitorijum();
                     }
-                    repozitorijum.UgasiPotrosac(jedinstvenoIme);
+                    repozitorijum.UgasiPotrosac(p);
                     break;
                 }
             }
@@ -175,7 +175,6 @@ namespace SHES
                 if (e.JedinstvenoIme == automobil.JedinstvenoIme)
                 {
                     sadrzi = true;
-                    
                     break;
                 }
             }
@@ -224,23 +223,21 @@ namespace SHES
             {
                 return false;
             }
-            MainWindow.Punjac.NaPunjacu = true;
+            
             foreach(ElektricniAutomobil e in MainWindow.ElektricniAutomobili)
             {
                 if(e.JedinstvenoIme == jedinstvenoIme)
                 {
-                    MainWindow.Punjac.Automobil = e;
-                    e.NaPunjacu = true;
                     if (repozitorijum == null)
                     {
                         repozitorijum = new Repozitorijum();
                     }
-                    repozitorijum.UkljuciNaPunjac(jedinstvenoIme);
-                    break;
+                    repozitorijum.UkljuciNaPunjac(e);
+                    return true;
                 }
             }
 
-            return true;
+            return false;
         }
 
         public bool IskljuciSaPunjaca(string jedinstvenoIme)
@@ -291,7 +288,7 @@ namespace SHES
                     {
                         repozitorijum = new Repozitorijum();
                     }
-                    repozitorijum.IskljuciSaPunjaca(jedinstvenoIme);
+                    repozitorijum.IskljuciSaPunjaca(e);
                     break;
                 }
             }
@@ -306,12 +303,13 @@ namespace SHES
             }
             if (MainWindow.Punjac.Automobil.JedinstvenoIme == jedinstvenoIme)
             {
-                MainWindow.Punjac.PuniSe = true;
+                
                 foreach (ElektricniAutomobil e in MainWindow.ElektricniAutomobili)
                 {
                     if (e.JedinstvenoIme == jedinstvenoIme)
                     {
                         e.PuniSe = true;
+                        MainWindow.Punjac.PuniSe = true;
                         if (repozitorijum == null)
                         {
                             repozitorijum = new Repozitorijum();

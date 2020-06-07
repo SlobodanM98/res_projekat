@@ -117,9 +117,9 @@ namespace SHES
             });
         }
 
-        public void IskljuciSaPunjaca(string jedinstvenoIme)
+        public void IskljuciSaPunjaca(ElektricniAutomobil a)
         {
-            string query = "UPDATE Automobili SET NaPunjacu=@up  WHERE JedinstvenoIme = '" + jedinstvenoIme + "'";
+            string query = "UPDATE Automobili SET NaPunjacu=@up  WHERE JedinstvenoIme = '" + a.JedinstvenoIme + "'";
 
             using (connection = new SqlConnection(connectionString))
             using (SqlCommand command = new SqlCommand(query, connection))
@@ -165,9 +165,11 @@ namespace SHES
             }
         }
 
-        public void UgasiPotrosac(string jedinstvenoIme)
+        public void UgasiPotrosac(Potrosac p)
         {
-            string query = "UPDATE Potrosaci SET Upaljen=@down  WHERE JedinstvenoIme = '" + jedinstvenoIme + "'";
+            p.Upaljen = false;
+            p.Slika = MaterialDesignThemes.Wpf.PackIconKind.PowerPlugOffOutline;
+            string query = "UPDATE Potrosaci SET Upaljen=@down  WHERE JedinstvenoIme = '" + p.JedinstvenoIme + "'";
 
             using (connection = new SqlConnection(connectionString))
             using (SqlCommand command = new SqlCommand(query, connection))
@@ -178,9 +180,12 @@ namespace SHES
             }
         }
 
-        public void UkljuciNaPunjac(string jedinstvenoIme)
+        public void UkljuciNaPunjac(ElektricniAutomobil a)
         {
-            string query = "UPDATE Automobili SET NaPunjacu=@up  WHERE JedinstvenoIme = '" + jedinstvenoIme + "'";
+            MainWindow.Punjac.NaPunjacu = true;
+            MainWindow.Punjac.Automobil = a;
+            a.NaPunjacu = true;
+            string query = "UPDATE Automobili SET NaPunjacu=@up  WHERE JedinstvenoIme = '" + a.JedinstvenoIme + "'";
 
             using (connection = new SqlConnection(connectionString))
             using (SqlCommand command = new SqlCommand(query, connection))
@@ -266,9 +271,11 @@ namespace SHES
             });
         }
 
-        public void UpaliPotrosac(string jedinstvenoIme)
+        public void UpaliPotrosac(Potrosac p)
         {
-            string query = "UPDATE Potrosaci SET Upaljen=@up  WHERE JedinstvenoIme = '" + jedinstvenoIme + "'";
+            p.Upaljen = true;
+            p.Slika = MaterialDesignThemes.Wpf.PackIconKind.PowerPlugOutline;
+            string query = "UPDATE Potrosaci SET Upaljen=@up  WHERE JedinstvenoIme = '" + p.JedinstvenoIme + "'";
 
             using (connection = new SqlConnection(connectionString))
             using (SqlCommand command = new SqlCommand(query, connection))
