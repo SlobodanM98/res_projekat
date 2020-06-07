@@ -13,8 +13,14 @@ namespace SHES
 {
     public class SimulatorServer : ISimulator
     {
-        SqlConnection connection;
-        string connectionString = ConfigurationManager.ConnectionStrings["SHES.Properties.Settings.BazaPodatakaConnectionString"].ConnectionString;
+        private IRepozitorijum repozitorijum;
+
+        public SimulatorServer(IRepozitorijum repo)
+        {
+            repozitorijum = repo;
+        }
+
+        public SimulatorServer() { }
 
         public void DodajSolarniPanel(SolarniPanel noviPanel)
         {
@@ -30,49 +36,22 @@ namespace SHES
 
             if (!sadrzi)
             {
-                App.Current.Dispatcher.Invoke((System.Action)delegate
+                if(repozitorijum == null)
                 {
-                    MainWindow.SolarniPaneli.Add(noviPanel);
-                });
-          
-                string query = $"INSERT INTO SolarnePanele VALUES (@jedinstvenoIme, {noviPanel.MaksimalnaSnaga})";
-
-                using (connection = new SqlConnection(connectionString))
-                using (SqlCommand command = new SqlCommand(query, connection))
-                {
-                    connection.Open();
-                    command.Parameters.AddWithValue("@jedinstvenoIme", noviPanel.JedinstvenoIme);
-                    command.ExecuteNonQuery();
+                    repozitorijum = new Repozitorijum();
                 }
-
+                repozitorijum.DodajSolarniPanel(noviPanel);
             }
         }
 
         public void UkloniSolarniPanel(string jedinstvenoIme)
         {
-            bool sadrzi = false;
             foreach (SolarniPanel sp in MainWindow.SolarniPaneli)
             {
                 if (sp.JedinstvenoIme == jedinstvenoIme)
                 {
-                    sadrzi = true;
-                    App.Current.Dispatcher.Invoke((System.Action)delegate
-                    {
-                        MainWindow.SolarniPaneli.Remove(sp);
-                    });
+                    repozitorijum.UkloniSolarniPanel(sp);
                     break;
-                }
-            }
-
-            if (sadrzi)
-            {
-                string query = "DELETE FROM SolarnePanele WHERE JedinstvenoIme = '" + jedinstvenoIme + "'";
-
-                using (connection = new SqlConnection(connectionString))
-                using (SqlCommand command = new SqlCommand(query, connection))
-                {
-                    connection.Open();
-                    command.ExecuteNonQuery();
                 }
             }
         }
@@ -88,111 +67,64 @@ namespace SHES
                     break;
                 }
             }
-
             if (!sadrzi)
             {
-                App.Current.Dispatcher.Invoke((System.Action)delegate
+                if (repozitorijum == null)
                 {
-                    MainWindow.Potrosaci.Add(potrosac);
-                });
-
-                int vrednost = 0;
-                if (potrosac.Upaljen)
-                    vrednost = 1;
-                string query = $"INSERT INTO Potrosaci VALUES (@jedinstvenoIme, {potrosac.Potrosnja}, {vrednost})";
-
-                using (connection = new SqlConnection(connectionString))
-                using (SqlCommand command = new SqlCommand(query, connection))
-                {
-                    connection.Open();
-                    command.Parameters.AddWithValue("@jedinstvenoIme", potrosac.JedinstvenoIme);
-                    command.ExecuteNonQuery();
+                    repozitorijum = new Repozitorijum(); 
                 }
-
+                repozitorijum.DodajPotrosaca(potrosac);
             }
         }
 
         public void UkloniPotrosaca(string jedinstvenoIme)
         {
-            bool sadrzi = false;
             foreach(Potrosac p in MainWindow.Potrosaci)
             {
                 if(p.JedinstvenoIme == jedinstvenoIme)
                 {
-                    sadrzi = true;
-                    App.Current.Dispatcher.Invoke((System.Action)delegate
+                    if (repozitorijum == null)
                     {
-                        MainWindow.Potrosaci.Remove(p);
-                    });
+                        repozitorijum = new Repozitorijum();
+                    }
+                    repozitorijum.UkloniPotrosaca(p);
                     break;
-                }
-            }
-
-            if (sadrzi)
-            {
-                string query = "DELETE FROM Potrosaci WHERE JedinstvenoIme = '" + jedinstvenoIme + "'";
-
-                using (connection = new SqlConnection(connectionString))
-                using (SqlCommand command = new SqlCommand(query, connection))
-                {
-                    connection.Open();
-                    command.ExecuteNonQuery();
                 }
             }
         }
 
         public void UpaliPotrosac(string jedinstvenoIme)
         {
-            bool sadrzi = false;
             foreach(Potrosac p in MainWindow.Potrosaci)
             {
                 if(p.JedinstvenoIme == jedinstvenoIme)
                 {
-                    sadrzi = true;
                     p.Upaljen = true;
                     p.Slika = MaterialDesignThemes.Wpf.PackIconKind.PowerPlugOutline;
+                    if (repozitorijum == null)
+                    {
+                        repozitorijum = new Repozitorijum();
+                    }
+                    repozitorijum.UpaliPotrosac(jedinstvenoIme);
                     break;
-                }
-            }
-
-            if(sadrzi)
-            {
-                string query = "UPDATE Potrosaci SET Upaljen=@up  WHERE JedinstvenoIme = '" + jedinstvenoIme + "'";
-
-                using (connection = new SqlConnection(connectionString))
-                using (SqlCommand command = new SqlCommand(query, connection))
-                {
-                    command.Parameters.Add("@up", SqlDbType.Bit).Value = true;
-                    connection.Open();
-                    command.ExecuteNonQuery();
                 }
             }
         }
 
         public void UgasiPotrosac(string jedinstvenoIme)
         {
-            bool sadrzi = false;
             foreach (Potrosac p in MainWindow.Potrosaci)
             {
                 if (p.JedinstvenoIme == jedinstvenoIme)
                 {
-                    sadrzi = true;
                     p.Upaljen = false;
                     p.Slika = MaterialDesignThemes.Wpf.PackIconKind.PowerPlugOffOutline;
+                    if (repozitorijum == null)
+                    {
+                        repozitorijum = new Repozitorijum();
+                    }
+                    repozitorijum.UgasiPotrosac(jedinstvenoIme);
                     break;
-                }
-            }
-
-            if (sadrzi)
-            {
-                string query = "UPDATE Potrosaci SET Upaljen=@down  WHERE JedinstvenoIme = '" + jedinstvenoIme + "'";
-
-                using (connection = new SqlConnection(connectionString))
-                using (SqlCommand command = new SqlCommand(query, connection))
-                {
-                    command.Parameters.Add("@down", SqlDbType.Bit).Value = false;
-                    connection.Open();
-                    command.ExecuteNonQuery();
                 }
             }
         }
@@ -211,73 +143,26 @@ namespace SHES
 
             if (!sadrzi)
             {
-                string query;
-                int puniSe = 0;
-                int prazniSe = 0;
-                if (novaBaterija.PuniSe)
+                if (repozitorijum == null)
                 {
-                    puniSe = 1;
+                    repozitorijum = new Repozitorijum();
                 }
-                if (novaBaterija.PrazniSe)
-                {
-                    prazniSe = 1;
-                }
-
-                if (jesteAutomobil)
-                {
-                    query = $"INSERT INTO Baterije VALUES (@jedinstvenoIme, {novaBaterija.MaksimalnaSnaga}, {novaBaterija.Kapacitet}, @automobilJedinstvenoIme, {puniSe}, {prazniSe}, {novaBaterija.TrenutniKapacitet})";
-                }
-                else
-                {
-                    App.Current.Dispatcher.Invoke((System.Action)delegate
-                    {
-                        MainWindow.Baterije.Add(novaBaterija);
-                    });
-                    query = $"INSERT INTO Baterije VALUES (@jedinstvenoIme, {novaBaterija.MaksimalnaSnaga}, {novaBaterija.Kapacitet}, NULL, {puniSe}, {prazniSe}, {novaBaterija.TrenutniKapacitet})";
-                }
-
-                using (connection = new SqlConnection(connectionString))
-                using (SqlCommand command = new SqlCommand(query, connection))
-                {
-                    connection.Open();
-                    command.Parameters.AddWithValue("@jedinstvenoIme", novaBaterija.JedinstvenoIme);
-                    if (jesteAutomobil)
-                    {
-                        command.Parameters.AddWithValue("@automobilJedinstvenoIme", AutomobilJedinstvenoIme);
-                    }
-                    
-                    command.ExecuteNonQuery();
-                }
+                repozitorijum.DodajBateriju(novaBaterija, jesteAutomobil, AutomobilJedinstvenoIme);
             }
-
         }
 
         public void UkloniBateriju(string jedinstvenoIme)
         {
-            bool sadrzi = false;
-
             foreach(Baterija b in MainWindow.Baterije)
             {
                 if(b.JedinstvenoIme == jedinstvenoIme)
                 {
-                    sadrzi = true;
-                    App.Current.Dispatcher.Invoke((System.Action)delegate
+                    if (repozitorijum == null)
                     {
-                        MainWindow.Baterije.Remove(b);
-                    });
+                        repozitorijum = new Repozitorijum();
+                    }
+                    repozitorijum.UkloniBateriju(b);
                     break;
-                }
-            }
-
-            if (sadrzi)
-            {
-                string query = "DELETE FROM Baterije WHERE JedinstvenoIme = '" + jedinstvenoIme + "'";
-
-                using (connection = new SqlConnection(connectionString))
-                using (SqlCommand command = new SqlCommand(query, connection))
-                {
-                    connection.Open();
-                    command.ExecuteNonQuery();
                 }
             }
         }
@@ -290,74 +175,35 @@ namespace SHES
                 if (e.JedinstvenoIme == automobil.JedinstvenoIme)
                 {
                     sadrzi = true;
+                    
                     break;
                 }
             }
-
             if (!sadrzi)
             {
-                App.Current.Dispatcher.Invoke((System.Action)delegate
+                if (repozitorijum == null)
                 {
-                    MainWindow.ElektricniAutomobili.Add(automobil);
-                });
-
-                int naPunjacu = 0;
-                if (automobil.NaPunjacu)
-                    naPunjacu = 1;
-                int puniSe = 0;
-                if (automobil.PuniSe)
-                    puniSe = 1;
-                string query = $"INSERT INTO Automobili VALUES (@jedinstvenoIme, {naPunjacu}, {puniSe})";
-
-                using (connection = new SqlConnection(connectionString))
-                using (SqlCommand command = new SqlCommand(query, connection))
-                {
-                    connection.Open();
-                    command.Parameters.AddWithValue("@jedinstvenoIme", automobil.JedinstvenoIme);
-                    command.ExecuteNonQuery();
+                    repozitorijum = new Repozitorijum();
                 }
+                repozitorijum.DodajElektricniAutomobil(automobil);
                 DodajBateriju(automobil.BaterijaAuta, true, automobil.JedinstvenoIme);
             }
         }
 
         public void UkloniElektricniAutomobil(string jedinstvenoIme)
         {
-            bool sadrzi = false;
-
             foreach (ElektricniAutomobil a in MainWindow.ElektricniAutomobili)
             {
                 if (a.JedinstvenoIme == jedinstvenoIme)
                 {
-                    sadrzi = true;
+                    if (repozitorijum == null)
+                    {
+                        repozitorijum = new Repozitorijum();
+                    }
                     ZaustaviPunjenje(jedinstvenoIme);
                     IskljuciSaPunjaca(jedinstvenoIme);
-                    App.Current.Dispatcher.Invoke((System.Action)delegate
-                    {
-                        MainWindow.ElektricniAutomobili.Remove(a);
-                        MainWindow.autoBaterije.Remove(a.BaterijaAuta);
-                    });
+                    repozitorijum.UkloniElektricniAutomobil(a);
                     break;
-                }
-            }
-
-            if (sadrzi)
-            {
-                string query = "DELETE FROM Automobili WHERE JedinstvenoIme = '" + jedinstvenoIme + "'";
-
-                using (connection = new SqlConnection(connectionString))
-                using (SqlCommand command = new SqlCommand(query, connection))
-                {
-                    connection.Open();
-                    command.ExecuteNonQuery();
-                }
-
-                query = "DELETE FROM Baterije WHERE AutomobilJedinstvenoIme = '" + jedinstvenoIme + "'";
-
-                using (connection = new SqlConnection(connectionString))
-                using (SqlCommand command = new SqlCommand(query, connection))
-                {
-                    connection.Open();
-                    command.ExecuteNonQuery();
                 }
             }
         }
@@ -365,25 +211,11 @@ namespace SHES
         public void PromeniSnaguSunca(int novaVrednost)
         {
             MainWindow.SnagaSunca = novaVrednost;
-
-            string query = "DELETE FROM Vreme WHERE Id = '" + "SnagaSunca" + "'";
-
-            using (connection = new SqlConnection(connectionString))
-            using (SqlCommand command = new SqlCommand(query, connection))
+            if (repozitorijum == null)
             {
-                connection.Open();
-                command.ExecuteNonQuery();
+                repozitorijum = new Repozitorijum();
             }
-
-            query = $"INSERT INTO Vreme VALUES (@Id, NULL, {novaVrednost})";
-
-            using (connection = new SqlConnection(connectionString))
-            using (SqlCommand command = new SqlCommand(query, connection))
-            {
-                connection.Open();
-                command.Parameters.AddWithValue("@Id", "SnagaSunca");
-                command.ExecuteNonQuery();
-            }
+            repozitorijum.PromeniSnaguSunca(novaVrednost);
         }
 
         public bool UkljuciNaPunjac(string jedinstvenoIme)
@@ -399,16 +231,11 @@ namespace SHES
                 {
                     MainWindow.Punjac.Automobil = e;
                     e.NaPunjacu = true;
-
-                    string query = "UPDATE Automobili SET NaPunjacu=@up  WHERE JedinstvenoIme = '" + jedinstvenoIme + "'";
-
-                    using (connection = new SqlConnection(connectionString))
-                    using (SqlCommand command = new SqlCommand(query, connection))
+                    if (repozitorijum == null)
                     {
-                        command.Parameters.Add("@up", SqlDbType.Bit).Value = true;
-                        connection.Open();
-                        command.ExecuteNonQuery();
+                        repozitorijum = new Repozitorijum();
                     }
+                    repozitorijum.UkljuciNaPunjac(jedinstvenoIme);
                     break;
                 }
             }
@@ -460,16 +287,11 @@ namespace SHES
                     {
                         e.Slika = MaterialDesignThemes.Wpf.PackIconKind.Battery100;
                     }
-
-                    string query = "UPDATE Automobili SET NaPunjacu=@up  WHERE JedinstvenoIme = '" + jedinstvenoIme + "'";
-
-                    using (connection = new SqlConnection(connectionString))
-                    using (SqlCommand command = new SqlCommand(query, connection))
+                    if (repozitorijum == null)
                     {
-                        command.Parameters.Add("@up", SqlDbType.Bit).Value = false;
-                        connection.Open();
-                        command.ExecuteNonQuery();
+                        repozitorijum = new Repozitorijum();
                     }
+                    repozitorijum.IskljuciSaPunjaca(jedinstvenoIme);
                     break;
                 }
             }
@@ -490,15 +312,11 @@ namespace SHES
                     if (e.JedinstvenoIme == jedinstvenoIme)
                     {
                         e.PuniSe = true;
-                        string query = "UPDATE Automobili SET Punise=@up  WHERE JedinstvenoIme = '" + e.JedinstvenoIme + "'";
-
-                        using (connection = new SqlConnection(connectionString))
-                        using (SqlCommand command = new SqlCommand(query, connection))
+                        if (repozitorijum == null)
                         {
-                            command.Parameters.Add("@up", SqlDbType.Bit).Value = true;
-                            connection.Open();
-                            command.ExecuteNonQuery();
+                            repozitorijum = new Repozitorijum();
                         }
+                        repozitorijum.PokreniPunjenje(e);
                         return true;
                     }
                 }
@@ -548,16 +366,11 @@ namespace SHES
                         {
                             e.Slika = MaterialDesignThemes.Wpf.PackIconKind.Battery100;
                         }
-
-                        string query = "UPDATE Automobili SET Punise=@up  WHERE JedinstvenoIme = '" + e.JedinstvenoIme + "'";
-
-                        using (connection = new SqlConnection(connectionString))
-                        using (SqlCommand command = new SqlCommand(query, connection))
+                        if (repozitorijum == null)
                         {
-                            command.Parameters.Add("@up", SqlDbType.Bit).Value = false;
-                            connection.Open();
-                            command.ExecuteNonQuery();
+                            repozitorijum = new Repozitorijum();
                         }
+                        repozitorijum.ZaustaviPunjenje(e);
                         return true;
                         //break;
                     }

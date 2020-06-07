@@ -92,6 +92,8 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>BazaPodatakaDataSet.xsd</DependentUpon>
     </Compile>
+    <Compile Include="FakeRepozitorijum.cs" />
+    <Compile Include="Repozitorijum.cs" />
     <Compile Include="SimulatorServer.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
