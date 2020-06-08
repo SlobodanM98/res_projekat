@@ -55,6 +55,7 @@
     <Compile Include="Datum.cs" />
     <Compile Include="ElektricniAutomobil.cs" />
     <Compile Include="Elektrodistribucija.cs" />
+    <Compile Include="IMetode.cs" />
     <Compile Include="IRepozitorijum.cs" />
     <Compile Include="ISimulator.cs" />
     <Compile Include="PodaciZaGraf.cs" />

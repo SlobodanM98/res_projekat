@@ -65,6 +65,8 @@ namespace SHES
         public static double potrosaci = 0;
         public static double solarniPaneli = 0;
 
+        public Metode metode;
+
         public MainWindow()
         {
             connectionString = ConfigurationManager.ConnectionStrings["SHES.Properties.Settings.BazaPodatakaConnectionString"].ConnectionString;
@@ -80,15 +82,16 @@ namespace SHES
             jednaSekundaJe = int.Parse(ConfigurationManager.AppSettings["jednaSekundaJe"]);
             distribucija = new Elektrodistribucija();
             podaciZaGraf = new List<PodaciZaGraf>();
+            metode = new Metode(new MetodeRepozitorijum());
 
             InitializeComponent();
 
-            UcitajUredjaje();
+            metode.UcitajUredjaje();
 
             Labels = new[] { "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24" };
             Formatter = value => value.ToString("N");
 
-            UcitajDatume();
+            metode.UcitajDatume();
             labelCenovnik.Content = cenovnik + " $";
             labelSnagaSunca.Content = SnagaSunca.ToString();
             PodesiSnaguSunca(SnagaSunca);
@@ -225,7 +228,7 @@ namespace SHES
                     {
                         if (b.TrenutniKapacitet < b.Kapacitet)
                         {
-                            double povratnaBaterije = PunjenjeBaterije(b, false);
+                            double povratnaBaterije = metode.PunjenjeBaterije(b, false);
                             baterije += povratnaBaterije;
                             potrosnja += povratnaBaterije;
                         }
@@ -249,7 +252,7 @@ namespace SHES
                     {
                         if (b.TrenutniKapacitet > 0)
                         {
-                            double povratnaBaterije = PraznjenjeBaterije(b);
+                            double povratnaBaterije = metode.PraznjenjeBaterije(b);
                             baterije -= povratnaBaterije;
                             potrosnja -= povratnaBaterije;
                         }
@@ -271,7 +274,7 @@ namespace SHES
                 {
                     foreach(Baterija b in Baterije)
                     {
-                        ResetBaterije(b);
+                        metode.ResetBaterije(b);
                     }
                 }
 
@@ -288,7 +291,7 @@ namespace SHES
                 {
                     if(Punjac.Automobil.BaterijaAuta.TrenutniKapacitet < Punjac.Automobil.BaterijaAuta.Kapacitet)
                     {
-                        potrosnja += PunjenjeBaterije(Punjac.Automobil.BaterijaAuta, true);
+                        potrosnja += metode.PunjenjeBaterije(Punjac.Automobil.BaterijaAuta, true);
                     }
                     if(pozoviBaterije == 0 && Punjac.Automobil.BaterijaAuta.TrenutniKapacitet <= Punjac.Automobil.BaterijaAuta.Kapacitet)
                     {
@@ -355,10 +358,10 @@ namespace SHES
                 if (staraSekunda.Second != DateTime.Now.Second)
                 {
                     brSekunda = 0;
-                    ZapamtiZaGraf(baterije * (-1), solarniPaneli * (-1), distribucijaSat * (-1), potrosaci * (-1));
+                    metode.ZapamtiZaGraf(baterije * (-1), solarniPaneli * (-1), distribucijaSat * (-1), potrosaci * (-1));
                     if(prosaoDan == true)
                     {
-                        UcitajDatume();
+                        metode.UcitajDatume();
                         prosaoDan = false;
                     }
                     staraSekunda = DateTime.Now;
@@ -457,511 +460,6 @@ namespace SHES
             {
                 //labelTrenutnoVreme.Content = trenutnoVreme.ToLongTimeString();
                 labelTrenutnoVreme.Content = trenutnoVreme.ToString("HH:mm:ss");
-            });
-        }
-
-        public double PunjenjeBaterije(Baterija baterija, bool baterijaAuta)
-        {
-            string query;
-            if (!baterija.PuniSe)
-            {
-                baterija.PuniSe = true;
-                query = "UPDATE Baterije SET PuniSe=@up  WHERE JedinstvenoIme = '" + baterija.JedinstvenoIme + "'";
-
-                using (connection = new SqlConnection(connectionString))
-                using (SqlCommand command = new SqlCommand(query, connection))
-                {
-                    command.Parameters.Add("@up", SqlDbType.Bit).Value = true;
-                    connection.Open();
-                    command.ExecuteNonQuery();
-                }
-            }
-            //if(baterija.Kapacitet != 180)
-              //  baterija.Kapacitet++;
-
-            if (baterijaAuta == true)
-            {
-                if (baterija.TrenutniKapacitet == 0)
-                {
-                    Punjac.Automobil.Slika = MaterialDesignThemes.Wpf.PackIconKind.Battery0;
-                }
-                else if (baterija.TrenutniKapacitet > 0 && baterija.TrenutniKapacitet <= baterija.Kapacitet * 20 / 100)
-                {
-                    Punjac.Automobil.Slika = MaterialDesignThemes.Wpf.PackIconKind.BatteryCharging10;
-                }
-                else if (baterija.TrenutniKapacitet > baterija.Kapacitet * 20 / 100 && baterija.TrenutniKapacitet <= baterija.Kapacitet * 40 / 100)
-                {
-                    Punjac.Automobil.Slika = MaterialDesignThemes.Wpf.PackIconKind.BatteryCharging30;
-                }
-                else if (baterija.TrenutniKapacitet > baterija.Kapacitet * 40 / 100 && baterija.TrenutniKapacitet <= baterija.Kapacitet * 60 / 100)
-                {
-                    Punjac.Automobil.Slika = MaterialDesignThemes.Wpf.PackIconKind.BatteryCharging50;
-                }
-                else if (baterija.TrenutniKapacitet > baterija.Kapacitet * 60 / 100 && baterija.TrenutniKapacitet <= baterija.Kapacitet * 80 / 100)
-                {
-                    Punjac.Automobil.Slika = MaterialDesignThemes.Wpf.PackIconKind.BatteryCharging70;
-                }
-                else if (baterija.TrenutniKapacitet > baterija.Kapacitet * 80 / 100 && baterija.TrenutniKapacitet <= baterija.Kapacitet * 95 / 100)
-                {
-                    Punjac.Automobil.Slika = MaterialDesignThemes.Wpf.PackIconKind.BatteryCharging90;
-                }
-                else
-                {
-                    Punjac.Automobil.Slika = MaterialDesignThemes.Wpf.PackIconKind.BatteryCharging100;
-                }
-            }
-            if (baterija.TrenutniKapacitet == 0)
-            {
-                baterija.Slika = MaterialDesignThemes.Wpf.PackIconKind.Battery0;
-            }
-            else if (baterija.TrenutniKapacitet > 0 && baterija.TrenutniKapacitet <= baterija.Kapacitet * 20 / 100)
-            {
-                baterija.Slika = MaterialDesignThemes.Wpf.PackIconKind.BatteryCharging10;
-            }
-            else if (baterija.TrenutniKapacitet > baterija.Kapacitet * 20 / 100 && baterija.TrenutniKapacitet <= baterija.Kapacitet * 40 / 100)
-            {
-                baterija.Slika = MaterialDesignThemes.Wpf.PackIconKind.BatteryCharging30;
-            }
-            else if (baterija.TrenutniKapacitet > baterija.Kapacitet * 40 / 100 && baterija.TrenutniKapacitet <= baterija.Kapacitet * 60 / 100)
-            {
-                baterija.Slika = MaterialDesignThemes.Wpf.PackIconKind.BatteryCharging50;
-            }
-            else if (baterija.TrenutniKapacitet > baterija.Kapacitet * 60 / 100 && baterija.TrenutniKapacitet <= baterija.Kapacitet * 80 / 100)
-            {
-                baterija.Slika = MaterialDesignThemes.Wpf.PackIconKind.BatteryCharging70;
-            }
-            else if (baterija.TrenutniKapacitet > baterija.Kapacitet * 80 / 100 && baterija.TrenutniKapacitet <= baterija.Kapacitet * 95 / 100)
-            {
-                baterija.Slika = MaterialDesignThemes.Wpf.PackIconKind.BatteryCharging90;
-            }
-            else
-            {
-                baterija.Slika = MaterialDesignThemes.Wpf.PackIconKind.BatteryCharging100;
-            }
-
-            query = $"UPDATE Baterije SET TrenutniKapacitet={baterija.TrenutniKapacitet}  WHERE JedinstvenoIme = '" + baterija.JedinstvenoIme + "'";
-
-            using (connection = new SqlConnection(connectionString))
-            using (SqlCommand command = new SqlCommand(query, connection))
-            {
-                connection.Open();
-                command.ExecuteNonQuery();
-            }
-            return baterija.MaksimalnaSnaga / 3600;
-        }
-
-        public double PraznjenjeBaterije(Baterija baterija)
-        {
-            string query;
-            if (!baterija.PrazniSe)
-            {
-                baterija.PrazniSe = true;
-                query = "UPDATE Baterije SET PrazniSe=@up  WHERE JedinstvenoIme = '" + baterija.JedinstvenoIme + "'";
-
-                using (connection = new SqlConnection(connectionString))
-                using (SqlCommand command = new SqlCommand(query, connection))
-                {
-                    command.Parameters.Add("@up", SqlDbType.Bit).Value = true;
-                    connection.Open();
-                    command.ExecuteNonQuery();
-                }
-            }
-            if (baterija.TrenutniKapacitet >= 0)
-            {
-                if (baterija.TrenutniKapacitet == 0)
-                {
-                    baterija.Slika = MaterialDesignThemes.Wpf.PackIconKind.Battery0;
-                }
-                else if (baterija.TrenutniKapacitet > 0 && baterija.TrenutniKapacitet <= baterija.Kapacitet * 20 / 100)
-                {
-                    baterija.Slika = MaterialDesignThemes.Wpf.PackIconKind.Battery10;
-                }
-                else if (baterija.TrenutniKapacitet > baterija.Kapacitet * 20 / 100 && baterija.TrenutniKapacitet <= baterija.Kapacitet * 40 / 100)
-                {
-                    baterija.Slika = MaterialDesignThemes.Wpf.PackIconKind.Battery30;
-                }
-                else if (baterija.TrenutniKapacitet > baterija.Kapacitet * 40 / 100 && baterija.TrenutniKapacitet <= baterija.Kapacitet * 60 / 100)
-                {
-                    baterija.Slika = MaterialDesignThemes.Wpf.PackIconKind.Battery50;
-                }
-                else if (baterija.TrenutniKapacitet > baterija.Kapacitet * 60 / 100 && baterija.TrenutniKapacitet <= baterija.Kapacitet * 80 / 100)
-                {
-                    baterija.Slika = MaterialDesignThemes.Wpf.PackIconKind.Battery70;
-                }
-                else if (baterija.TrenutniKapacitet > baterija.Kapacitet * 80 / 100 && baterija.TrenutniKapacitet <= baterija.Kapacitet * 95 / 100)
-                {
-                    baterija.Slika = MaterialDesignThemes.Wpf.PackIconKind.Battery90;
-                }
-                else
-                {
-                    baterija.Slika = MaterialDesignThemes.Wpf.PackIconKind.Battery100;
-                }
-
-                query = $"UPDATE Baterije SET TrenutniKapacitet={baterija.TrenutniKapacitet}  WHERE JedinstvenoIme = '" + baterija.JedinstvenoIme + "'";
-
-                using (connection = new SqlConnection(connectionString))
-                using (SqlCommand command = new SqlCommand(query, connection))
-                {
-                    connection.Open();
-                    command.ExecuteNonQuery();
-                }
-                return baterija.MaksimalnaSnaga / 3600;
-            }
-            else
-            {
-                return 0;
-            }
-        }
-
-        public void ResetBaterije(Baterija baterija)
-        {
-            if (baterija.PuniSe)
-            {
-                baterija.PuniSe = false;
-            }
-            if (baterija.PrazniSe)
-            {
-                baterija.PrazniSe = false;
-            }
-        }
-
-        public void ZapamtiZaGraf(double baterije, double paneli, double distribucija, double potrosaci)
-        {
-            DataTable table = new DataTable();
-            using (connection = new SqlConnection(connectionString))
-            {
-                connection.Open();
-                foreach (PodaciZaGraf pzg in podaciZaGraf)
-                {
-                    string queryDVreme = $"SELECT * FROM Graf WHERE  Datum = @Datum and Sat = @Sat2";
-                    using (SqlCommand command = new SqlCommand(queryDVreme, connection))
-                    {
-                        using (SqlDataAdapter adapter = new SqlDataAdapter(command))
-                        {
-                            command.Parameters.AddWithValue("@Datum", pzg.Datum.Date);
-                            command.Parameters.AddWithValue("@Sat2", pzg.Sat + 1);
-
-                            adapter.Fill(table);
-
-
-                            if (table.Rows.Count == 0)
-                            {
-                                command.CommandText = $"INSERT INTO Graf VALUES (@Datum2, @Sat, {pzg.Baterije}, {pzg.Distribucija}, {pzg.SolarniPaneli}, {pzg.Potrosaci})";
-
-                                //using (SqlCommand command1 = new SqlCommand(query, connection))
-                                //{
-                                //connection.Open();
-                                command.Parameters.AddWithValue("@Datum2", pzg.Datum.Date);
-                                command.Parameters.AddWithValue("@Sat", pzg.Sat + 1);
-                                int i = command.ExecuteNonQuery();
-                                //}
-                            }
-                            else
-                            {
-                                for (int i = 0; i < table.Rows.Count; i++)
-                                {
-                                    DateTime datum = DateTime.Parse(table.Rows[i]["Datum"].ToString());
-                                    int sat = int.Parse(table.Rows[i]["Sat"].ToString());
-                                    /*double vrednostBaterije = double.Parse(table.Rows[i]["Baterije"].ToString()) + baterije;
-                                    double vrednostDistribucija = double.Parse(table.Rows[i]["Distribucija"].ToString()) + distribucija;
-                                    double vrednostPaneli = double.Parse(table.Rows[i]["SolarniPaneli"].ToString()) + paneli;
-                                    double vrednostPotrosaci = double.Parse(table.Rows[i]["Potrosaci"].ToString()) + potrosaci;*/
-
-                                    command.CommandText = "UPDATE Graf SET Baterije=@vb, Distribucija=@vd, SolarniPaneli=@vsp, Potrosaci=@vp WHERE Datum = @Datum2" + " and " + "Sat = @Sat";
-
-
-                                    //using (SqlCommand command5 = new SqlCommand(query, connection))
-                                    //{
-                                    command.Parameters.AddWithValue("@Datum2", pzg.Datum.Date);
-                                    command.Parameters.AddWithValue("@Sat", pzg.Sat + 1);
-                                    command.Parameters.Add("@vb", SqlDbType.Float).Value = pzg.Baterije;
-                                    command.Parameters.Add("@vd", SqlDbType.Float).Value = pzg.Distribucija;
-                                    command.Parameters.Add("@vsp", SqlDbType.Float).Value = pzg.SolarniPaneli;
-                                    command.Parameters.Add("@vp", SqlDbType.Float).Value = pzg.Potrosaci;
-                                    //connection.Open();
-                                    int iss = command.ExecuteNonQuery();
-                                    
-                                    // }
-                                }
-                            }
-                        }
-                    }
-                }
-                string queryDatumVreme  = "UPDATE Vreme SET DatumVreme=@dv WHERE Id = 'DatumVreme'";
-                using (SqlCommand command = new SqlCommand(queryDatumVreme, connection))
-                {
-                    command.Parameters.AddWithValue("@dv", trenutnoVreme);
-                    command.ExecuteNonQuery();
-                }
-            }
-            podaciZaGraf.Clear();
-        }
-
-        void UcitajUredjaje()
-        {
-            string queryDatumVreme = "SELECT * FROM Vreme WHERE SnagaSunca IS NULL";
-            using (connection = new SqlConnection(connectionString))
-            using (SqlCommand command = new SqlCommand(queryDatumVreme, connection))
-            using (SqlDataAdapter adapter = new SqlDataAdapter(command))
-            {
-                DataTable table = new DataTable();
-                adapter.Fill(table);
-
-                if(table.Rows.Count == 0)
-                {
-                    trenutnoVreme = DateTime.Now;
-                }
-                for (int i = 0; i < table.Rows.Count; i++)
-                {
-                    string id = table.Rows[i]["Id"].ToString();
-                    trenutnoVreme = DateTime.Parse(table.Rows[i]["DatumVreme"].ToString());
-                }
-            }
-
-            string querySnagaSunca = "SELECT * FROM Vreme WHERE DatumVreme IS NULL";
-            using (connection = new SqlConnection(connectionString))
-            using (SqlCommand command = new SqlCommand(querySnagaSunca, connection))
-            using (SqlDataAdapter adapter = new SqlDataAdapter(command))
-            {
-                DataTable table = new DataTable();
-                adapter.Fill(table);
-
-                if (table.Rows.Count == 0)
-                {
-                    SnagaSunca = 0;
-                    vreme.Kind = MaterialDesignThemes.Wpf.PackIconKind.MoonAndStars;
-                }
-                for (int i = 0; i < table.Rows.Count; i++)
-                {
-                    string id = table.Rows[i]["Id"].ToString();
-                    SnagaSunca = int.Parse(table.Rows[i]["SnagaSunca"].ToString());
-                }
-            }
-
-            string queryDatum = "SELECT * FROM Graf WHERE Datum = @Datum and Sat = @Sat";
-            using (connection = new SqlConnection(connectionString))
-            using (SqlCommand command = new SqlCommand(queryDatum, connection))
-            using (SqlDataAdapter adapter = new SqlDataAdapter(command))
-            {
-                DataTable table = new DataTable();
-                command.Parameters.AddWithValue("@Datum", trenutnoVreme.Date);
-                command.Parameters.AddWithValue("@Sat", trenutnoVreme.Hour + 1);
-                adapter.Fill(table);
-
-                if (table.Rows.Count > 0)
-                {
-                    baterije = double.Parse(table.Rows[0]["Baterije"].ToString()) * (-1);
-                    distribucijaSat = double.Parse(table.Rows[0]["Distribucija"].ToString()) * (-1);
-                    solarniPaneli = double.Parse(table.Rows[0]["SolarniPaneli"].ToString()) * (-1);
-                    potrosaci = double.Parse(table.Rows[0]["Potrosaci"].ToString()) * (-1);
-                }
-                else
-                {
-                    baterije = 0;
-                    distribucijaSat = 0;
-                    solarniPaneli = 0;
-                    potrosaci = 0;
-                }
-            }
-
-            string queryBaterije = "SELECT * FROM Baterije WHERE AutomobilJedinstvenoIme IS NULL";
-
-            using (connection = new SqlConnection(connectionString))
-            using (SqlCommand command = new SqlCommand(queryBaterije, connection))
-                using(SqlDataAdapter adapter = new SqlDataAdapter(command))
-            {
-                DataTable table = new DataTable();
-                adapter.Fill(table);
-
-                for(int i = 0; i < table.Rows.Count; i++)
-                {
-                    string jedinstvenoIme = table.Rows[i]["JedinstvenoIme"].ToString();
-                    double maksimalnaSnaga = double.Parse(table.Rows[i]["MaksimalnaSnaga"].ToString());
-                    double kapacitet = double.Parse(table.Rows[i]["Kapacitet"].ToString());
-                    bool puniSe = bool.Parse(table.Rows[i]["PuniSe"].ToString());
-                    bool prazniSe = bool.Parse(table.Rows[i]["PrazniSe"].ToString());
-                    double trenutniKapacitet = double.Parse(table.Rows[i]["TrenutniKapacitet"].ToString());
-                    Baterija novaBaterija = new Baterija(jedinstvenoIme, maksimalnaSnaga, kapacitet);
-                    novaBaterija.PuniSe = puniSe;
-                    novaBaterija.PrazniSe = prazniSe;
-                    novaBaterija.TrenutniKapacitet = trenutniKapacitet;
-                    if(novaBaterija.TrenutniKapacitet == 0)
-                    {
-                        novaBaterija.Slika = MaterialDesignThemes.Wpf.PackIconKind.Battery0;
-                    }
-                    else if(novaBaterija.TrenutniKapacitet > 0 && novaBaterija.TrenutniKapacitet <= novaBaterija.Kapacitet * 20/100)
-                    {
-                        novaBaterija.Slika = MaterialDesignThemes.Wpf.PackIconKind.Battery10;
-                    }
-                    else if(novaBaterija.TrenutniKapacitet > novaBaterija.Kapacitet * 20 / 100 && novaBaterija.TrenutniKapacitet <= novaBaterija.Kapacitet * 40 / 100)
-                    {
-                        novaBaterija.Slika = MaterialDesignThemes.Wpf.PackIconKind.Battery30;
-                    }
-                    else if(novaBaterija.TrenutniKapacitet > novaBaterija.Kapacitet * 40 / 100 && novaBaterija.TrenutniKapacitet <= novaBaterija.Kapacitet * 60 / 100)
-                    {
-                        novaBaterija.Slika = MaterialDesignThemes.Wpf.PackIconKind.Battery50;
-                    }
-                    else if(novaBaterija.TrenutniKapacitet > novaBaterija.Kapacitet * 60 / 100 && novaBaterija.TrenutniKapacitet <= novaBaterija.Kapacitet * 80 / 100)
-                    {
-                        novaBaterija.Slika = MaterialDesignThemes.Wpf.PackIconKind.Battery70;
-                    }
-                    else if(novaBaterija.TrenutniKapacitet > novaBaterija.Kapacitet * 80 / 100 && novaBaterija.TrenutniKapacitet <= novaBaterija.Kapacitet * 95 / 100)
-                    {
-                        novaBaterija.Slika = MaterialDesignThemes.Wpf.PackIconKind.Battery90;
-                    }
-                    else
-                    {
-                        novaBaterija.Slika = MaterialDesignThemes.Wpf.PackIconKind.Battery100;
-                    }
-                    Baterije.Add(novaBaterija);
-                }
-            }
-
-            queryBaterije = "SELECT * FROM Baterije WHERE AutomobilJedinstvenoIme IS NOT NULL";
-
-            using (connection = new SqlConnection(connectionString))
-            using (SqlCommand command = new SqlCommand(queryBaterije, connection))
-            using (SqlDataAdapter adapter = new SqlDataAdapter(command))
-            {
-                DataTable table = new DataTable();
-                adapter.Fill(table);
-
-                for (int i = 0; i < table.Rows.Count; i++)
-                {
-                    string jedinstvenoIme = table.Rows[i]["JedinstvenoIme"].ToString();
-                    double maksimalnaSnaga = double.Parse(table.Rows[i]["MaksimalnaSnaga"].ToString());
-                    double kapacitet = double.Parse(table.Rows[i]["Kapacitet"].ToString());
-                    string autoJedinstvenoIme = table.Rows[i]["AutomobilJedinstvenoIme"].ToString();
-                    bool puniSe = bool.Parse(table.Rows[i]["PuniSe"].ToString());
-                    bool prazniSe = bool.Parse(table.Rows[i]["PrazniSe"].ToString());
-                    double trenutniKapacitet = double.Parse(table.Rows[i]["TrenutniKapacitet"].ToString());
-                    Baterija novaBaterija = new Baterija(jedinstvenoIme, maksimalnaSnaga, kapacitet);
-                    novaBaterija.PuniSe = puniSe;
-                    novaBaterija.PrazniSe = prazniSe;
-                    novaBaterija.AutomobilJedinstvenoIme = autoJedinstvenoIme;
-                    novaBaterija.TrenutniKapacitet = trenutniKapacitet;
-                    autoBaterije.Add(novaBaterija);
-                }
-            }
-
-            string queryPotrosaci = "SELECT * FROM Potrosaci";
-            using (connection = new SqlConnection(connectionString))
-            using (SqlCommand command = new SqlCommand(queryPotrosaci, connection))
-            using (SqlDataAdapter adapter = new SqlDataAdapter(command))
-            {
-                DataTable table = new DataTable();
-                adapter.Fill(table);
-
-                for (int i = 0; i < table.Rows.Count; i++)
-                {
-                    string jedinstvenoIme = table.Rows[i]["JedinstvenoIme"].ToString();
-                    double potrosnja = double.Parse(table.Rows[i]["Potrosnja"].ToString());
-                    bool stanje = bool.Parse(table.Rows[i]["Upaljen"].ToString());
-                    Potrosac novi = new Potrosac(jedinstvenoIme, potrosnja);
-                    novi.Upaljen = stanje;
-                    if(stanje)
-                    {
-                        novi.Slika = MaterialDesignThemes.Wpf.PackIconKind.PowerPlugOutline;
-                    }
-                    Potrosaci.Add(novi);
-                }
-            }
-
-            string querySolarniPaneli = "SELECT * FROM SolarnePanele";
-            using (connection = new SqlConnection(connectionString))
-            using (SqlCommand command = new SqlCommand(querySolarniPaneli, connection))
-            using (SqlDataAdapter adapter = new SqlDataAdapter(command))
-            {
-                DataTable table = new DataTable();
-                adapter.Fill(table);
-
-                for (int i = 0; i < table.Rows.Count; i++)
-                {
-                    string jedinstvenoIme = table.Rows[i]["JedinstvenoIme"].ToString();
-                    double maksimalnaSnaga = double.Parse(table.Rows[i]["MaksimalnaSnaga"].ToString());
-                    SolarniPanel novi = new SolarniPanel(jedinstvenoIme, maksimalnaSnaga);
-                    SolarniPaneli.Add(novi);
-                }
-            }
-
-            string queryAutomobil = "SELECT * FROM Automobili";
-            using (connection = new SqlConnection(connectionString))
-            using (SqlCommand command = new SqlCommand(queryAutomobil, connection))
-            using (SqlDataAdapter adapter = new SqlDataAdapter(command))
-            {
-                DataTable table = new DataTable();
-                adapter.Fill(table);
-
-                for (int i = 0; i < table.Rows.Count; i++)
-                {
-                    string jedinstvenoIme = table.Rows[i]["JedinstvenoIme"].ToString();
-                    bool naPunjacu = bool.Parse(table.Rows[i]["NaPunjacu"].ToString());
-                    bool puniSe = bool.Parse(table.Rows[i]["Punise"].ToString());
-                    Baterija baterija = autoBaterije.Find(b => b.AutomobilJedinstvenoIme.Equals(jedinstvenoIme));
-                    ElektricniAutomobil noviAuto = new ElektricniAutomobil(baterija, jedinstvenoIme, naPunjacu, puniSe);
-
-                    if (naPunjacu == true)
-                    {
-                        Punjac.Automobil = noviAuto;
-                        Punjac.NaPunjacu = true;
-                        if(puniSe == true)
-                        {
-                            Punjac.PuniSe = true;
-                        }
-                    }
-
-                    if (noviAuto.BaterijaAuta.TrenutniKapacitet == 0)
-                    {
-                        noviAuto.Slika = MaterialDesignThemes.Wpf.PackIconKind.Battery0;
-                    }
-                    else if (noviAuto.BaterijaAuta.TrenutniKapacitet > 0 && noviAuto.BaterijaAuta.TrenutniKapacitet <= noviAuto.BaterijaAuta.Kapacitet * 20 / 100)
-                    {
-                        noviAuto.Slika = MaterialDesignThemes.Wpf.PackIconKind.Battery10;
-                    }
-                    else if (noviAuto.BaterijaAuta.TrenutniKapacitet > noviAuto.BaterijaAuta.Kapacitet * 20 / 100 && noviAuto.BaterijaAuta.TrenutniKapacitet <= noviAuto.BaterijaAuta.Kapacitet *40 / 100)
-                    {
-                        noviAuto.Slika = MaterialDesignThemes.Wpf.PackIconKind.Battery30;
-                    }
-                    else if (noviAuto.BaterijaAuta.TrenutniKapacitet > noviAuto.BaterijaAuta.Kapacitet * 40 / 100 && noviAuto.BaterijaAuta.TrenutniKapacitet <= noviAuto.BaterijaAuta.Kapacitet * 60 / 100)
-                    {
-                        noviAuto.Slika = MaterialDesignThemes.Wpf.PackIconKind.Battery50;
-                    }
-                    else if (noviAuto.BaterijaAuta.TrenutniKapacitet > noviAuto.BaterijaAuta.Kapacitet * 60 / 100 && noviAuto.BaterijaAuta.TrenutniKapacitet <= noviAuto.BaterijaAuta.Kapacitet * 80 / 100)
-                    {
-                        noviAuto.Slika = MaterialDesignThemes.Wpf.PackIconKind.Battery70;
-                    }
-                    else if (noviAuto.BaterijaAuta.TrenutniKapacitet > noviAuto.BaterijaAuta.Kapacitet * 80 / 100 && noviAuto.BaterijaAuta.TrenutniKapacitet <= noviAuto.BaterijaAuta.Kapacitet * 95 / 100)
-                    {
-                        noviAuto.Slika = MaterialDesignThemes.Wpf.PackIconKind.Battery90;
-                    }
-                    else
-                    {
-                        noviAuto.Slika = MaterialDesignThemes.Wpf.PackIconKind.Battery100;
-                    }
-                    ElektricniAutomobili.Add(noviAuto);
-                }
-            }
-        }
-
-        public void UcitajDatume()
-        {
-            this.Dispatcher.Invoke(() =>
-            {
-                Datumi.Clear();
-                DataTable table = new DataTable();
-                string queryDatumVreme = $"SELECT DISTINCT Datum FROM Graf";
-                using (connection = new SqlConnection(connectionString))
-                using (SqlCommand command = new SqlCommand(queryDatumVreme, connection))
-                using (SqlDataAdapter adapter = new SqlDataAdapter(command))
-                {
-                    //command.Parameters.AddWithValue("@Datum", trenutnoVreme.Date);
-                    adapter.Fill(table);
-
-                    for (int i = 0; i < table.Rows.Count; i++)
-                    {
-                        Datumi.Add(new Datum(DateTime.Parse(table.Rows[i]["Datum"].ToString()).ToString("d/M/yyyy")));
-                    }
-                }
             });
         }
 
@@ -1066,8 +564,6 @@ namespace SHES
             }
                 
         }
-            
-        
 
         private void ButtonObrisi_Click(object sender, RoutedEventArgs e)
         {
@@ -1084,35 +580,12 @@ namespace SHES
                 command.ExecuteNonQuery();
             }
 
-            UcitajDatume();
-        }
-
-        //ovo da se implementira
-        private void UcitajPoslednjiSat()
-        {
-            DataTable table = new DataTable();
-
-            string queryDatumVreme = $"SELECT * FROM Graf WHERE Datum = @Datum AND Sat = @Sat";
-            using (connection = new SqlConnection(connectionString))
-            using (SqlCommand command = new SqlCommand(queryDatumVreme, connection))
-            using (SqlDataAdapter adapter = new SqlDataAdapter(command))
-            {
-                command.Parameters.AddWithValue("@Datum", trenutnoVreme.Date);
-                command.Parameters.AddWithValue("@Sat", trenutnoVreme.Hour + 1);
-                adapter.Fill(table);
-                for(int i = 0; i < table.Rows.Count; i++)
-                {
-                    baterije = double.Parse(table.Rows[i]["Baterije"].ToString());
-                    distribucijaSat = double.Parse(table.Rows[i]["Distribucija"].ToString());
-                    solarniPaneli = double.Parse(table.Rows[i]["SolarniPaneli"].ToString());
-                    potrosaci = double.Parse(table.Rows[i]["Potrosaci"].ToString());
-                }
-            }
+            metode.UcitajDatume();
         }
 
         private void Window_Closing(object sender, CancelEventArgs e)
         {
-            ZapamtiZaGraf(baterije * (-1), solarniPaneli * (-1), distribucijaSat * (-1), potrosaci * (-1));
+            metode.ZapamtiZaGraf(baterije * (-1), solarniPaneli * (-1), distribucijaSat * (-1), potrosaci * (-1));
 
             string query = "DELETE FROM Vreme WHERE Id = '" + "DatumVreme" + "'";
 
@@ -1131,19 +604,6 @@ namespace SHES
                 connection.Open();
                 command.Parameters.AddWithValue("@Id", "DatumVreme");
                 command.Parameters.AddWithValue("@TrenutnoVreme", trenutnoVreme);
-                command.ExecuteNonQuery();
-            }
-        }
-
-        public void ZapamtiVreme()
-        {
-            string query = "UPDATE Vreme SET DatumVreme=@dv WHERE Id = 'DatumVreme'";
-
-            using (connection = new SqlConnection(connectionString))
-            using (SqlCommand command = new SqlCommand(query, connection))
-            {
-                command.Parameters.AddWithValue("@dv", trenutnoVreme);
-                connection.Open();
                 command.ExecuteNonQuery();
             }
         }

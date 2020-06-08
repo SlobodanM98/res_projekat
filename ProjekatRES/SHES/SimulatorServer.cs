@@ -246,8 +246,6 @@ namespace SHES
             {
                 return false;
             }
-            MainWindow.Punjac.NaPunjacu = false;
-            MainWindow.Punjac.PuniSe = false;
             foreach (ElektricniAutomobil e in MainWindow.ElektricniAutomobili)
             {
                 if (e.JedinstvenoIme == jedinstvenoIme)
@@ -255,6 +253,8 @@ namespace SHES
                     MainWindow.Punjac.Automobil = null;
                     e.NaPunjacu = false;
                     e.PuniSe = false;
+                    MainWindow.Punjac.NaPunjacu = false;
+                    MainWindow.Punjac.PuniSe = false;
 
                     if (e.BaterijaAuta.TrenutniKapacitet == 0)
                     {

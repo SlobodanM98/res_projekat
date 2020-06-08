@@ -92,7 +92,10 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>BazaPodatakaDataSet.xsd</DependentUpon>
     </Compile>
+    <Compile Include="FakeMetodeRepozitorijum.cs" />
     <Compile Include="FakeRepozitorijum.cs" />
+    <Compile Include="Metode.cs" />
+    <Compile Include="MetodeRepozitorijum.cs" />
     <Compile Include="Repozitorijum.cs" />
     <Compile Include="SimulatorServer.cs" />
     <Page Include="MainWindow.xaml">
