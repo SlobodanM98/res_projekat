@@ -130,6 +130,16 @@ namespace SHES
             }
         }
 
+        public void PodesavanjeCene(int cena)
+        {
+            MainWindow.cenovnik = cena;
+        }
+
+        public void PodesiOdnos(int noviOdnos)
+        {
+            MainWindow.jednaSekundaJe = noviOdnos;
+        }
+
         public void PokreniPunjenje(ElektricniAutomobil e)
         {
             string query = "UPDATE Automobili SET Punise=@up  WHERE JedinstvenoIme = '" + e.JedinstvenoIme + "'";
@@ -141,6 +151,22 @@ namespace SHES
                 connection.Open();
                 command.ExecuteNonQuery();
             }
+        }
+
+        public void PostavljanjeKapacitetaAuta(ElektricniAutomobil e, int trenutniKapacitet)
+        {
+            e.BaterijaAuta.TrenutniKapacitet = trenutniKapacitet;
+        }
+
+        public Uredjaji PreuzmiUredjaje()
+        {
+            Uredjaji uredjaji = new Uredjaji();
+            uredjaji.Automobili = MainWindow.ElektricniAutomobili.ToList();
+            uredjaji.Baterije = MainWindow.Baterije.ToList();
+            uredjaji.Potrosaci = MainWindow.Potrosaci.ToList();
+            uredjaji.Paneli = MainWindow.SolarniPaneli.ToList();
+
+            return uredjaji;
         }
 
         public void PromeniSnaguSunca(int novaVrednost)

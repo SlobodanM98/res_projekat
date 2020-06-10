@@ -99,5 +99,38 @@ namespace Common
                 PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
             }
         }
+
+        public override bool Equals(object obj)
+        {
+            if(JedinstvenoIme != ((Baterija)obj).JedinstvenoIme)
+            {
+                return false;
+            }
+            if (MaksimalnaSnaga != ((Baterija)obj).MaksimalnaSnaga)
+            {
+                return false;
+            }
+            if (Kapacitet != ((Baterija)obj).Kapacitet)
+            {
+                return false;
+            }
+            if (TrenutniKapacitet != ((Baterija)obj).TrenutniKapacitet)
+            {
+                return false;
+            }
+            if (AutomobilJedinstvenoIme != ((Baterija)obj).AutomobilJedinstvenoIme)
+            {
+                return false;
+            }
+            if (PuniSe != ((Baterija)obj).PuniSe)
+            {
+                return false;
+            }
+            if (PrazniSe != ((Baterija)obj).PrazniSe)
+            {
+                return false;
+            }
+            return true;
+        }
     }
 }

@@ -17,14 +17,29 @@ namespace SHESTest
 
         private static IEnumerable<TestCaseData> UcitajTest1()
         {
-            yield return new TestCaseData(new Baterija("Bat1", 100, 200));
+            yield return new TestCaseData(new Baterija("Bat1", 100, 200)).Returns((double)100 / (double)3600);
         }
         private static IEnumerable<TestCaseData> UcitajTest2()
         {
+            yield return new TestCaseData(new Baterija("Bat1", 100, 200)).Returns(0);
+        }
+        private static IEnumerable<TestCaseData> UcitajTest3()
+        {
             List<TestCaseData> izlaz = new List<TestCaseData>();
-            izlaz.Add(new TestCaseData(new Baterija("Bat1", 100, 200), false));
-            izlaz.Add(new TestCaseData(new Baterija("Bat2", 200, 300), true));
+            izlaz.Add(new TestCaseData(new Baterija("Bat1", 100, 200), false).Returns((double)100 / (double)3600));
+            izlaz.Add(new TestCaseData(new Baterija("Bat2", 200, 300), true).Returns((double)200 / (double)3600));
             return izlaz;
+        }
+        private static IEnumerable<TestCaseData> UcitajTest4()
+        {
+            List<TestCaseData> izlaz = new List<TestCaseData>();
+            izlaz.Add(new TestCaseData(new Baterija("Bat1", 100, 200), false).Returns(0));
+            izlaz.Add(new TestCaseData(new Baterija("Bat2", 200, 300), true).Returns(0));
+            return izlaz;
+        }
+        private static IEnumerable<TestCaseData> UcitajTest5()
+        {
+            yield return new TestCaseData(new Baterija("Bat1", 100, 200));
         }
 
         [SetUp]
@@ -36,136 +51,45 @@ namespace SHESTest
 
         [Test]
         [TestCaseSource(typeof(MetodeTest), nameof(UcitajTest1))]
-        public void PraznjenjeBaterijeDobarTest1(Baterija baterija)
+        public double PraznjenjeBaterijeDobarTest1(Baterija baterija)
         {
             ((FakeMetodeRepozitorijum)repozitorijum).baterije.Add(baterija);
-            bool izvrseno = true;
-            bool prazniSe = false;
-            double vrednost = -1;
-            try
-            {
-                vrednost = metode.PraznjenjeBaterije(baterija);
-            }
-            catch
-            {
-                izvrseno = false;
-            }
 
-            foreach(Baterija b in ((FakeMetodeRepozitorijum)repozitorijum).baterije)
-            {
-                if(b.JedinstvenoIme == baterija.JedinstvenoIme)
-                {
-                    prazniSe = b.PrazniSe;
-                    break;
-                }
-            }
-
-            Assert.AreEqual(true, izvrseno);
-            Assert.AreEqual(true, baterija.PrazniSe);
-            Assert.AreEqual(true, prazniSe);
-            Assert.AreEqual(baterija.MaksimalnaSnaga / 3600, vrednost);
-        }
-
-        [Test]
-        [TestCaseSource(typeof(MetodeTest), nameof(UcitajTest1))]
-        public void PraznjenjeBaterijeDobarTest2(Baterija baterija)
-        {
-            baterija.TrenutniKapacitet = -1;
-            ((FakeMetodeRepozitorijum)repozitorijum).baterije.Add(baterija);
-            bool izvrseno = true;
-            bool prazniSe = false;
-            double vrednost = -1;
-            try
-            {
-                vrednost = metode.PraznjenjeBaterije(baterija);
-            }
-            catch
-            {
-                izvrseno = false;
-            }
-
-            foreach (Baterija b in ((FakeMetodeRepozitorijum)repozitorijum).baterije)
-            {
-                if (b.JedinstvenoIme == baterija.JedinstvenoIme)
-                {
-                    prazniSe = b.PrazniSe;
-                    break;
-                }
-            }
-
-            Assert.AreEqual(true, izvrseno);
-            Assert.AreEqual(true, baterija.PrazniSe);
-            Assert.AreEqual(true, prazniSe);
-            Assert.AreEqual(0, vrednost);
+            return metode.PraznjenjeBaterije(baterija);
         }
 
         [Test]
         [TestCaseSource(typeof(MetodeTest), nameof(UcitajTest2))]
-        public void PunjenjeBaterijeDobarTest1(Baterija baterija, bool baterijaAuta)
-        {
-            ((FakeMetodeRepozitorijum)repozitorijum).baterije.Add(baterija);
-            bool izvrseno = true;
-            bool puniSe = false;
-            double vrednost = -1;
-            try
-            {
-                vrednost = metode.PunjenjeBaterije(baterija, baterijaAuta);
-            }
-            catch
-            {
-                izvrseno = false;
-            }
-
-            foreach (Baterija b in ((FakeMetodeRepozitorijum)repozitorijum).baterije)
-            {
-                if (b.JedinstvenoIme == baterija.JedinstvenoIme)
-                {
-                    puniSe = b.PuniSe;
-                    break;
-                }
-            }
-
-            Assert.AreEqual(true, izvrseno);
-            Assert.AreEqual(true, baterija.PuniSe);
-            Assert.AreEqual(true, puniSe);
-            Assert.AreEqual(baterija.MaksimalnaSnaga / 3600, vrednost);
-        }
-
-        [Test]
-        [TestCaseSource(typeof(MetodeTest), nameof(UcitajTest2))]
-        public void PunjenjeBaterijeDobarTest2(Baterija baterija, bool baterijaAuta)
+        public double PraznjenjeBaterijeDobarTest2(Baterija baterija)
         {
             baterija.TrenutniKapacitet = -1;
             ((FakeMetodeRepozitorijum)repozitorijum).baterije.Add(baterija);
-            bool izvrseno = true;
-            bool puniSe = false;
-            double vrednost = -1;
-            try
-            {
-                vrednost = metode.PunjenjeBaterije(baterija, baterijaAuta);
-            }
-            catch
-            {
-                izvrseno = false;
-            }
 
-            foreach (Baterija b in ((FakeMetodeRepozitorijum)repozitorijum).baterije)
-            {
-                if (b.JedinstvenoIme == baterija.JedinstvenoIme)
-                {
-                    puniSe = b.PuniSe;
-                    break;
-                }
-            }
-
-            Assert.AreEqual(true, izvrseno);
-            Assert.AreEqual(true, baterija.PuniSe);
-            Assert.AreEqual(true, puniSe);
-            Assert.AreEqual(0, vrednost);
+            return metode.PraznjenjeBaterije(baterija);
         }
 
         [Test]
-        [TestCaseSource(typeof(MetodeTest), nameof(UcitajTest1))]
+        [TestCaseSource(typeof(MetodeTest), nameof(UcitajTest3))]
+        public double PunjenjeBaterijeDobarTest1(Baterija baterija, bool baterijaAuta)
+        {
+            ((FakeMetodeRepozitorijum)repozitorijum).baterije.Add(baterija);
+
+            return metode.PunjenjeBaterije(baterija, baterijaAuta);
+
+        }
+
+        [Test]
+        [TestCaseSource(typeof(MetodeTest), nameof(UcitajTest4))]
+        public double PunjenjeBaterijeDobarTest2(Baterija baterija, bool baterijaAuta)
+        {
+            baterija.TrenutniKapacitet = -1;
+            ((FakeMetodeRepozitorijum)repozitorijum).baterije.Add(baterija);
+
+            return metode.PunjenjeBaterije(baterija, baterijaAuta);
+        }
+
+        [Test]
+        [TestCaseSource(typeof(MetodeTest), nameof(UcitajTest5))]
         public void ResetBaterijeDobarTest(Baterija baterija)
         {
             ((FakeMetodeRepozitorijum)repozitorijum).baterije.Add(baterija);

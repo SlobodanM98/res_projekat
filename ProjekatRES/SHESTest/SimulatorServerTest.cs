@@ -35,6 +35,19 @@ namespace SHESTest
             izlaz.Add(new TestCaseData(new ElektricniAutomobil(new Baterija("Bat3", 100, 200), "Auto3", true, true)));
             return izlaz;
         }
+        private static IEnumerable<TestCaseData> UcitajTest5()
+        {
+            Uredjaji uredjaji = new Uredjaji();
+            uredjaji.Automobili = new List<ElektricniAutomobil>();
+            uredjaji.Automobili.Add(new ElektricniAutomobil(new Baterija("Bat1", 100, 200), "Auto1", false, false));
+            uredjaji.Baterije = new List<Baterija>();
+            uredjaji.Baterije.Add(new Baterija("Bat2", 200, 300));
+            uredjaji.Paneli = new List<SolarniPanel>();
+            uredjaji.Paneli.Add(new SolarniPanel("Sol1", 100));
+            uredjaji.Potrosaci = new List<Potrosac>();
+            uredjaji.Potrosaci.Add(new Potrosac("Pot1", 100));
+            yield return new TestCaseData().Returns(uredjaji);
+        }
 
         private IRepozitorijum repozitorijum;
         private SimulatorServer simulatorServer;
@@ -510,330 +523,326 @@ namespace SHESTest
         }
 
         [Test]
-        [TestCase("Auto1")]
-        public void UkljuciNaPunjacDobarTest(string jedinstvenoIme)
+        [TestCase("Auto1",Result = true)]
+        public bool UkljuciNaPunjacDobarTest(string jedinstvenoIme)
         {
             MainWindow.ElektricniAutomobili.Add(new ElektricniAutomobil(new Baterija("Bat1", 100, 200), jedinstvenoIme, false, false));
             ((FakeRepozitorijum)repozitorijum).automobili.Add(new ElektricniAutomobil(new Baterija("Bat1", 100, 200), jedinstvenoIme, false, false));
 
-            bool izvrseno = true;
-            bool ukljucen = false;
-            try
+            bool naPunjacu = false;
+            bool izlaz = simulatorServer.UkljuciNaPunjac(jedinstvenoIme);
+            foreach (ElektricniAutomobil e in ((FakeRepozitorijum)repozitorijum).automobili)
             {
-                simulatorServer.UkljuciNaPunjac(jedinstvenoIme);
-            }
-            catch
-            {
-                izvrseno = false;
-            }
-            foreach(ElektricniAutomobil a in ((FakeRepozitorijum)repozitorijum).automobili)
-            {
-                if(a.JedinstvenoIme == jedinstvenoIme)
+                if(e.JedinstvenoIme == jedinstvenoIme && e.NaPunjacu)
                 {
-                    ukljucen = a.NaPunjacu;
-                    break;
+                    naPunjacu = true;
                 }
             }
-            Assert.AreEqual(true, izvrseno);
-            Assert.AreEqual(true, ukljucen);
+
+            Assert.AreEqual(true, naPunjacu);
+            return izlaz;
         }
 
         [Test]
-        [TestCase("Auto1")]
-        public void UkljuciNaPunjacLosTest(string jedinstvenoIme)
+        [TestCase("Auto1", Result = false)]
+        public bool UkljuciNaPunjacLosTest1(string jedinstvenoIme)
         {
             MainWindow.ElektricniAutomobili.Add(new ElektricniAutomobil(new Baterija("Bat1", 100, 200), jedinstvenoIme, false, false));
             ((FakeRepozitorijum)repozitorijum).automobili.Add(new ElektricniAutomobil(new Baterija("Bat1", 100, 200), jedinstvenoIme, false, false));
             MainWindow.Punjac.NaPunjacu = true;
 
-            bool izvrseno = true;
-            bool ukljucen = true;
-            try
-            {
-                simulatorServer.UkljuciNaPunjac(jedinstvenoIme);
-            }
-            catch
-            {
-                izvrseno = false;
-            }
-            foreach (ElektricniAutomobil a in ((FakeRepozitorijum)repozitorijum).automobili)
-            {
-                if (a.JedinstvenoIme == jedinstvenoIme)
-                {
-                    ukljucen = a.NaPunjacu;
-                    break;
-                }
-            }
-            Assert.AreEqual(true, izvrseno);
-            Assert.AreEqual(false, ukljucen);
+            return simulatorServer.UkljuciNaPunjac(jedinstvenoIme);
         }
 
         [Test]
-        [TestCase("Auto1")]
-        public void IskljuciSaPunjacaDobarTest(string jedinstvenoIme)
+        [TestCase("Auto1", Result = false)]
+        public bool UkljuciNaPunjacLosTest2(string jedinstvenoIme)
+        {
+            MainWindow.ElektricniAutomobili.Add(new ElektricniAutomobil(new Baterija("Bat1", 100, 200), "Auto2", false, false));
+            ((FakeRepozitorijum)repozitorijum).automobili.Add(new ElektricniAutomobil(new Baterija("Bat1", 100, 200), "Auto2", false, false));
+
+            return simulatorServer.UkljuciNaPunjac(jedinstvenoIme);
+        }
+
+        [Test]
+        [TestCase("Auto1", Result = true)]
+        public bool IskljuciSaPunjacaDobarTest(string jedinstvenoIme)
         {
             MainWindow.ElektricniAutomobili.Add(new ElektricniAutomobil(new Baterija("Bat1", 100, 200), jedinstvenoIme, false, false));
             ((FakeRepozitorijum)repozitorijum).automobili.Add(new ElektricniAutomobil(new Baterija("Bat1", 100, 200), jedinstvenoIme, false, false));
+            MainWindow.Punjac.NaPunjacu = true;
+            MainWindow.Punjac.Automobil = new ElektricniAutomobil(new Baterija("Bat1", 100, 200), jedinstvenoIme, false, false);
 
-            bool izvrseno = true;
-            bool ukljucen = true;
-            try
+            bool izlaz = simulatorServer.IskljuciSaPunjaca(jedinstvenoIme);
+            bool naPunjacu = true;
+            bool puniSe = true;
+
+            foreach (ElektricniAutomobil e in ((FakeRepozitorijum)repozitorijum).automobili)
             {
-                simulatorServer.IskljuciSaPunjaca(jedinstvenoIme);
-            }
-            catch
-            {
-                izvrseno = false;
-            }
-            foreach (ElektricniAutomobil a in ((FakeRepozitorijum)repozitorijum).automobili)
-            {
-                if (a.JedinstvenoIme == jedinstvenoIme)
+                if (e.JedinstvenoIme == jedinstvenoIme && !e.NaPunjacu && !e.PuniSe)
                 {
-                    ukljucen = a.NaPunjacu;
-                    break;
+                    naPunjacu = false;
+                    puniSe = false;
                 }
             }
-            Assert.AreEqual(true, izvrseno);
-            Assert.AreEqual(false, ukljucen);
+
+            Assert.AreEqual(false, naPunjacu);
+            Assert.AreEqual(false, puniSe);
+            return izlaz;
         }
 
         [Test]
-        [TestCase("Auto1")]
-        public void IskljuciSaPunjacaLosTest(string jedinstvenoIme)
+        [TestCase("Auto1", Result = false)]
+        public bool IskljuciSaPunjacaLosTest1(string jedinstvenoIme)
         {
             MainWindow.ElektricniAutomobili.Add(new ElektricniAutomobil(new Baterija("Bat1", 100, 200), jedinstvenoIme, false, false));
             ((FakeRepozitorijum)repozitorijum).automobili.Add(new ElektricniAutomobil(new Baterija("Bat1", 100, 200), jedinstvenoIme, false, false));
             MainWindow.Punjac.NaPunjacu = false;
 
-            bool izvrseno = true;
-            bool ukljucen = false;
-            try
-            {
-                simulatorServer.IskljuciSaPunjaca(jedinstvenoIme);
-            }
-            catch
-            {
-                izvrseno = false;
-            }
-            foreach (ElektricniAutomobil a in ((FakeRepozitorijum)repozitorijum).automobili)
-            {
-                if (a.JedinstvenoIme == jedinstvenoIme)
-                {
-                    ukljucen = a.NaPunjacu;
-                    break;
-                }
-            }
-            Assert.AreEqual(true, izvrseno);
-            Assert.AreEqual(false, ukljucen);
+            return simulatorServer.IskljuciSaPunjaca(jedinstvenoIme);
         }
 
         [Test]
-        [TestCase("Auto1")]
-        public void PokreniPunjenjeDobarTest(string jedinstvenoIme)
+        [TestCase("Auto1", Result = false)]
+        public bool IskljuciSaPunjacaLosTest2(string jedinstvenoIme)
+        {
+            MainWindow.ElektricniAutomobili.Add(new ElektricniAutomobil(new Baterija("Bat1", 100, 200), "Auto2", false, false));
+            ((FakeRepozitorijum)repozitorijum).automobili.Add(new ElektricniAutomobil(new Baterija("Bat1", 100, 200), "Auto2", false, false));
+
+            return simulatorServer.IskljuciSaPunjaca(jedinstvenoIme);
+        }
+
+        [Test]
+        [TestCase("Auto1", Result = true)]
+        public bool PokreniPunjenjeDobarTest(string jedinstvenoIme)
         {
             MainWindow.ElektricniAutomobili.Add(new ElektricniAutomobil(new Baterija("Bat1", 100, 200), jedinstvenoIme, false, false));
             ((FakeRepozitorijum)repozitorijum).automobili.Add(new ElektricniAutomobil(new Baterija("Bat1", 100, 200), jedinstvenoIme, false, false));
 
-            bool izvrseno = true;
-            bool puniSe = false;
-            bool puniSePunjac = false;
             MainWindow.Punjac.NaPunjacu = true;
             MainWindow.Punjac.Automobil = new ElektricniAutomobil(new Baterija("Bat1", 100, 200), jedinstvenoIme, false, false);
-            try
+
+            bool puniSe = false;
+            bool izlaz = simulatorServer.PokreniPunjenje(jedinstvenoIme);
+
+            foreach (ElektricniAutomobil e in ((FakeRepozitorijum)repozitorijum).automobili)
             {
-                simulatorServer.PokreniPunjenje(jedinstvenoIme);
-            }
-            catch
-            {
-                izvrseno = false;
-            }
-            foreach (ElektricniAutomobil a in ((FakeRepozitorijum)repozitorijum).automobili)
-            {
-                if (a.JedinstvenoIme == jedinstvenoIme)
+                if (e.JedinstvenoIme == jedinstvenoIme && e.PuniSe)
                 {
-                    puniSe = a.PuniSe;
-                    break;
+                    puniSe = true;
                 }
             }
-            puniSePunjac = ((FakeRepozitorijum)repozitorijum).puniSePunjac;
-            Assert.AreEqual(true, izvrseno);
+
             Assert.AreEqual(true, puniSe);
-            Assert.AreEqual(true, puniSePunjac);
+            return izlaz;
+
         }
 
         [Test]
-        [TestCase("Auto1")]
-        public void PokreniPunjenjeLosTest1(string jedinstvenoIme)
+        [TestCase("Auto1", Result = false)]
+        public bool PokreniPunjenjeLosTest1(string jedinstvenoIme)
         {
             MainWindow.ElektricniAutomobili.Add(new ElektricniAutomobil(new Baterija("Bat1", 100, 200), jedinstvenoIme, false, false));
             ((FakeRepozitorijum)repozitorijum).automobili.Add(new ElektricniAutomobil(new Baterija("Bat1", 100, 200), jedinstvenoIme, false, false));
             MainWindow.Punjac.NaPunjacu = false;
-
-            bool izvrseno = true;
-            bool puniSe = false;
-            bool puniSePunjac = false;
-
             MainWindow.Punjac.Automobil = new ElektricniAutomobil(new Baterija("Bat1", 100, 200), jedinstvenoIme, false, false);
-            try
-            {
-                simulatorServer.PokreniPunjenje(jedinstvenoIme);
-            }
-            catch
-            {
-                izvrseno = false;
-            }
-            foreach (ElektricniAutomobil a in ((FakeRepozitorijum)repozitorijum).automobili)
-            {
-                if (a.JedinstvenoIme == jedinstvenoIme)
-                {
-                    puniSe = a.PuniSe;
-                    break;
-                }
-            }
-            puniSePunjac = ((FakeRepozitorijum)repozitorijum).puniSePunjac;
-            Assert.AreEqual(true, izvrseno);
-            Assert.AreEqual(false, puniSe);
-            Assert.AreEqual(false, puniSePunjac);
+
+            return simulatorServer.PokreniPunjenje(jedinstvenoIme);
+
         }
 
         [Test]
-        [TestCase("Auto1")]
-        public void PokreniPunjenjeLosTest2(string jedinstvenoIme)
+        [TestCase("Auto1", Result = false)]
+        public bool PokreniPunjenjeLosTest2(string jedinstvenoIme)
+        {
+            MainWindow.ElektricniAutomobili.Add(new ElektricniAutomobil(new Baterija("Bat1", 100, 200), "Auto2", false, false));
+            ((FakeRepozitorijum)repozitorijum).automobili.Add(new ElektricniAutomobil(new Baterija("Bat1", 100, 200), jedinstvenoIme, false, false));
+            MainWindow.Punjac.NaPunjacu = true;
+            MainWindow.Punjac.Automobil = new ElektricniAutomobil(new Baterija("Bat1", 100, 200), "Auto2", false, false);
+
+            return simulatorServer.PokreniPunjenje(jedinstvenoIme);
+        }
+
+        [Test]
+        [TestCase("Auto1", Result = false)]
+        public bool PokreniPunjenjeLosTest3(string jedinstvenoIme)
         {
             MainWindow.ElektricniAutomobili.Add(new ElektricniAutomobil(new Baterija("Bat1", 100, 200), jedinstvenoIme, false, false));
             ((FakeRepozitorijum)repozitorijum).automobili.Add(new ElektricniAutomobil(new Baterija("Bat1", 100, 200), jedinstvenoIme, false, false));
             MainWindow.Punjac.PuniSe = true;
-
-            bool izvrseno = true;
-            bool puniSe = true;
-            bool puniSePunjac = false;
-
             MainWindow.Punjac.Automobil = new ElektricniAutomobil(new Baterija("Bat1", 100, 200), jedinstvenoIme, false, false);
-            try
-            {
-                simulatorServer.PokreniPunjenje(jedinstvenoIme);
-            }
-            catch
-            {
-                izvrseno = false;
-            }
-            foreach (ElektricniAutomobil a in ((FakeRepozitorijum)repozitorijum).automobili)
-            {
-                if (a.JedinstvenoIme == jedinstvenoIme)
-                {
-                    puniSe = a.PuniSe;
-                    break;
-                }
-            }
-            puniSePunjac = ((FakeRepozitorijum)repozitorijum).puniSePunjac;
-            Assert.AreEqual(true, izvrseno);
-            Assert.AreEqual(false, puniSe);
-            Assert.AreEqual(false, puniSePunjac);
+
+            return simulatorServer.PokreniPunjenje(jedinstvenoIme);
         }
 
         [Test]
-        [TestCase("Auto1")]
-        public void ZaustaviPunjenjeDobarTest(string jedinstvenoIme)
+        [TestCase("Auto1", Result = true)]
+        public bool ZaustaviPunjenjeDobarTest(string jedinstvenoIme)
         {
             MainWindow.ElektricniAutomobili.Add(new ElektricniAutomobil(new Baterija("Bat1", 100, 200), jedinstvenoIme, false, false));
             ((FakeRepozitorijum)repozitorijum).automobili.Add(new ElektricniAutomobil(new Baterija("Bat1", 100, 200), jedinstvenoIme, false, false));
 
-            bool izvrseno = true;
-            bool puniSe = true;
-            bool puniSePunjac = true;
             MainWindow.Punjac.NaPunjacu = true;
             MainWindow.Punjac.Automobil = new ElektricniAutomobil(new Baterija("Bat1", 100, 200), jedinstvenoIme, false, false);
             MainWindow.Punjac.PuniSe = true;
-            try
+
+            bool puniSe = true;
+            bool izlaz = simulatorServer.ZaustaviPunjenje(jedinstvenoIme);
+
+            foreach (ElektricniAutomobil e in ((FakeRepozitorijum)repozitorijum).automobili)
             {
-                simulatorServer.ZaustaviPunjenje(jedinstvenoIme);
-            }
-            catch
-            {
-                izvrseno = false;
-            }
-            foreach (ElektricniAutomobil a in ((FakeRepozitorijum)repozitorijum).automobili)
-            {
-                if (a.JedinstvenoIme == jedinstvenoIme)
+                if (e.JedinstvenoIme == jedinstvenoIme && !e.PuniSe)
                 {
-                    puniSe = a.PuniSe;
-                    break;
+                    puniSe = false;
                 }
             }
-            puniSePunjac = ((FakeRepozitorijum)repozitorijum).puniSePunjac;
-            Assert.AreEqual(true, izvrseno);
+
             Assert.AreEqual(false, puniSe);
-            Assert.AreEqual(false, puniSePunjac);
+            return izlaz;
         }
 
         [Test]
-        [TestCase("Auto1")]
-        public void ZaustaviPunjenjeLosTest1(string jedinstvenoIme)
+        [TestCase("Auto1", Result = false)]
+        public bool ZaustaviPunjenjeLosTest1(string jedinstvenoIme)
         {
             MainWindow.ElektricniAutomobili.Add(new ElektricniAutomobil(new Baterija("Bat1", 100, 200), jedinstvenoIme, false, false));
             ((FakeRepozitorijum)repozitorijum).automobili.Add(new ElektricniAutomobil(new Baterija("Bat1", 100, 200), jedinstvenoIme, false, false));
 
-            bool izvrseno = true;
-            bool puniSe = true;
-            bool puniSePunjac = true;
             MainWindow.Punjac.NaPunjacu = false;
             MainWindow.Punjac.Automobil = new ElektricniAutomobil(new Baterija("Bat1", 100, 200), jedinstvenoIme, false, false);
             MainWindow.Punjac.PuniSe = true;
-            try
-            {
-                simulatorServer.ZaustaviPunjenje(jedinstvenoIme);
-            }
-            catch
-            {
-                izvrseno = false;
-            }
-            foreach (ElektricniAutomobil a in ((FakeRepozitorijum)repozitorijum).automobili)
-            {
-                if (a.JedinstvenoIme == jedinstvenoIme)
-                {
-                    puniSe = a.PuniSe;
-                    break;
-                }
-            }
-            puniSePunjac = ((FakeRepozitorijum)repozitorijum).puniSePunjac;
-            Assert.AreEqual(true, izvrseno);
-            Assert.AreEqual(false, puniSe);
-            Assert.AreEqual(false, puniSePunjac);
+
+            return simulatorServer.ZaustaviPunjenje(jedinstvenoIme);
         }
 
         [Test]
-        [TestCase("Auto1")]
-        public void ZaustaviPunjenjeLosTest2(string jedinstvenoIme)
+        [TestCase("Auto1", Result = false)]
+        public bool ZaustaviPunjenjeLosTest2(string jedinstvenoIme)
         {
             MainWindow.ElektricniAutomobili.Add(new ElektricniAutomobil(new Baterija("Bat1", 100, 200), jedinstvenoIme, false, false));
             ((FakeRepozitorijum)repozitorijum).automobili.Add(new ElektricniAutomobil(new Baterija("Bat1", 100, 200), jedinstvenoIme, false, false));
 
-            bool izvrseno = true;
-            bool puniSe = true;
-            bool puniSePunjac = true;
             MainWindow.Punjac.NaPunjacu = true;
             MainWindow.Punjac.Automobil = new ElektricniAutomobil(new Baterija("Bat1", 100, 200), jedinstvenoIme, false, false);
             MainWindow.Punjac.PuniSe = false;
+
+            return simulatorServer.ZaustaviPunjenje(jedinstvenoIme);
+        }
+
+        [Test]
+        [TestCase("Auto1", Result = false)]
+        public bool ZaustaviPunjenjeLosTest3(string jedinstvenoIme)
+        {
+            MainWindow.ElektricniAutomobili.Add(new ElektricniAutomobil(new Baterija("Bat1", 100, 200), "Auto2", false, false));
+            ((FakeRepozitorijum)repozitorijum).automobili.Add(new ElektricniAutomobil(new Baterija("Bat1", 100, 200), jedinstvenoIme, false, false));
+
+            MainWindow.Punjac.NaPunjacu = true;
+            MainWindow.Punjac.Automobil = new ElektricniAutomobil(new Baterija("Bat1", 100, 200), "Auto2", false, false);
+            MainWindow.Punjac.PuniSe = true;
+
+            return simulatorServer.ZaustaviPunjenje(jedinstvenoIme);
+        }
+
+        [Test]
+        [TestCase(10, Result = true)]
+        public bool PostavljanjeKapacitetaAutaDobarTest(int trenutniKapacitet)
+        {
+            MainWindow.ElektricniAutomobili.Add(new ElektricniAutomobil(new Baterija("Bat1", 100, 200), "Auto1", false, false));
+            ((FakeRepozitorijum)repozitorijum).automobili.Add(new ElektricniAutomobil(new Baterija("Bat1", 100, 200), "Auto1", false, false));
+
+            MainWindow.Punjac.Automobil = new ElektricniAutomobil(new Baterija("Bat1", 100, 200), "Auto1", false, false);
+            MainWindow.Punjac.NaPunjacu = true;
+            MainWindow.Punjac.PuniSe = true;
+
+            return simulatorServer.PostavljanjeKapacitetaAuta(trenutniKapacitet);
+        }
+
+        [Test]
+        [TestCase(10, Result = false)]
+        public bool PostavljanjeKapacitetaAutaLosTest1(int trenutniKapacitet)
+        {
+            MainWindow.ElektricniAutomobili.Add(new ElektricniAutomobil(new Baterija("Bat1", 100, 200), "Auto1", false, false));
+            ((FakeRepozitorijum)repozitorijum).automobili.Add(new ElektricniAutomobil(new Baterija("Bat1", 100, 200), "Auto1", false, false));
+
+            MainWindow.Punjac.Automobil = new ElektricniAutomobil(new Baterija("Bat1", 100, 200), "Auto1", false, false);
+            MainWindow.Punjac.NaPunjacu = false;
+            MainWindow.Punjac.PuniSe = true;
+
+            return simulatorServer.PostavljanjeKapacitetaAuta(trenutniKapacitet);
+        }
+
+        [Test]
+        [TestCase(10, Result = false)]
+        public bool PostavljanjeKapacitetaAutaLosTest2(int trenutniKapacitet)
+        {
+            MainWindow.ElektricniAutomobili.Add(new ElektricniAutomobil(new Baterija("Bat1", 100, 200), "Auto1", false, false));
+            ((FakeRepozitorijum)repozitorijum).automobili.Add(new ElektricniAutomobil(new Baterija("Bat1", 100, 200), "Auto1", false, false));
+
+            MainWindow.Punjac.Automobil = new ElektricniAutomobil(new Baterija("Bat1", 100, 200), "Auto1", false, false);
+            MainWindow.Punjac.NaPunjacu = true;
+            MainWindow.Punjac.PuniSe = false;
+
+            return simulatorServer.PostavljanjeKapacitetaAuta(trenutniKapacitet);
+        }
+
+        [Test]
+        [TestCase(10, Result = false)]
+        public bool PostavljanjeKapacitetaAutaLosTest3(int trenutniKapacitet)
+        {
+            MainWindow.ElektricniAutomobili.Add(new ElektricniAutomobil(new Baterija("Bat1", 100, 200), "Auto1", false, false));
+            ((FakeRepozitorijum)repozitorijum).automobili.Add(new ElektricniAutomobil(new Baterija("Bat1", 100, 200), "Auto1", false, false));
+
+            MainWindow.Punjac.Automobil = new ElektricniAutomobil(new Baterija("Bat1", 100, 200), "Auto2", false, false);
+            MainWindow.Punjac.NaPunjacu = true;
+            MainWindow.Punjac.PuniSe = true;
+
+            return simulatorServer.PostavljanjeKapacitetaAuta(trenutniKapacitet);
+        }
+
+        [Test]
+        [TestCaseSource(typeof(SimulatorServerTest), nameof(UcitajTest5))]
+        public Uredjaji PreuzmiUredjajeDobarTest()
+        {
+            ((FakeRepozitorijum)repozitorijum).automobili.Add(new ElektricniAutomobil(new Baterija("Bat1", 100, 200), "Auto1", false, false));
+            ((FakeRepozitorijum)repozitorijum).baterije.Add(new Baterija("Bat2", 200, 300));
+            ((FakeRepozitorijum)repozitorijum).solarniPaneli.Add(new SolarniPanel("Sol1", 100));
+            ((FakeRepozitorijum)repozitorijum).potrosaci.Add(new Potrosac("Pot1", 100));
+
+            return simulatorServer.PreuzmiUredjaje();
+        }
+
+        [Test]
+        [TestCase(10)]
+        public void PodesiOdnosDobarTest(int noviOdnos)
+        {
+            bool izvrseno = true;
             try
             {
-                simulatorServer.ZaustaviPunjenje(jedinstvenoIme);
+                simulatorServer.PodesiOdnos(noviOdnos);
             }
             catch
             {
                 izvrseno = false;
             }
-            foreach (ElektricniAutomobil a in ((FakeRepozitorijum)repozitorijum).automobili)
-            {
-                if (a.JedinstvenoIme == jedinstvenoIme)
-                {
-                    puniSe = a.PuniSe;
-                    break;
-                }
-            }
-            puniSePunjac = ((FakeRepozitorijum)repozitorijum).puniSePunjac;
             Assert.AreEqual(true, izvrseno);
-            Assert.AreEqual(false, puniSe);
-            Assert.AreEqual(false, puniSePunjac);
+            Assert.AreEqual(noviOdnos, ((FakeRepozitorijum)repozitorijum).jednaSekundaJe);
+        }
+
+        [Test]
+        [TestCase(20)]
+        public void PodesavanjeCeneDobarTest(int cena)
+        {
+            bool izvrseno = true;
+            try
+            {
+                simulatorServer.PodesavanjeCene(cena);
+            }
+            catch
+            {
+                izvrseno = false;
+            }
+            Assert.AreEqual(true, izvrseno);
+            Assert.AreEqual(cena, ((FakeRepozitorijum)repozitorijum).cenovnik);
         }
     }
 }

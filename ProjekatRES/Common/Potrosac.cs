@@ -70,5 +70,22 @@ namespace Common
                 PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
             }
         }
+
+        public override bool Equals(object obj)
+        {
+            if (JedinstvenoIme != ((Potrosac)obj).JedinstvenoIme)
+            {
+                return false;
+            }
+            if (Potrosnja != ((Potrosac)obj).Potrosnja)
+            {
+                return false;
+            }
+            if (Upaljen != ((Potrosac)obj).Upaljen)
+            {
+                return false;
+            }
+            return true;
+        }
     }
 }

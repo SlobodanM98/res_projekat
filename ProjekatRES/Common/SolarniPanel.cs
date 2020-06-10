@@ -63,5 +63,18 @@ namespace Common
                 PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
             }
         }
+
+        public override bool Equals(object obj)
+        {
+            if (JedinstvenoIme != ((SolarniPanel)obj).JedinstvenoIme)
+            {
+                return false;
+            }
+            if (MaksimalnaSnaga != ((SolarniPanel)obj).MaksimalnaSnaga)
+            {
+                return false;
+            }
+            return true;
+        }
     }
 }

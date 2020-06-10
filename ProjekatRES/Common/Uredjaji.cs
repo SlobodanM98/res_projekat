@@ -18,5 +18,62 @@ namespace Common
         public List<Potrosac> Potrosaci { get; set; }
         [DataMember]
         public List<SolarniPanel> Paneli { get; set; }
+
+        public override bool Equals(object obj)
+        {
+            if (Baterije.Count != ((Uredjaji)obj).Baterije.Count)
+            {
+                return false;
+            }
+
+            for(int i = 0; i < Baterije.Count; i++)
+            {
+                if(!Baterije[i].Equals(((Uredjaji)obj).Baterije[i]))
+                {
+                    return false;   
+                }
+            }
+
+            if(Automobili.Count != ((Uredjaji)obj).Automobili.Count)
+            {
+                return false;
+            }
+
+            for (int i = 0; i < Automobili.Count; i++)
+            {
+                if (!Automobili[i].Equals(((Uredjaji)obj).Automobili[i]))
+                {
+                    return false;
+                }
+            }
+
+            if (Potrosaci.Count != ((Uredjaji)obj).Potrosaci.Count)
+            {
+                return false;
+            }
+
+            for (int i = 0; i < Potrosaci.Count; i++)
+            {
+                if (!Potrosaci[i].Equals(((Uredjaji)obj).Potrosaci[i]))
+                {
+                    return false;
+                }
+            }
+
+            if (Paneli.Count != ((Uredjaji)obj).Paneli.Count)
+            {
+                return false;
+            }
+
+            for (int i = 0; i < Paneli.Count; i++)
+            {
+                if (!Paneli[i].Equals(((Uredjaji)obj).Paneli[i]))
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
     }
 }

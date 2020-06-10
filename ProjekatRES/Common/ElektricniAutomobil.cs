@@ -89,5 +89,26 @@ namespace Common
                 PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
             }
         }
+
+        public override bool Equals(object obj)
+        {
+            if (JedinstvenoIme != ((ElektricniAutomobil)obj).JedinstvenoIme)
+            {
+                return false;
+            }
+            if (!BaterijaAuta.Equals(((ElektricniAutomobil)obj).BaterijaAuta))
+            {
+                return false;
+            }
+            if (NaPunjacu != ((ElektricniAutomobil)obj).NaPunjacu)
+            {
+                return false;
+            }
+            if (PuniSe != ((ElektricniAutomobil)obj).PuniSe)
+            {
+                return false;
+            }
+            return true;
+        }
     }
 }

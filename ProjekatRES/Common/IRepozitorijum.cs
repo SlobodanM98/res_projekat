@@ -54,5 +54,17 @@ namespace Common
 
         [OperationContract]
         void ZaustaviPunjenje(ElektricniAutomobil e);
+
+        [OperationContract]
+        Uredjaji PreuzmiUredjaje();
+
+        [OperationContract]
+        void PodesiOdnos(int noviOdnos);
+
+        [OperationContract]
+        void PodesavanjeCene(int cena);
+
+        [OperationContract]
+        void PostavljanjeKapacitetaAuta(ElektricniAutomobil e, int trenutniKapacitet);
     }
 }

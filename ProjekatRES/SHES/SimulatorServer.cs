@@ -387,7 +387,13 @@ namespace SHES
             {
                 if (e.JedinstvenoIme == MainWindow.Punjac.Automobil.JedinstvenoIme)
                 {
-                    e.BaterijaAuta.TrenutniKapacitet = trenutniKapacitet;
+                    if (repozitorijum == null)
+                    {
+                        repozitorijum = new Repozitorijum();
+                    }
+
+                    repozitorijum.PostavljanjeKapacitetaAuta(e, trenutniKapacitet);
+
                     if (e.BaterijaAuta.TrenutniKapacitet == 0)
                     {
                         e.Slika = MaterialDesignThemes.Wpf.PackIconKind.Battery0;
@@ -417,31 +423,37 @@ namespace SHES
                         e.Slika = MaterialDesignThemes.Wpf.PackIconKind.Battery100;
                     }
 
-                    break;
+                    return true;
                 }
             }
-            return true;
+            return false;
         }
 
         public Uredjaji PreuzmiUredjaje()
         {
-            Uredjaji uredjaji = new Uredjaji();
-            uredjaji.Automobili = MainWindow.ElektricniAutomobili.ToList();
-            uredjaji.Baterije = MainWindow.Baterije.ToList();
-            uredjaji.Potrosaci = MainWindow.Potrosaci.ToList();
-            uredjaji.Paneli = MainWindow.SolarniPaneli.ToList();
-
-            return uredjaji;
+            if(repozitorijum == null)
+            {
+                repozitorijum = new Repozitorijum();
+            }
+            return repozitorijum.PreuzmiUredjaje();
         }
 
         public void PodesiOdnos(int noviOdnos)
         {
-            MainWindow.jednaSekundaJe = noviOdnos;
+            if (repozitorijum == null)
+            {
+                repozitorijum = new Repozitorijum();
+            }
+            repozitorijum.PodesiOdnos(noviOdnos);
         }
 
         public void PodesavanjeCene(int cena)
         {
-            MainWindow.cenovnik = cena;
+            if (repozitorijum == null)
+            {
+                repozitorijum = new Repozitorijum();
+            }
+            repozitorijum.PodesavanjeCene(cena);
         }
     }
 }
