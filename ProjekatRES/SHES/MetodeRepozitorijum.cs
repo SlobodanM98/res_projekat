@@ -171,6 +171,34 @@ namespace SHES
             if (baterija.PuniSe)
             {
                 baterija.PuniSe = false;
+                if (baterija.TrenutniKapacitet == 0)
+                {
+                    baterija.Slika = MaterialDesignThemes.Wpf.PackIconKind.Battery0;
+                }
+                else if (baterija.TrenutniKapacitet > 0 && baterija.TrenutniKapacitet <= baterija.Kapacitet * 20 / 100)
+                {
+                    baterija.Slika = MaterialDesignThemes.Wpf.PackIconKind.Battery10;
+                }
+                else if (baterija.TrenutniKapacitet > baterija.Kapacitet * 20 / 100 && baterija.TrenutniKapacitet <= baterija.Kapacitet * 40 / 100)
+                {
+                    baterija.Slika = MaterialDesignThemes.Wpf.PackIconKind.Battery30;
+                }
+                else if (baterija.TrenutniKapacitet > baterija.Kapacitet * 40 / 100 && baterija.TrenutniKapacitet <= baterija.Kapacitet * 60 / 100)
+                {
+                    baterija.Slika = MaterialDesignThemes.Wpf.PackIconKind.Battery50;
+                }
+                else if (baterija.TrenutniKapacitet > baterija.Kapacitet * 60 / 100 && baterija.TrenutniKapacitet <= baterija.Kapacitet * 80 / 100)
+                {
+                    baterija.Slika = MaterialDesignThemes.Wpf.PackIconKind.Battery70;
+                }
+                else if (baterija.TrenutniKapacitet > baterija.Kapacitet * 80 / 100 && baterija.TrenutniKapacitet <= baterija.Kapacitet * 95 / 100)
+                {
+                    baterija.Slika = MaterialDesignThemes.Wpf.PackIconKind.Battery90;
+                }
+                else
+                {
+                    baterija.Slika = MaterialDesignThemes.Wpf.PackIconKind.Battery100;
+                }
             }
             if (baterija.PrazniSe)
             {

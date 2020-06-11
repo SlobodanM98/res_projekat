@@ -77,7 +77,7 @@ namespace SHES
             autoBaterije = new List<Baterija>();
             Datumi = new BindingList<Datum>();
             SnagaSunca = 0;
-            cenovnik = 50;
+            cenovnik = 0;
             Punjac = new Punjac();
             jednaSekundaJe = int.Parse(ConfigurationManager.AppSettings["jednaSekundaJe"]);
             distribucija = new Elektrodistribucija();
@@ -160,7 +160,7 @@ namespace SHES
                 double potrosnja = 0;
                 int StaraSnagaSunca = 0;
                 double StaraSnagaRazmene = 0;
-                double StaraCena = 0;
+                string StaraCena = "";
                 string puniSE = "";
                 string staroIme = "";
                 string staraCena = "";
@@ -169,7 +169,7 @@ namespace SHES
                 {
                     int.TryParse(labelSnagaSunca.Content.ToString(), out StaraSnagaSunca);
                     double.TryParse(labelSnagaRazmene.Content.ToString(), out StaraSnagaRazmene);
-                    double.TryParse(labelCena.Content.ToString(), out StaraCena);
+                    StaraCena = labelCena.Content.ToString();
                     puniSE = labelPuniSe.Content.ToString();
                     staroIme = labelNaPunjacu.Content.ToString();
                     staraCena = labelCenovnik.Content.ToString();
@@ -222,7 +222,7 @@ namespace SHES
                 {
                     PodesiSnaguRazmene(distribucija.SnagaRazmene);
                 }
-                if(StaraCena != distribucija.Cena)
+                if(StaraCena != distribucija.Cena.ToString() + " $")
                 {
                     PodesiCenu(distribucija.Cena);
                 }
@@ -322,7 +322,7 @@ namespace SHES
                     potrosnja -= ((s.MaksimalnaSnaga / 3600) / 100) * SnagaSunca;
                 }
 
-                distribucija.Cena += (cenovnik * (potrosnja * (-1)));
+                cenovnik += (distribucija.Cena * (potrosnja * (-1)));
 
                 distribucija.SnagaRazmene += (potrosnja * (-1));
                 distribucijaSat += potrosnja;
@@ -427,7 +427,7 @@ namespace SHES
         {
             App.Current.Dispatcher.Invoke((System.Action)delegate
             {
-                labelCenovnik.Content = cena + " $";
+                labelCenovnik.Content = cena.ToString("N4") + " $";
             });
         }
 

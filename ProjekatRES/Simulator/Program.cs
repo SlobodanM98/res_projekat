@@ -149,13 +149,13 @@ namespace Simulator
                             case 2:
                                 Console.WriteLine("Unesi jedinstveno ime potrosaca : ");
                                 string imeBrisanje = Console.ReadLine();
-                                if (potrosaci.ContainsKey(imeBrisanje) && !potrosaciUpaljeni[imeBrisanje])
+                                if (potrosaci.ContainsKey(imeBrisanje)) //&& !potrosaciUpaljeni[imeBrisanje])
                                 {
                                     potrosaci[imeBrisanje] = false;
                                 }
                                 else
                                 {
-                                    Console.WriteLine("Ne postoji potrosac sa unetim imenom ili je upaljen !");
+                                    Console.WriteLine("Ne postoji potrosac sa unetim imenom !");
                                 }
                                 break;
                             case 3:
@@ -554,6 +554,10 @@ namespace Simulator
                     }
                     Thread.Sleep(100);
                     jesteUpaljen = potrosaciUpaljeni[jedinstvenoIme];
+                    if(potrosaci[jedinstvenoIme] == false)
+                    {
+                        jesteUpaljen = false;
+                    }
                     ugasi = true;
                 }
                 first = true;

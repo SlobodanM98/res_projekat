@@ -18,6 +18,15 @@ namespace CommonTest
             yield return new TestCaseData(new Baterija("Bat1", 100, 200), "Auto1", true, true);
         }
 
+        private static IEnumerable<TestCaseData> UcitajLoseTestove()
+        {
+            List<TestCaseData> lista = new List<TestCaseData>();
+            lista.Add(new TestCaseData(new Baterija("Bat1", 100, 200), "", true, true));
+            //lista.Add(new TestCaseData(new Baterija("Bat1", -100, 200), "Auto1", true, true));
+            //lista.Add(new TestCaseData(new Baterija("Bat1", -100, 300), "Auto2", true, true));
+            return lista;
+        }
+
         [Test]
         [TestCase("auto1", 100, 200, 0)]
         [TestCase("auto2", 200, 300, 1)]
@@ -42,6 +51,30 @@ namespace CommonTest
             Assert.AreEqual(elektricniAutomobil.BaterijaAuta, baterija);
             Assert.AreEqual(elektricniAutomobil.NaPunjacu, naPunjacu);
             Assert.AreEqual(elektricniAutomobil.PuniSe, puniSe);
+        }
+
+        [Test]
+        [TestCase("", 100, 200, 0)]
+        [TestCase("auto2", -200, 300, 1)]
+        [TestCase("auto3", 300, -400, 2)]
+        public void ElektricniAutomobilKonstruktor1LosiParametri(string jedinstvenoIme, double maksimalnaSnaga, double kapacitet, int brojBaterije)
+        {
+            Assert.Throws<ArgumentException>(() =>
+            {
+                ElektricniAutomobil automobil = new ElektricniAutomobil(jedinstvenoIme, maksimalnaSnaga, kapacitet, brojBaterije);
+            }
+           );
+        }
+
+        [Test]
+        [TestCaseSource(typeof(ElektricniAutomobilTest), nameof(UcitajLoseTestove))]
+        public void ElektricniAutomobilKonstruktor2LosiParametri(Baterija baterija, string jedinstvenoIme, bool naPunjacu, bool puniSe)
+        {
+            Assert.Throws<ArgumentException>(() =>
+            {
+                ElektricniAutomobil automobil = new ElektricniAutomobil(baterija, jedinstvenoIme, naPunjacu, puniSe);
+            }
+            );
         }
     }
 }

@@ -57,6 +57,18 @@ namespace Common
 
         public Potrosac(string jedinstvenoIme, double potrosnja)
         {
+            if (jedinstvenoIme == null)
+            {
+                throw new ArgumentNullException("Jedinstveno ime nesme biti null.");
+            }
+            if (jedinstvenoIme.Trim() == "")
+            {
+                throw new ArgumentException("Jedinstveno ime mora da sadrzi karaktere.");
+            }
+            if (potrosnja < 0)
+            {
+                throw new ArgumentException("Potrosnja mora biti pozitivna.");
+            }
             JedinstvenoIme = jedinstvenoIme;
             Potrosnja = potrosnja;
             Upaljen = false;

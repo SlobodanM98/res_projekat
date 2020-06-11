@@ -10,12 +10,14 @@ namespace SHES
     public class ElektricniAutomobilServer : IElektricniAutomobil
     {
         IElektricniAutomobilRepozitorijum repozitorijum;
+        IBaterijaRepozitorijum baterijaRepozitorijum;
 
         public ElektricniAutomobilServer() { }
 
-        public ElektricniAutomobilServer(IElektricniAutomobilRepozitorijum repo)
+        public ElektricniAutomobilServer(IElektricniAutomobilRepozitorijum repo, IBaterijaRepozitorijum batRepo)
         {
             repozitorijum = repo;
+            baterijaRepozitorijum = batRepo;
         }
 
         public void DodajElektricniAutomobil(ElektricniAutomobil automobil)
@@ -35,8 +37,14 @@ namespace SHES
                 {
                     repozitorijum = new ElektricniAutomobilRepozitorijum();
                 }
+                if(baterijaRepozitorijum == null)
+                {
+                    baterijaRepozitorijum = new BaterijaRepozitorijum();
+                }
                 repozitorijum.DodajElektricniAutomobil(automobil);
                 //DodajBateriju(automobil.BaterijaAuta, true, automobil.JedinstvenoIme);
+                BaterijaServer bs = new BaterijaServer(baterijaRepozitorijum);
+                bs.DodajBateriju(automobil.BaterijaAuta, true, automobil.JedinstvenoIme);
             }
         }
 

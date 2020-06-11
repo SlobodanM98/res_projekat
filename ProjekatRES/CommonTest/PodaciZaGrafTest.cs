@@ -13,6 +13,11 @@ namespace CommonTest
     {
         private static IEnumerable<TestCaseData> UcitajTestove()
         {
+            yield return new TestCaseData(3, DateTime.Parse("10/05/99"), 300, 400, 500, -600);
+        }
+
+        private static IEnumerable<TestCaseData> UcitajLoseTestove()
+        {
             yield return new TestCaseData(3, DateTime.Parse("10/05/99"), 300, 400, 500, 600);
         }
 
@@ -27,6 +32,17 @@ namespace CommonTest
             Assert.AreEqual(podaci.Distribucija, distribucija);
             Assert.AreEqual(podaci.SolarniPaneli, solarniPaneli);
             Assert.AreEqual(podaci.Potrosaci, potrosaci);
+        }
+
+        [Test]
+        [TestCaseSource(typeof(PodaciZaGrafTest), nameof(UcitajLoseTestove))]
+        public void PodaciZaGrafKonstruktorLosiParametri(int sat, DateTime datum, double baterije, double distribucija, double solarniPaneli, double potrosaci)
+        {
+            Assert.Throws<ArgumentException>(() =>
+            {
+                PodaciZaGraf podaci = new PodaciZaGraf(sat, datum, baterije, distribucija, solarniPaneli, potrosaci);
+            }
+            );
         }
     }
 }

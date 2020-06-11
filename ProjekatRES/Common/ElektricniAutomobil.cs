@@ -65,6 +65,18 @@ namespace Common
 
         public ElektricniAutomobil(string jedinstvenoIme, double maksimalnaSnaga, double kapacitet, int brojBaterije)
         {
+            if (jedinstvenoIme == null)
+            {
+                throw new ArgumentNullException("Jedinstveno ime nesme biti null.");
+            }
+            if (jedinstvenoIme.Trim() == "")
+            {
+                throw new ArgumentException("Jedinstveno ime mora da sadrzi karaktere.");
+            }
+            if (maksimalnaSnaga <= 0 || kapacitet <= 0)
+            {
+                throw new ArgumentException("Maksimalna snaga ili kapacitete moraju biti brojevi veci od 0.");
+            }
             JedinstvenoIme = jedinstvenoIme;
             Baterija baterija = new Baterija("BaterijaAuta" + brojBaterije.ToString(), maksimalnaSnaga, kapacitet);
             BaterijaAuta = baterija;
@@ -75,6 +87,18 @@ namespace Common
 
         public ElektricniAutomobil(Baterija baterija, string jedinstvenoIme, bool naPunjacu, bool puniSe)
         {
+            if (jedinstvenoIme == null)
+            {
+                throw new ArgumentNullException("Jedinstveno ime nesme biti null.");
+            }
+            if (jedinstvenoIme.Trim() == "")
+            {
+                throw new ArgumentException("Jedinstveno ime mora da sadrzi karaktere.");
+            }
+            if (baterija.MaksimalnaSnaga <= 0 || baterija.Kapacitet <= 0)
+            {
+                throw new ArgumentException("Maksimalna snaga ili kapacitete moraju biti brojevi veci od 0.");
+            }
             JedinstvenoIme = jedinstvenoIme;
             BaterijaAuta = baterija;
             NaPunjacu = naPunjacu;

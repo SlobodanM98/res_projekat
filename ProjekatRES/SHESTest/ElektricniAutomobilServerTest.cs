@@ -28,7 +28,8 @@ namespace SHESTest
         public void SetUp()
         {
             repozitorijum = new FakeElektricniAutomobilRepozitorijum();
-            elektricniAutomobilServer = new ElektricniAutomobilServer(repozitorijum);
+            IBaterijaRepozitorijum baterijaRepozitorijum = new FakeBaterijaRepozitorijum();
+            elektricniAutomobilServer = new ElektricniAutomobilServer(repozitorijum, baterijaRepozitorijum);
             MainWindow.ElektricniAutomobili = new System.ComponentModel.BindingList<ElektricniAutomobil>();
             MainWindow.Punjac = new Punjac();
         }
@@ -39,14 +40,9 @@ namespace SHESTest
         {
             bool izvrseno = true;
             int count = -1;
-            try
-            {
-                elektricniAutomobilServer.DodajElektricniAutomobil(automobil);
-            }
-            catch
-            {
-                izvrseno = false;
-            }
+
+            elektricniAutomobilServer.DodajElektricniAutomobil(automobil);
+
             count = ((FakeElektricniAutomobilRepozitorijum)repozitorijum).automobili.Count;
             Assert.AreEqual(true, izvrseno);
             Assert.AreEqual(1, count);

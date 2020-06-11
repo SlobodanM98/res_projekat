@@ -17,6 +17,18 @@ namespace Common
 
         public PodaciZaGraf(int sat, DateTime datum, double baterije, double distribucija, double solarniPaneli, double potrosaci)
         {
+            if(!(sat >= 0 && sat <= 23))
+            {
+                throw new ArgumentException("Sat mora biti izmedju 1 i 24.");
+            }
+            if(solarniPaneli < 0)
+            {
+                throw new ArgumentException("Elektricna energija solarnih panela mora biti pozitivna.");
+            }
+            if(potrosaci > 0)
+            {
+                throw new ArgumentException("Potrosnja potrosaca mora biti negativna.");
+            }
             Sat = sat;
             Datum = datum;
             Baterije = baterije;

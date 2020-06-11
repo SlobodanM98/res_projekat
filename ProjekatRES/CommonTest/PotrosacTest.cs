@@ -21,5 +21,17 @@ namespace CommonTest
             Assert.AreEqual(potrosac.JedinstvenoIme, jedinstvenoIme);
             Assert.AreEqual(potrosac.Potrosnja, potrosnja);
         }
+
+        [Test]
+        [TestCase("", 100)]
+        [TestCase("Pot2", -200)]
+        public void PotrosacKonstruktorLosiParametri(string jedinstvenoIme, double potrosnja)
+        {
+            Assert.Throws<ArgumentException>(() =>
+            {
+                Potrosac potrosac = new Potrosac(jedinstvenoIme, potrosnja);
+            }
+            );
+        }
     }
 }

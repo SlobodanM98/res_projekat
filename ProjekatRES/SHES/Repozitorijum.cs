@@ -17,7 +17,7 @@ namespace SHES
 
         public void PodesavanjeCene(int cena)
         {
-            MainWindow.cenovnik = cena;
+            MainWindow.distribucija.Cena = cena;
         }
 
         public void PodesiOdnos(int noviOdnos)

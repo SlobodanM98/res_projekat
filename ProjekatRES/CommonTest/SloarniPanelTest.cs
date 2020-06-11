@@ -21,5 +21,18 @@ namespace CommonTest
             Assert.AreEqual(solarniPanel.JedinstvenoIme, jedinstvenoIme);
             Assert.AreEqual(solarniPanel.MaksimalnaSnaga, maksimalnaSnaga);
         }
+
+        [Test]
+        [TestCase("", 100)]
+        [TestCase("Sol2", -200)]
+        [TestCase(" ", 300)]
+        public void SolarniPanelKonstruktorLosiParametri(string jedinstvenoIme, double maksimalnaSnaga)
+        {
+            Assert.Throws<ArgumentException>(() =>
+            {
+                SolarniPanel solarniPanel = new SolarniPanel(jedinstvenoIme, maksimalnaSnaga);
+            }
+           );
+        }
     }
 }

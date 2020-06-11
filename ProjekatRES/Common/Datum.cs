@@ -26,7 +26,38 @@ namespace Common
 
         public Datum(string datumBaza)
         {
-            DatumBaza = datumBaza;
+            if (datumBaza == null)
+            {
+                throw new ArgumentNullException("Datum nesme biti null.");
+            }
+            if(!proveri(datumBaza)) {
+                throw new ArgumentException("Nije pravilan format datuma.");
+            }
+
+            DatumBaza = datumBaza.Trim();
+        }
+
+        private bool proveri(string datum)
+        {
+            bool rez = false;
+            string datum2 = datum.Trim();
+            string[] niz = datum.Split('/');
+            if(niz.Count() == 3)
+            {
+                try
+                {
+                    if (int.Parse(niz[0]) >= 1 && int.Parse(niz[0]) <= 31 && int.Parse(niz[1]) >= 1 && int.Parse(niz[1]) <= 12)
+                    {
+                        rez = true;
+                    }
+                }
+                catch
+                {
+                    rez = false;
+                }
+            }
+
+            return rez;
         }
 
         private void OnPropertyChanged(string propertyName)

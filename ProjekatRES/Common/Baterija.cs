@@ -82,6 +82,18 @@ namespace Common
 
         public Baterija(string jedinstvenoIme, double maksimalnaSnaga, double kapacitet)
         {
+            if (jedinstvenoIme == null)
+            {
+                throw new ArgumentNullException("Jedinstveno ime nesme biti null.");
+            }
+            if (jedinstvenoIme.Trim() == "")
+            {
+                throw new ArgumentException("Jedinstveno ime mora da sadrzi karaktere.");
+            }
+            if (maksimalnaSnaga <= 0 || kapacitet <= 0)
+            {
+                throw new ArgumentException("Maksimalna snaga ili kapacitete moraju biti brojevi veci od 0.");
+            }
             JedinstvenoIme = jedinstvenoIme;
             MaksimalnaSnaga = maksimalnaSnaga;
             Kapacitet = kapacitet;

@@ -51,6 +51,18 @@ namespace Common
 
         public SolarniPanel(string jedinstvenoIme, double maksimalnaSnaga)
         {
+            if (jedinstvenoIme == null)
+            {
+                throw new ArgumentNullException("Jedinstveno ime nesme biti null.");
+            }
+            if (jedinstvenoIme.Trim() == "")
+            {
+                throw new ArgumentException("Jedinstveno ime mora da sadrzi karaktere.");
+            }
+            if (maksimalnaSnaga < 0)
+            {
+                throw new ArgumentException("Maksimalna snaga mora biti pozitivna.");
+            }
             JedinstvenoIme = jedinstvenoIme;
             MaksimalnaSnaga = maksimalnaSnaga;
             Slika = MaterialDesignThemes.Wpf.PackIconKind.Waze;

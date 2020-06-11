@@ -27,5 +27,20 @@ namespace CommonTest
             Assert.AreEqual(false, baterija.PuniSe);
             Assert.AreEqual(false, baterija.PrazniSe);
         }
+
+        [Test]
+        [TestCase("", 100, 200)]
+        [TestCase("Bat2", -200, 300)]
+        [TestCase("Bat3", 300, -400)]
+        [TestCase("Bat4", 0, 400)]
+        [TestCase("Bat5", 300, 0)]
+        public void BaterijaKonstruktorLosiParametri(string jedinstvenoIme, double maksimalnaSnaga, double kapacitet)
+        {
+            Assert.Throws<ArgumentException>(() =>
+                {
+                    Baterija baterija = new Baterija(jedinstvenoIme, maksimalnaSnaga, kapacitet);
+                }
+            );
+        }
     }
 }
