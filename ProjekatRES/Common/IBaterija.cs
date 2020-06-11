@@ -8,18 +8,12 @@ using System.Threading.Tasks;
 namespace Common
 {
     [ServiceContract]
-    public interface ISimulator
+    public interface IBaterija
     {
         [OperationContract]
-        void PromeniSnaguSunca(int novaVrednost);
+        void DodajBateriju(Baterija novaBaterija, bool jesteAutomobil, string AutomobilJedinstvenoIme);
 
         [OperationContract]
-        Uredjaji PreuzmiUredjaje();
-
-        [OperationContract]
-        void PodesiOdnos(int noviOdnos);
-
-        [OperationContract]
-        void PodesavanjeCene(int cena);
+        void UkloniBateriju(string jedinstvenoIme);
     }
 }

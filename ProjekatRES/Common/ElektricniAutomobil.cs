@@ -90,7 +90,7 @@ namespace Common
             }
         }
 
-        public override bool Equals(object obj)
+        /*public override bool Equals(object obj)
         {
             if (JedinstvenoIme != ((ElektricniAutomobil)obj).JedinstvenoIme)
             {
@@ -109,6 +109,6 @@ namespace Common
                 return false;
             }
             return true;
-        }
+        }*/
     }
 }

@@ -16,7 +16,7 @@ namespace Simulator
         private static Dictionary<string, bool> potrosaciUpaljeni = new Dictionary<string, bool>();
         private static Dictionary<string, bool> baterije = new Dictionary<string, bool>();
         private static Dictionary<string, bool> automobili = new Dictionary<string, bool>();
-        private static ISimulator proxy = new ChannelFactory<ISimulator>("ServisSimulator").CreateChannel();
+        private static ISimulator proxySimulator = new ChannelFactory<ISimulator>("ServisSimulator").CreateChannel();
         private static int brojBaterije = 0;
 
         private static string zaUkljucivanje = "";
@@ -350,7 +350,7 @@ namespace Simulator
 
                         if(snagaSunca >= 0 && snagaSunca <= 100)
                         {
-                            proxy.PromeniSnaguSunca(snagaSunca);
+                            proxySimulator.PromeniSnaguSunca(snagaSunca);
                         }
                         else
                         {
@@ -477,7 +477,7 @@ namespace Simulator
 
                         if(unosVreme > 0)
                         {
-                            proxy.PodesiOdnos(unosVreme);
+                            proxySimulator.PodesiOdnos(unosVreme);
                         }
                         else
                         {
@@ -499,7 +499,7 @@ namespace Simulator
 
                         if (unosCena > 0)
                         {
-                            proxy.PodesavanjeCene(unosCena);
+                            proxySimulator.PodesavanjeCene(unosCena);
                         }
                         else
                         {
@@ -519,6 +519,7 @@ namespace Simulator
 
             bool jestePokrenut = true;
             solarniPaneli.Add(jedinstvenoIme, jestePokrenut);
+            ISolarniPanel proxy = new ChannelFactory<ISolarniPanel>("ServisSolarniPanel").CreateChannel();
             proxy.DodajSolarniPanel(new SolarniPanel(jedinstvenoIme, maksimalnaSnaga));
 
             do
@@ -539,6 +540,7 @@ namespace Simulator
             bool ugasi = false;
             potrosaci.Add(jedinstvenoIme, jesteDodat);
             jesteUpaljen = potrosaciUpaljeni[jedinstvenoIme];
+            IPotrosac proxy = new ChannelFactory<IPotrosac>("ServisPotrosac").CreateChannel();
             proxy.DodajPotrosaca(new Potrosac(jedinstvenoIme, potrosnja));
 
             do
@@ -574,6 +576,7 @@ namespace Simulator
         {
             bool jestePokrenut = true;
             baterije.Add(jedinstvenoIme, jestePokrenut);
+            IBaterija proxy = new ChannelFactory<IBaterija>("ServisBaterija").CreateChannel();
             proxy.DodajBateriju(new Baterija(jedinstvenoIme, maksimalnaSnaga, maksimalniKapacitet), false, "");
 
             do
@@ -590,6 +593,7 @@ namespace Simulator
         {
             bool jestePokrenut = true;
             automobili.Add(jedinstvenoIme, jestePokrenut);
+            IElektricniAutomobil proxy = new ChannelFactory<IElektricniAutomobil>("ServisElektricniAutomobil").CreateChannel();
             proxy.DodajElektricniAutomobil(new ElektricniAutomobil(jedinstvenoIme, snaga, maksimalniKapacitet, brojBaterije));
             brojBaterije++;
 
@@ -666,7 +670,7 @@ namespace Simulator
 
         public static void ucitajUredjaje()
         {
-            Uredjaji uredjaji = proxy.PreuzmiUredjaje();
+            Uredjaji uredjaji = proxySimulator.PreuzmiUredjaje();
             foreach (SolarniPanel sp in uredjaji.Paneli)
             {
                 new Thread(() => PokreniSolarnuPanelu(sp.JedinstvenoIme, sp.MaksimalnaSnaga)).Start();

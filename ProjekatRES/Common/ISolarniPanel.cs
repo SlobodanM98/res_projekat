@@ -8,18 +8,12 @@ using System.Threading.Tasks;
 namespace Common
 {
     [ServiceContract]
-    public interface ISimulator
+    public interface ISolarniPanel
     {
         [OperationContract]
-        void PromeniSnaguSunca(int novaVrednost);
+        void DodajSolarniPanel(SolarniPanel noviPanel);
 
         [OperationContract]
-        Uredjaji PreuzmiUredjaje();
-
-        [OperationContract]
-        void PodesiOdnos(int noviOdnos);
-
-        [OperationContract]
-        void PodesavanjeCene(int cena);
+        void UkloniSolarniPanel(string jedinstvenoIme);
     }
 }

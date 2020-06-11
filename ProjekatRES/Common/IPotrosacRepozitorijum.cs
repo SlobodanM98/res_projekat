@@ -8,18 +8,18 @@ using System.Threading.Tasks;
 namespace Common
 {
     [ServiceContract]
-    public interface ISimulator
+    public interface IPotrosacRepozitorijum
     {
         [OperationContract]
-        void PromeniSnaguSunca(int novaVrednost);
+        void DodajPotrosaca(Potrosac potrosac);
 
         [OperationContract]
-        Uredjaji PreuzmiUredjaje();
+        void UkloniPotrosaca(Potrosac p);
 
         [OperationContract]
-        void PodesiOdnos(int noviOdnos);
+        void UpaliPotrosac(Potrosac p);
 
         [OperationContract]
-        void PodesavanjeCene(int cena);
+        void UgasiPotrosac(Potrosac p);
     }
 }

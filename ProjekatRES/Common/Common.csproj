@@ -55,9 +55,17 @@
     <Compile Include="Datum.cs" />
     <Compile Include="ElektricniAutomobil.cs" />
     <Compile Include="Elektrodistribucija.cs" />
+    <Compile Include="IBaterija.cs" />
+    <Compile Include="IBaterijaRepozitorijum.cs" />
+    <Compile Include="IElektricniAutomobil.cs" />
+    <Compile Include="IElektricniAutomobilRepozitorijum.cs" />
     <Compile Include="IMetode.cs" />
+    <Compile Include="IPotrosac.cs" />
+    <Compile Include="IPotrosacRepozitorijum.cs" />
     <Compile Include="IRepozitorijum.cs" />
     <Compile Include="ISimulator.cs" />
+    <Compile Include="ISolarniPanel.cs" />
+    <Compile Include="ISolarniPanelRepozitorijum.cs" />
     <Compile Include="PodaciZaGraf.cs" />
     <Compile Include="Potrosac.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

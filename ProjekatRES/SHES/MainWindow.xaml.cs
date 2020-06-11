@@ -92,6 +92,7 @@ namespace SHES
             Formatter = value => value.ToString("N");
 
             metode.UcitajDatume();
+            metode.UcitajPoslednjiSat();
             labelCenovnik.Content = cenovnik + " $";
             labelSnagaSunca.Content = SnagaSunca.ToString();
             PodesiSnaguSunca(SnagaSunca);
@@ -114,6 +115,10 @@ namespace SHES
             bool jestePokrenut = false;
 
             using (ServiceHost host = new ServiceHost(typeof(SimulatorServer)))
+            using (ServiceHost hostBaterija = new ServiceHost(typeof(BaterijaServer)))
+            using (ServiceHost hostSolarniPanel = new ServiceHost(typeof(SolarniPanelServer)))
+            using (ServiceHost hostPotrosac = new ServiceHost(typeof(PotrosacServer)))
+            using (ServiceHost hostAuto = new ServiceHost(typeof(ElektricniAutomobilServer)))
             {
                 while (true)
                 {
@@ -122,6 +127,10 @@ namespace SHES
                     {
                         jestePokrenut = true;
                         host.Open();
+                        hostBaterija.Open();
+                        hostSolarniPanel.Open();
+                        hostPotrosac.Open();
+                        hostAuto.Open();
                     }
                 }
             }

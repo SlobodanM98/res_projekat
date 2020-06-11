@@ -86,18 +86,30 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="BaterijaRepozitorijum.cs" />
+    <Compile Include="BaterijaServer.cs" />
     <Compile Include="BazaPodataka.cs" />
     <Compile Include="BazaPodatakaDataSet.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>BazaPodatakaDataSet.xsd</DependentUpon>
     </Compile>
+    <Compile Include="ElektricniAutomobilRepozitorijum.cs" />
+    <Compile Include="ElektricniAutomobilServer.cs" />
+    <Compile Include="FakeBaterijaRepozitorijum.cs" />
+    <Compile Include="FakeElektricniAutomobilRepozitorijum.cs" />
     <Compile Include="FakeMetodeRepozitorijum.cs" />
+    <Compile Include="FakePotrosacRepozitorijum.cs" />
     <Compile Include="FakeRepozitorijum.cs" />
+    <Compile Include="FakeSolarniPanelRepozitorijum.cs" />
     <Compile Include="Metode.cs" />
     <Compile Include="MetodeRepozitorijum.cs" />
+    <Compile Include="PotrosacRepozitorijum.cs" />
+    <Compile Include="PotrosacServer.cs" />
     <Compile Include="Repozitorijum.cs" />
     <Compile Include="SimulatorServer.cs" />
+    <Compile Include="SolarniPanelRepozitorijum.cs" />
+    <Compile Include="SolarniPanelServer.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>

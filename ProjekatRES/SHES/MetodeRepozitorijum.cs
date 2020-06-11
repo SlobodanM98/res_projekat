@@ -249,6 +249,11 @@ namespace SHES
                 if (table.Rows.Count == 0)
                 {
                     MainWindow.trenutnoVreme = DateTime.Now;
+                    connection.Open();
+                    command.CommandText = $"INSERT INTO Vreme Values(@id, @vreme, NULL)";
+                    command.Parameters.AddWithValue("@id", "DatumVreme");
+                    command.Parameters.AddWithValue("vreme", MainWindow.trenutnoVreme);
+                    command.ExecuteNonQuery();
                 }
                 for (int i = 0; i < table.Rows.Count; i++)
                 {
